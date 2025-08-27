@@ -1,0 +1,12 @@
+@page "/facturas"
+@inject AuthService Auth
+
+<h1>Mis Facturas</h1>
+@if (!Auth.IsAuthenticated)
+{
+    <div class="alert alert-warning">Debes iniciar sesión.</div>
+}
+else
+{
+    <div class="alert alert-info">No hay facturas disponibles.</div>
+}

@@ -1,0 +1,11 @@
+<div class="d-flex gap-2 mb-3 flex-wrap">
+  @foreach (var f in filters)
+  {
+    <span class="badge rounded-pill text-bg-light badge-filter">@f</span>
+  }
+</div>
+
+@code {
+  [Parameter] public string[] Filters { get; set; } = Array.Empty<string>();
+  private string[] filters => Filters.Length > 0 ? Filters : new[] { "Sin Gluten", "Apto Veganos", "Sin Lactosa" };
+}

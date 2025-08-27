@@ -1,0 +1,21 @@
+@using Microsoft.AspNetCore.Components.Web
+@inject NavigationManager Nav
+
+<div class="input-group my-2 my-lg-0">
+  <input class="form-control" placeholder="Buscar Productos" @bind="term" @bind:event="oninput" @onkeydown="KeyDown" />
+  <button class="btn btn-outline-secondary" @onclick="Go">Buscar</button>
+</div>
+
+@code {
+    [Parameter] public string? Class { get; set; }
+    private string term = string.Empty;
+    private void Go()
+    {
+        var q = Uri.EscapeDataString(term ?? "");
+        Nav.NavigateTo($"/buscar?q={q}");
+    }
+    private void KeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") Go();
+    }
+}

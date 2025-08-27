@@ -1,0 +1,121 @@
+[
+  {
+    "Id": "iso-whey",
+    "Name": "Isolate Whey (Weider)",
+    "Slug": "isolate-whey-weider",
+    "Description": "Proteína aislada de suero de alta calidad.",
+    "PriceFrom": 2.27,
+    "PriceTo": 107.99,
+    "ImageUrl": "/images/placeholder.png",
+    "FamilySlug": "better-nutrition",
+    "SubfamilySlug": "proteinas",
+    "Categories": [
+      "Better Nutrition",
+      "Proteínas"
+    ],
+    "Tags": [
+      "Sin Lactosa",
+      "Apto Veganos"
+    ],
+    "CreatedAt": "2025-06-01T00:00:00Z"
+  },
+  {
+    "Id": "premium-creatine",
+    "Name": "Premium Creatine (Weider)",
+    "Slug": "premium-creatine-weider",
+    "Description": "Monohidrato de creatina micronizada.",
+    "PriceFrom": 24.99,
+    "ImageUrl": "/images/placeholder.png",
+    "Categories": [
+      "Creatinas"
+    ],
+    "Tags": [
+      "Oferta"
+    ],
+    "CreatedAt": "2025-05-20T00:00:00Z"
+  },
+  {
+    "Id": "protein-bar-32",
+    "Name": "32% Protein Bar (Weider)",
+    "Slug": "32-protein-bar-weider",
+    "Description": "Barrita proteica con 32% de proteína.",
+    "PriceFrom": 32.28,
+    "ImageUrl": "/images/placeholder.png",
+    "Categories": [
+      "Barritas y Snaks"
+    ],
+    "Tags": [],
+    "CreatedAt": "2025-04-15T00:00:00Z"
+  },
+  {
+    "Id": "carbo-boost-gel",
+    "Name": "Carbo Boost Gel (Victory Endurance)",
+    "Slug": "carbo-boost-gel-victory",
+    "Description": "Gel energético para resistencia.",
+    "PriceFrom": 2.95,
+    "PriceTo": 53.1,
+    "ImageUrl": "/images/placeholder.png",
+    "Categories": [
+      "Energéticos y Pre-entrenos"
+    ],
+    "Tags": [],
+    "CreatedAt": "2025-07-01T00:00:00Z"
+  },
+  {
+    "Id": "fusion-protein",
+    "Name": "Fusion Protein (Weider)",
+    "Slug": "fusion-protein-weider",
+    "Description": "Mezcla de proteínas de alta calidad.",
+    "PriceFrom": 42.29,
+    "ImageUrl": "/images/placeholder.png",
+    "Categories": [
+      "Better Nutrition"
+    ],
+    "Tags": [],
+    "CreatedAt": "2025-06-15T00:00:00Z"
+  },
+  {
+    "Id": "protein-cookies",
+    "Name": "Protein Filled Cookies (Weider)",
+    "Slug": "protein-filled-cookies-weider",
+    "Description": "Galletas con relleno de proteína.",
+    "PriceFrom": 24.9,
+    "ImageUrl": "/images/placeholder.png",
+    "Categories": [
+      "Barritas y Snaks"
+    ],
+    "Tags": [
+      "Sin Gluten"
+    ],
+    "CreatedAt": "2025-05-30T00:00:00Z"
+  },
+  {
+    "Id": "gold-whey",
+    "Name": "Gold Whey (Weider)",
+    "Slug": "gold-whey-weider",
+    "Description": "Proteína de suero de alta pureza.",
+    "PriceFrom": 24.99,
+    "ImageUrl": "/images/placeholder.png",
+    "Categories": [
+      "Better Nutrition"
+    ],
+    "Tags": [],
+    "CreatedAt": "2025-02-10T00:00:00Z"
+  },
+  {
+    "Id": "vegan-protein",
+    "Name": "Promo – Vegan Protein (Weider)",
+    "Slug": "promo-vegan-protein-weider",
+    "Description": "Proteína vegetal en promoción.",
+    "PriceFrom": 28.9,
+    "ImageUrl": "/images/placeholder.png",
+    "Categories": [
+      "Better Nutrition"
+    ],
+    "Tags": [
+      "Promo",
+      "Apto Veganos"
+    ],
+    "CreatedAt": "2025-07-10T00:00:00Z"
+  }
+]

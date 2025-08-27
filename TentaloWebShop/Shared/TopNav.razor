@@ -1,0 +1,58 @@
+@inject AuthService Auth
+@inject NavigationManager Nav
+@inject CartService Cart
+
+<nav class="navbar navbar-expand-lg border-bottom sticky-top" style="top:0; z-index:1030;">
+    <div class="container-fluid">
+        <img src="/images/Weiderlogo.png" alt="Logo" class="app-icon" /> 
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExample">
+            <div class="flex-grow-1 mx-lg-3 my-2 my-lg-0">
+                <SearchBar />
+            </div>
+            <ul class="navbar-nav ms-auto align-items-center gap-lg-2">
+                <li class="nav-item"><a class="nav-link" href="/catalogo">Catálogo</a></li>
+                <li class="nav-item"><a class="nav-link" href="/packs">Packs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/ofertas">Ofertas y Promo</a></li>
+                <li class="nav-item"><a class="nav-link" href="/novedades">Novedades</a></li>
+
+                <li class="nav-item me-2 cart-chip">
+                    <a class="btn btn-outline-danger" href="/carrito">🛒 Carrito</a>
+                    @if (Cart.TotalQuantity > 0)
+                    {
+                        <span class="badge text-bg-danger cart-badge">@Cart.TotalQuantity</span>
+                    }
+                </li>
+
+                @if (Auth.IsAuthenticated)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            Bienvenido/a @Auth.CurrentUser?.FullName
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/perfil">Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="/pedidos">Mis Pedidos</a></li>
+                            <li><a class="dropdown-item" href="/facturas">Mis Facturas</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><button class="dropdown-item" @onclick="Logout">Salir</button></li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item"><a class="nav-link" href="/login">Acceder</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/register">Registrar</a></li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@code {
+    protected override void OnInitialized() => Cart.Changed += StateHasChanged;
+    private async Task Logout() {await Auth.Logout(); Nav.NavigateTo("/"); }
+}

@@ -1,0 +1,25 @@
+@using WeiderShop.Services
+@inherits LayoutComponentBase
+@inject BusyService Busy
+@implements IDisposable
+<TopNav />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 pt-3 sidebar-cats">
+            <CategorySidebar />
+        </div>
+        <div class="col-12 col-lg-10 p-3">
+            @Body
+        </div>
+    </div>
+</div>
+@if (Busy.IsBusy)
+{
+    <LoadingOverlay Message="@Busy.Message" />
+}
+<Footer />
+
+@code {
+    protected override void OnInitialized() => Busy.Changed += StateHasChanged;
+    public void Dispose() => Busy.Changed -= StateHasChanged;
+}

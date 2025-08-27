@@ -1,0 +1,14 @@
+@page "/novedades"
+
+<h1 class="mb-3">Novedades</h1>
+<ProductGrid Data="items" />
+
+@code {
+    [Inject] ProductService Products { get; set; } = default!;
+    private IEnumerable<Product>? items;
+    protected override async Task OnInitializedAsync()
+    {
+        var all = await Products.GetAllAsync();
+        items = all.OrderByDescending(p => p.CreatedAt).Take(12);
+    }
+}

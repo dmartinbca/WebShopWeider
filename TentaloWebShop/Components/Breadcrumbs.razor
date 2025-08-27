@@ -1,0 +1,20 @@
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    @foreach (var (text, url, last) in Crumbs)
+    {
+        if (last)
+        {
+            <li class="breadcrumb-item active" aria-current="page">@text</li>
+        }
+        else
+        {
+            <li class="breadcrumb-item"><a href="@url">@text</a></li>
+        }
+    }
+  </ol>
+</nav>
+
+@code {
+    [Parameter] public IEnumerable<(string text, string url, bool last)> Crumbs { get; set; }
+        = Array.Empty<(string,string,bool)>();
+}

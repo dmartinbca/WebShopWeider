@@ -1,0 +1,12 @@
+@page "/pedidos"
+@inject AuthService Auth
+
+<h1>Mis Pedidos</h1>
+@if (!Auth.IsAuthenticated)
+{
+    <div class="alert alert-warning">Debes iniciar sesión.</div>
+}
+else
+{
+    <div class="alert alert-info">No tienes pedidos todavía.</div>
+}

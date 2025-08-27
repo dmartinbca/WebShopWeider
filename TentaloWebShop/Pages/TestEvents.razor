@@ -1,0 +1,8 @@
+﻿@page "/teste"
+@layout TentaloWebShop.Shared.AuthLayout
+
+<h3>Test de eventos Blazor</h3>
+<p>@count</p>
+<button type="button" class="btn btn-secondary" @onclick="() => count++">Probar Click</button>
+
+@code { int count; }

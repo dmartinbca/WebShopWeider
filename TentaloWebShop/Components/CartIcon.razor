@@ -1,0 +1,15 @@
+@inject CartService Cart
+
+<a href="/carrito" class="btn btn-outline-danger position-relative">
+  🛒
+  @if (Cart.TotalQuantity > 0)
+  {
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      @Cart.TotalQuantity
+    </span>
+  }
+</a>
+
+@code {
+    protected override void OnInitialized() => Cart.Changed += StateHasChanged;
+}

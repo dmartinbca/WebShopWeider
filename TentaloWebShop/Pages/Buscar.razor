@@ -1,0 +1,23 @@
+@page "/buscar"
+
+<h1 class="mb-3">Resultados de búsqueda</h1>
+@if (items is null) { <p>Cargando...</p> }
+else if (!items.Any()) { <div class="alert alert-info">Sin resultados para <strong>@q</strong></div> }
+else { <ProductGrid Data="items" /> }
+
+@code {
+    [Inject] NavigationManager Nav { get; set; } = default!;
+    [Inject] ProductService Products { get; set; } = default!;
+
+    private string? q;
+    private IEnumerable<Product>? items;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var uri = new Uri(Nav.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        q = query.Get("q") ?? "";
+        var all = await Products.GetAllAsync();
+        items = all.Where(p => p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) || p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
+    }
+}

@@ -1,0 +1,18 @@
+<div class="input-group quantity-input">
+  <button class="btn btn-outline-secondary" type="button" @onclick="Dec">-</button>
+  <input class="form-control text-center" value="@Value" @onchange="OnChange" />
+  <button class="btn btn-outline-secondary" type="button" @onclick="Inc">+</button>
+</div>
+
+@code {
+    [Parameter] public int Value { get; set; } = 1;
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+
+    private async Task Inc(){ await ValueChanged.InvokeAsync(Value+1); }
+    private async Task Dec(){ await ValueChanged.InvokeAsync(Math.Max(1, Value-1)); }
+    private async Task OnChange(ChangeEventArgs e){
+        if (int.TryParse(e.Value?.ToString(), out var v)){
+            await ValueChanged.InvokeAsync(Math.Max(1,v));
+        }
+    }
+}

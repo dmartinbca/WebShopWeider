@@ -1,0 +1,15 @@
+@page "/ofertas"
+
+<h1 class="mb-3">Ofertas y Promo</h1>
+<p>Se muestran artículos en promoción.</p>
+<ProductGrid Data="offers" />
+
+@code {
+    [Inject] ProductService Products { get; set; } = default!;
+    private IEnumerable<Product>? offers;
+    protected override async Task OnInitializedAsync()
+    {
+        var all = await Products.GetAllAsync();
+        offers = all.Where(p => p.Tags.Contains("Oferta") || p.Tags.Contains("Promo"));
+    }
+}

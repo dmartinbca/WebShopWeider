@@ -1,0 +1,59 @@
+@page "/register"
+@using TentaloWebShop.Shared
+@inject AuthService Auth
+@inject NavigationManager Nav
+@layout AuthLayout
+<h1>Registrar</h1>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="card" style="max-width:520px">
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Nombre</label>
+        <input class="form-control" @bind="first" />
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Apellidos</label>
+        <input class="form-control" @bind="last" />
+      </div>
+    </div>
+    <div class="mb-3 mt-2">
+      <label class="form-label">Email</label>
+      <input class="form-control" @bind="email" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Contraseña</label>
+      <input type="password" class="form-control" @bind="password" />
+    </div>
+    <button class="btn btn-danger w-100" @onclick="DoRegister">Crear cuenta</button>
+  </div>
+</div>
+
+@code {
+    string first = "";
+    string last = "";
+    string email = "";
+    string password = "";
+    string? error;
+
+    private async Task DoRegister()
+    {
+        error = null;
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            error = "Email y contraseña son obligatorios.";
+            return;
+        }
+        var ok = Auth.Register(new User{ FirstName = first, LastName = last, Email = email }, password);
+        // if (ok)
+        // {
+        //     await Auth.Login(email, password);
+        //     Nav.NavigateTo("/");
+        // }
+    }
+}

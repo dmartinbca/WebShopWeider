@@ -1,0 +1,71 @@
+@page "/login"
+@using TentaloWebShop.Shared
+@using WeiderShop.Services
+@inject AuthService Auth
+@inject NavigationManager Nav
+@layout AuthLayout
+@inject BusyService Busy
+<h1>Acceder</h1>
+
+
+
+<div class="card" style="max-width:480px">
+  <div class="card-body">
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input class="form-control" @bind="email" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Contraseña</label>
+      <input type="password" class="form-control" @bind="password" />
+    </div>
+        <button type="button"
+                class="btn btn-danger w-100 btn-busy"
+                disabled="@isBusy"
+                @onclick="DoLogin"
+                aria-busy="@isBusy" aria-live="polite">
+
+            <!-- solo este span gira -->
+            <span class="spinner-border spinner-border-sm"
+                  role="status" aria-hidden="true"
+                  style="@(!isBusy ? "display:none" : null)"></span>
+
+            <!-- el texto nunca recibe animación -->
+            <span class="btn-text">@((isBusy ? "Accediendo…" : "Acceder"))</span>
+        </button>
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert  alert-danger">@error</div>
+        }
+    <div class="form-text mt-2">¿No tienes cuenta? <a href="/register">Registrarse</a></div>
+  </div>
+</div>
+
+@code {
+    string email = "";
+    string password = "";
+    string? error;
+    bool isBusy;
+
+    private async Task DoLogin()
+    {
+        error = null;
+        isBusy = true;
+        Busy?.Show("Conectando…");
+        try
+        {
+            var ok = await Auth.Login(email, password);
+            if (ok)
+            {
+                // Busy.Show("Descargando datos…"); // si haces cargas extra aquí
+                Nav.NavigateTo("/");
+            }
+            else error = "Credenciales inválidas";
+        }
+        finally
+        {
+            isBusy = false;
+            Busy?.Hide();
+        }
+    }
+}

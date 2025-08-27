@@ -1,0 +1,40 @@
+@inject CategoryService Categories
+@inject NavigationManager Nav
+
+<div class="card">
+    <div class="card-header bg-white fw-bold">Catálogo</div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <a href="/catalogo" class="link-dark">Todos los Productos</a>
+        </li>
+
+        @foreach (var fam in families)
+        {
+            <li class="list-group-item">
+                <a class="link-dark fw-semibold" href="@($"/categoria/{fam.Slug}")">@fam.Name</a>
+
+                <ul class="list-unstyled ms-3 mt-2">
+                    @foreach (var s in fam.Subs)
+                    {
+                        <li class="mb-1">
+                            <a class="link-secondary @(IsActive(fam.Slug, s.Slug) ? "fw-semibold text-dark" : "")"
+                               href="@($"/categoria/{fam.Slug}/{s.Slug}")">
+                                @s.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    private List<Category> families = new();
+
+    protected override void OnInitialized()
+        => families = Categories.GetFamilies();
+
+    private bool IsActive(string fam, string sub)
+        => Nav.Uri.Contains($"/categoria/{fam}/{sub}", StringComparison.OrdinalIgnoreCase);
+}

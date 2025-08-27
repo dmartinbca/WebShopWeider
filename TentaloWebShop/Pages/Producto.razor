@@ -1,0 +1,66 @@
+@page "/producto/{slug}"
+@inject ProductService Products
+@inject CartService Cart
+@inject CategoryService Categories
+@if (product is null)
+{
+    <div class="p-5 text-center">Cargando...</div>
+}
+else
+{
+    var fam = Categories.GetFamily(product.FamilySlug);
+    var sub = Categories.GetSub(product.FamilySlug, product.SubfamilySlug);
+    <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
+                 {
+                     ("Catálogo","/catalogo",false),
+                     (fam?.Name ?? "Familia",$"/categoria/{fam?.Slug}", false),
+                     (sub?.Name ?? "Subfamilia",$"/categoria/{fam?.Slug}/{sub?.Slug}", true)
+                 })" />
+
+    <div class="row g-4">
+        <div class="col-12 col-md-5">
+            <img class="img-fluid rounded border" src="@product.ImageUrl" alt="@product.Name" onerror="this.src='/images/placeholder.png'">
+        </div>
+        <div class="col-12 col-md-7">
+            <h1>@product.Name</h1>
+            <div class="mb-2">
+                @if (product.PriceTo.HasValue && product.PriceTo > product.PriceFrom)
+                {
+                    <span class="price h4">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
+
+                }
+                else
+                {
+                    <span class="price h4">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) € - @product.PriceTo?.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
+
+                }
+            </div>
+            <FiltersBar Filters="product.Tags.ToArray()" />
+            <div class="d-flex align-items-center gap-2 my-3">
+                <QuantityStepper Value="qty" ValueChanged="v=> qty=v" />
+                <button class="btn btn-danger btn-lg" @onclick="Add">Añadir al Carrito</button>
+            </div>
+            <p class="text-muted">@product.Description</p>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string slug { get; set; } = string.Empty;
+    private Product? product;
+    private int qty = 1;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        product = (await Products.GetAllAsync()).FirstOrDefault(p => p.Slug == slug);
+    }
+    private List<(string text, string url, bool last)> crumbs => new()
+    {
+        ("Catálogo","/catalogo",false),
+        (product!.Name,$"/producto/{product.Slug}",true)
+    };
+    private void Add()
+    {
+        if (product is not null) Cart.Add(product, qty);
+    }
+}

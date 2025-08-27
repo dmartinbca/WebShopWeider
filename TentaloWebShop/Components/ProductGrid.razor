@@ -1,0 +1,31 @@
+@inject ProductService Products
+
+@if (items is null)
+{
+    <div class="text-center p-5">Cargando productos...</div>
+}
+else if (!items.Any())
+{
+    <div class="text-center p-5">No hay productos.</div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var p in items)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <ProductCard Product="p" />
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public IEnumerable<Product>? Data { get; set; }
+    private IEnumerable<Product>? items;
+
+    protected override async Task OnInitializedAsync()
+    {
+        items = Data ?? await Products.GetAllAsync();
+    }
+}

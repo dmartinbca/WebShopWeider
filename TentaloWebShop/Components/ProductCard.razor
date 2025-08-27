@@ -1,0 +1,38 @@
+@inject CartService Cart
+@inject NavigationManager Nav
+
+@code {
+    [Parameter] public Product Product { get; set; } = default!;
+    private int qty = 1;
+    private readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
+    private async Task Add()
+    {
+        if (qty < 1) qty = 1;
+        await Cart.Add(Product, qty);
+    }
+    private void Open() { Nav.NavigateTo($"/producto/{Product.Slug}"); }
+}
+
+<div class="card product-card h-100">
+    <div class="product-media">
+        <img src="@Product.ImageUrl" alt="@Product.Name" onerror="this.src='/images/placeholder.png'" />
+    </div>
+    <div class="card-body">
+        <h6 class="product-title">@Product.Name</h6>
+        <div class="mb-2">
+            @if (Product.PriceTo.HasValue && Product.PriceTo > Product.PriceFrom)
+            {
+                <span class="price">@Product.PriceFrom.ToString("N2", es) € - @Product.PriceTo?.ToString("N2", es) €</span>
+            }
+            else
+            {
+                <span class="price">@Product.PriceFrom.ToString("N2", es) €</span>
+            }
+        </div>
+        <div class="mt-auto d-flex align-items-center gap-2">
+            <QuantityStepper Value="qty" ValueChanged="(v) => qty = v" />
+            <button class="btn btn-danger" @onclick="Add">Añadir al Carrito</button>
+            <button class="btn btn-soft ms-auto" @onclick="Open">Ver</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using TentaloWebShop.Pages
+@using TentaloWebShop.Shared
+@inject AuthService Auth
+
+@if (!Auth.IsAuthenticated && !IsAnonymous(RouteData.PageType))
+{
+    <!-- Si no hay sesión y la ruta no es anónima, muestro Login con layout mínimo -->
+    <LayoutView Layout="@typeof(AuthLayout)">
+        <Login />
+    </LayoutView>
+}
+else
+{
+    <RouteView RouteData="RouteData" DefaultLayout="DefaultLayout" />
+}
+
+@code {
+    [Parameter] public RouteData RouteData { get; set; } = default!;
+    [Parameter] public Type? DefaultLayout { get; set; }
+
+    private static bool IsAnonymous(Type pageType)
+        => pageType == typeof(Login) || pageType == typeof(Register); // añade/quita aquí si quieres permitir Register
+}
