@@ -1,71 +1,201 @@
 @page "/perfil"
 @inject AuthService Auth
 @using System.Globalization
-
+@inject EstadisticasService EstadisticasService
 @if (!Auth.IsAuthenticated)
 {
-    <div class="alert alert-warning">Debes iniciar sesión para ver tu perfil.</div>
+    <div class="alert alert-warning d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle me-3"></i>
+        <div>
+            <strong>Acceso requerido</strong><br>
+            Debes iniciar sesión para ver tu perfil.
+        </div>
+    </div>
 }
 else
 {
-    <h1 class="mb-4">Mi Perfil</h1>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="row g-4">
-                <!-- Datos de identidad y dirección -->
-                <div class="col-12 col-lg-7">
-                    <div class="mb-2 text-muted">Cliente</div>
-                    <div class="fs-5 fw-bold">@Auth.CurrentUser?.FullName</div>
-
-                    <div class="mt-3 text-muted">CIF/NIF</div>
-                    <div class="fw-semibold">@Auth.CurrentCustomer?.vatRegistrationNo</div>
-
-                    <div class="mt-3 text-muted">Dirección</div>
-                    <address class="mb-0">
-                        @Auth.CurrentCustomer?.Address<br />
-                        @Auth.CurrentCustomer?.County<br />
-                        @Auth.CurrentCustomer?.City<br />
-                        @Auth.CurrentCustomer?.PostCode
-                    </address>
-
-                    <div class="mt-3 text-muted">Usuario (email)</div>
-                    <div>@Auth.CurrentUser?.Email</div>
-                </div>
-
-                <!-- Bloque económico -->
-                <div class="col-12 col-lg-5">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Saldo</span>
-                            <strong>@Eur(Auth.CurrentCustomer?.netChange)</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Saldo vencido</span>
-                            <strong>@Eur(Auth.CurrentCustomer?.balanceDue)</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Límite de crédito</span>
-                            <strong>@Eur(Auth.CurrentCustomer?.creditLimitLCY)</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Descuento</span>
-                            <strong>@Pct(Auth.CurrentCustomer?.Desgeneral)</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Descuento PP</span>
-                            <strong>@Pct(Auth.CurrentCustomer?.DescPP)</strong>
-                        </li>
-                    </ul>
+    <div class="profile-container">
+        <!-- Header del perfil -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <div class="avatar-circle">
+                    <i class="bi bi-person-fill"></i>
                 </div>
             </div>
-            <SfChart3D>
-                <Chart3DPrimaryXAxis ValueType="Syncfusion.Blazor.Chart3D.ValueType.Category"></Chart3DPrimaryXAxis>
-                <Chart3DSeriesCollection>
-                    <Chart3DSeries DataSource="@Sales" XName="Month" YName="SalesValue" Type="Chart3DSeriesType.Column">
-                    </Chart3DSeries>
-                </Chart3DSeriesCollection>
-            </SfChart3D>
+            <div class="profile-info">
+                <h1 class="profile-name">@Auth.CurrentUser?.FullName</h1>
+                <p class="profile-email">@Auth.CurrentUser?.Email</p>
+                <span class="profile-badge">
+                    @if (Auth.CurrentUser?.EsMaster == true)
+                    {
+                        <i class="bi bi-star-fill me-1"></i>
+                       
+                                    }
+                    else
+                    {
+                        <i class="bi bi-person-check me-1"></i>
+                      
+                                }
+                </span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Información del Cliente -->
+            <div class="col-12 col-xl-8">
+                <div class="card profile-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-person-lines-fill me-2"></i>
+                            Información del Cliente
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <label>Cliente</label>
+                                    <div class="info-value">@Auth.CurrentCustomer?.Name</div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <label>CIF/NIF</label>
+                                    <div class="info-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <label>Dirección</label>
+                                    <div class="info-value">
+                                        @Auth.CurrentCustomer?.Address<br />
+                                        @Auth.CurrentCustomer?.County<br />
+                                        @Auth.CurrentCustomer?.City, @Auth.CurrentCustomer?.PostCode
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <label>Teléfono</label>
+                                    <div class="info-value">
+                                        @if (!string.IsNullOrEmpty(Auth.CurrentCustomer?.PhoneNo))
+                                        {
+                                            @Auth.CurrentCustomer?.PhoneNo
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No especificado</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <label>Email</label>
+                                    <div class="info-value">@Auth.CurrentUser?.Email</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Financiera -->
+            <div class="col-12 col-xl-4">
+                <div class="card profile-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-wallet2 me-2"></i>
+                            Resumen Financiero
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <i class="bi bi-currency-euro"></i>
+                                <span>Saldo</span>
+                            </div>
+                            <div class="financial-value positive">@Eur(Auth.CurrentCustomer?.netChange)</div>
+                        </div>
+
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span>Saldo vencido</span>
+                            </div>
+                            <div class="financial-value @(Auth.CurrentCustomer?.balanceDue > 0 ? "negative" : "neutral")">
+                                @Eur(Auth.CurrentCustomer?.balanceDue)
+                            </div>
+                        </div>
+
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <i class="bi bi-credit-card"></i>
+                                <span>Límite de crédito</span>
+                            </div>
+                            <div class="financial-value neutral">@Eur(Auth.CurrentCustomer?.creditLimitLCY)</div>
+                        </div>
+
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <i class="bi bi-percent"></i>
+                                <span>Descuento general</span>
+                            </div>
+                            <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.Desgeneral)</div>
+                        </div>
+
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <i class="bi bi-tag"></i>
+                                <span>Descuento PP</span>
+                            </div>
+                            <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.DescPP)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Ventas -->
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="card profile-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-bar-chart me-2"></i>
+                            Evolución de Ventas
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <SfChart3D>
+                                <Chart3DPrimaryXAxis ValueType="Syncfusion.Blazor.Chart3D.ValueType.Category"></Chart3DPrimaryXAxis>
+
+                                <Chart3DSeriesCollection>
+                                    <Chart3DSeries DataSource="@Sales"
+                                                   XName="Nombre"
+                                                   YName="VentasAA"
+                                                   Type="Chart3DSeriesType.Column"
+                                                   Name="Ventas Año Anterior"
+                                                   EnableTooltip="true">
+                                    </Chart3DSeries>
+
+                                    <Chart3DSeries DataSource="@Sales"
+                                                   XName="Nombre"
+                                                   YName="Ventas"
+                                                   Type="Chart3DSeriesType.Column"
+                                                   Name="Ventas Año Actual"
+                                                   EnableTooltip="true">
+                                    </Chart3DSeries>
+                                </Chart3DSeriesCollection>
+
+                                <!-- Leyenda más simple -->
+                                <Chart3DLegendSettings Visible="true" Position="LegendPosition.Bottom"></Chart3DLegendSettings>
+                            </SfChart3D>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 }
@@ -88,20 +218,16 @@ else
     // % — double?
     private string Pct(double? v) => Pct(v.HasValue ? (decimal?)v.Value : null);
 
-    public class SalesInfo
+    
+    public List<Estadisticas> Sales = new List<Estadisticas>();
+
+    protected override async Task OnInitializedAsync()
     {
-        public string Month { get; set; }
-        public double SalesValue { get; set; }
+        if (Auth.IsAuthenticated)
+        {
+            Sales = await EstadisticasService.GetEstadisticas(Auth.CurrentCustomer?.CustNo);
+        }
     }
-    public List<SalesInfo> Sales = new List<SalesInfo>
-    {
-        new SalesInfo { Month = "Jan", SalesValue = 35 },
-        new SalesInfo { Month = "Feb", SalesValue = 28 },
-        new SalesInfo { Month = "Mar", SalesValue = 34 },
-        new SalesInfo { Month = "Apr", SalesValue = 32 },
-        new SalesInfo { Month = "May", SalesValue = 40 },
-        new SalesInfo { Month = "Jun", SalesValue = 32 },
-        new SalesInfo { Month = "Jul", SalesValue = 35 }
-    };
+
 }
 

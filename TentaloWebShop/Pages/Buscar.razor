@@ -3,8 +3,11 @@
 <h1 class="mb-3">Resultados de búsqueda</h1>
 @if (items is null) { <p>Cargando...</p> }
 else if (!items.Any()) { <div class="alert alert-info">Sin resultados para <strong>@q</strong></div> }
-else { <ProductGrid Data="items" /> }
-
+else
+{
+    <ProductGrid Data="items" @key="@($"search-{q}")" />
+ }
+ 
 @code {
     [Inject] NavigationManager Nav { get; set; } = default!;
     [Inject] ProductService Products { get; set; } = default!;
@@ -14,6 +17,8 @@ else { <ProductGrid Data="items" /> }
 
     protected override async Task OnParametersSetAsync()
     {
+        
+       
         var uri = new Uri(Nav.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
         q = query.Get("q") ?? "";

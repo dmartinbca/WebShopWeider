@@ -1133,5 +1133,28 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("value")]
         public IList<ImagenProducto> Value { get; set; }
     }
+    public class EstadisticasJson
+    {
 
+        [JsonProperty("@odata.context")]
+        public string OdataContext { get; set; }
+
+        [JsonProperty("value")]
+        public IList<Estadisticas> Value { get; set; }
+    }
+    public class Estadisticas
+    {
+        public string Vendedor { get; set; }
+        public string Cliente { get; set; }
+        public string Nombre { get; set; }
+        public double Ventas { get; set; }
+        public double Compras { get; set; }
+        public double Ratio { get; set; }
+        public double VentasAA { get; set; }
+        public double VentasAAA { get; set; }
+        public double VentasPresup { get; set; }
+        public int orden { get; set; }
+        public string Tipo { get; set; }
+
+    }
 }

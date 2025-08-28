@@ -21,5 +21,7 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<LocalStorageService>();
 builder.Services.AddScoped<RestDataService>();
 builder.Services.AddScoped<BusyService>();
+builder.Services.AddScoped<EstadisticasService>();
+
 builder.Services.AddSyncfusionBlazor();
 await builder.Build().RunAsync();

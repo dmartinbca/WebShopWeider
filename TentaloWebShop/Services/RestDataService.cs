@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.NetworkInformation;
+using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
 using TentaloWebShop.Models;
 using static System.Net.WebRequestMethods;
@@ -76,7 +78,7 @@ namespace TentaloWebShop.Services
 
                     // Puedes seguir usando Newtonsoft si prefieres, aquí con System.Text.Json:
                     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    var result = JsonSerializer.Deserialize<AppLoginResponse>(content, options);
+                    var result = System.Text.Json.JsonSerializer.Deserialize<AppLoginResponse>(content, options);
 
                     if (result?.Value?.Any() == true)
                     {
@@ -139,7 +141,7 @@ namespace TentaloWebShop.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    var data = JsonSerializer.Deserialize<CustomerJson>(content, options);
+                    var data = System.Text.Json.JsonSerializer.Deserialize<CustomerJson>(content, options);
 
                     if (data?.Value != null)
                     {
@@ -199,7 +201,7 @@ namespace TentaloWebShop.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var data = JsonSerializer.Deserialize<FamiliasCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var data = System.Text.Json.JsonSerializer.Deserialize<FamiliasCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                     if (data?.Value != null)
                     {
@@ -275,7 +277,7 @@ namespace TentaloWebShop.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var data = JsonSerializer.Deserialize<ProductoCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var data = System.Text.Json.JsonSerializer.Deserialize<ProductoCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                     if (data?.Value != null)
                     {
@@ -301,6 +303,65 @@ namespace TentaloWebShop.Services
 
             return resultado;
         }
+
+        public async Task<List<Estadisticas>> GetEstadisticasVentas(string cliente)
+        {
+            var mensajes = new List<Estadisticas>();
+
+            try
+            {
+                var request1 = new
+                {
+                    tenant = Tenant,
+                    client_id = usuarioCloud,
+                    client_secret = PassCloud,
+                    scope = "https://api.businesscentral.dynamics.com/.default"
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+
+                }
+
+                // Construir URL con filtro
+                var url = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({Empresa})/APIDataSales?$filter=Cliente eq '{cliente}'";
+
+                // 3. Crear petición con HttpClient y cabeceras OAuth2 y Isolation
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                var response = await _http.SendAsync(request);
+
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var data = System.Text.Json.JsonSerializer.Deserialize<EstadisticasJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (data?.Value != null)
+                    {
+                        mensajes.AddRange(data.Value);
+                         
+                    }
+                }
+
+                return mensajes;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetEstadisticasVentas(cliente): {ex.Message}");
+                return mensajes;
+            }
+        }
+
 
 
     }
