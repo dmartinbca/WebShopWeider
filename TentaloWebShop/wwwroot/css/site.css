@@ -1562,3 +1562,12 @@
         animation: none;
     }
 }
+h1 {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+    h1:focus {
+        outline: none !important;
+    }
