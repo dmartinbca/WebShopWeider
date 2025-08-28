@@ -4,55 +4,95 @@
 
 <nav class="navbar navbar-expand-lg border-bottom sticky-top" style="top:0; z-index:1030;">
     <div class="container-fluid">
-        <img src="/images/Weiderlogo.png" alt="Logo" class="app-icon" /> 
+        <a href="/" class="navbar-brand d-flex align-items-center">
+            <img src="/images/Weiderlogo.png" alt="Logo" class="app-icon" />
+        </a>
+
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarsExample">
-            <div class="flex-grow-1 mx-lg-3 my-2 my-lg-0">
+            <!-- Barra de búsqueda centrada -->
+            <div class="flex-grow-1 mx-lg-4 my-2 my-lg-0">
                 <SearchBar />
             </div>
-            <ul class="navbar-nav ms-auto align-items-center gap-lg-2">
+
+            <!-- Enlaces de navegación -->
+            <ul class="navbar-nav align-items-center gap-1 me-3">
                 <li class="nav-item"><a class="nav-link" href="/catalogo">Catálogo</a></li>
                 <li class="nav-item"><a class="nav-link" href="/packs">Packs</a></li>
-                <li class="nav-item"><a class="nav-link" href="/ofertas">Ofertas y Promo</a></li>
+                <li class="nav-item"><a class="nav-link" href="/ofertas">Ofertas</a></li>
                 <li class="nav-item"><a class="nav-link" href="/novedades">Novedades</a></li>
+            </ul>
 
-                <li class="nav-item me-2 cart-chip">
-                    <a class="btn btn-outline-danger" href="/carrito">🛒 Carrito</a>
-                    @if (Cart.TotalQuantity > 0)
-                    {
-                        <span class="badge text-bg-danger cart-badge">@Cart.TotalQuantity</span>
-                    }
-                </li>
+            <!-- Sección del carrito y usuario -->
+            <div class="d-flex align-items-center gap-3">
+                <!-- Carrito mejorado -->
+                <CartIcon />
 
+                <!-- Menú de usuario -->
                 @if (Auth.IsAuthenticated)
                 {
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            Bienvenido/a @Auth.CurrentUser?.FullName
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                            <div class="user-avatar me-2">
+                                <i class="bi bi-person-circle"></i>
+                            </div>
+                            <span class="d-none d-lg-inline">@GetShortName()</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/perfil">Mi Perfil</a></li>
-                            <li><a class="dropdown-item" href="/pedidos">Mis Pedidos</a></li>
-                            <li><a class="dropdown-item" href="/facturas">Mis Facturas</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><h6 class="dropdown-header">@Auth.CurrentUser?.FullName</h6></li>
                             <li><hr class="dropdown-divider" /></li>
-                            <li><button class="dropdown-item" @onclick="Logout">Salir</button></li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="/perfil">
+                                    <i class="bi bi-person me-2"></i> Mi Perfil
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="/pedidos">
+                                    <i class="bi bi-bag me-2"></i> Mis Pedidos
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="/facturas">
+                                    <i class="bi bi-receipt me-2"></i> Mis Facturas
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <button class="dropdown-item d-flex align-items-center text-danger" @onclick="Logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Salir
+                                </button>
+                            </li>
                         </ul>
-                    </li>
+                    </div>
                 }
                 else
                 {
-                    <li class="nav-item"><a class="nav-link" href="/login">Acceder</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/register">Registrar</a></li>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-secondary btn-sm" href="/login">Acceder</a>
+                        <a class="btn btn-danger btn-sm" href="/register">Registrar</a>
+                    </div>
                 }
-            </ul>
+            </div>
         </div>
     </div>
 </nav>
 
 @code {
     protected override void OnInitialized() => Cart.Changed += StateHasChanged;
-    private async Task Logout() {await Auth.Logout(); Nav.NavigateTo("/"); }
+
+    private async Task Logout()
+    {
+        await Auth.Logout();
+        Nav.NavigateTo("/");
+    }
+
+    private string GetShortName()
+    {
+        var fullName = Auth.CurrentUser?.FullName ?? "";
+        var parts = fullName.Split(' ');
+        return parts.Length > 0 ? parts[0] : "Usuario";
+    }
 }
