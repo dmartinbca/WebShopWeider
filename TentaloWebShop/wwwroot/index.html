@@ -27,16 +27,126 @@
 
 <body>
     <div id="app">
-        <div class="d-flex justify-content-center align-items-center" style="height: 100vh; background: linear-gradient(135deg, #dc3545, #c82333);">
-            <div class="text-center text-white">
-                <div class="spinner-border mb-3" style="width: 3rem; height: 3rem;" role="status">
-                    <span class="visually-hidden">Cargando...</span>
+        <div class="loading-screen">
+            <div class="loading-content">
+                <!-- Logo de la empresa -->
+                <div class="loading-logo">
+                    <img src="images/tentaloblanco.png" alt="Tentalo" class="logo-image" />
                 </div>
-                <h5 class="fw-light">Cargando TentaloWebShop...</h5>
-                <p class="small opacity-75">Preparando tu experiencia de compra</p>
+
+                <!-- Spinner y texto -->
+                <div class="loading-spinner">
+                    <div class="spinner-border text-white" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+
+                <h5 class="loading-title">Cargando Tentalo WebShop...</h5>
+                <p class="loading-subtitle">Preparando tu experiencia de compra</p>
             </div>
         </div>
     </div>
+
+    <!-- Estilos para la pantalla de carga -->
+    <style>
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .loading-logo {
+            margin-bottom: 2rem;
+            animation: logoAnimation 2s ease-in-out infinite;
+        }
+
+        .logo-image {
+            max-width: 120px;
+            height: auto;
+            opacity: 0.9;
+        }
+
+        .loading-spinner {
+            margin: 1.5rem 0;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+
+        .loading-title {
+            font-weight: 300;
+            margin: 1rem 0 0.5rem 0;
+            font-size: 1.5rem;
+        }
+
+        .loading-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes logoAnimation {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.9;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .loading-title {
+                font-size: 1.25rem;
+            }
+
+            .loading-subtitle {
+                font-size: 0.85rem;
+            }
+
+            .logo-image {
+                max-width: 100px;
+            }
+
+            .spinner-border {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+        }
+    </style>
 
     <!-- Scripts -->
     <script src="_framework/blazor.webassembly.js"></script>

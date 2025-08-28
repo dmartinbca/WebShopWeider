@@ -5,25 +5,25 @@
 @inject NavigationManager Nav
 @layout AuthLayout
 @inject BusyService Busy
+
 <h1>Acceder</h1>
 
-
-
 <div class="card" style="max-width:480px">
-  <div class="card-body">
-    <div class="mb-3">
-      <label class="form-label">Email</label>
-      <input class="form-control" @bind="email" />
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Contraseña</label>
-      <input type="password" class="form-control" @bind="password" />
-    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" @bind="email" autocomplete="username" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Contraseña</label>
+            <input type="password" class="form-control" @bind="password" autocomplete="current-password" />
+        </div>
+
         <button type="button"
                 class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2"
                 disabled="@isBusy"
                 @onclick="DoLogin">
-
             @if (isBusy)
             {
                 <span class="spinner-border spinner-border-sm align-middle"
@@ -31,13 +31,22 @@
             }
             <span>@(isBusy ? "Accediendo…" : "Acceder")</span>
         </button>
+
         @if (!string.IsNullOrEmpty(error))
         {
-            <div class="alert  alert-danger">@error</div>
+            <div class="alert alert-danger mt-3 mb-0" role="alert">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                @error
+            </div>
         }
-   @*  <div class="form-text mt-2">¿No tienes cuenta? <a href="/register">Registrarse</a></div> *@
-  </div>
+
+      @*   <div class="form-text mt-3 text-center">
+            ¿No tienes cuenta? <a href="/register" class="text-decoration-none fw-semibold">Registrarse</a>
+        </div> *@
+    </div>
 </div>
+
+ 
 
 @code {
     string email = "";
@@ -55,10 +64,16 @@
             var ok = await Auth.Login(email, password);
             if (ok)
             {
-                // Busy.Show("Descargando datos…"); // si haces cargas extra aquí
                 Nav.NavigateTo("/");
             }
-            else error = "Credenciales inválidas";
+            else
+            {
+                error = "Credenciales inválidas";
+            }
+        }
+        catch (Exception ex)
+        {
+            error = "Error de conexión. Inténtalo de nuevo.";
         }
         finally
         {
