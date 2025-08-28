@@ -15,7 +15,10 @@
 
 <div class="card product-card h-100">
     <div class="product-media">
-        <img src="@Product.ImageUrl" alt="@Product.Name" onerror="this.src='/images/placeholder.png'" />
+        <img src="@(!string.IsNullOrWhiteSpace(Product.ImageUrl) ? Product.ImageUrl : "/images/image.png")"
+             alt="@Product.Name" loading="lazy"
+             onerror="this.src='/images/image.png'; this.classList.add('is-placeholder');"
+             onload="if (this.src.indexOf('/images/image.png') !== -1) this.classList.add('is-placeholder');" />
     </div>
     <div class="card-body">
         <h6 class="product-title">@Product.Name</h6>

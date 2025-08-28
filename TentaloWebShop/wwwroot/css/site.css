@@ -301,7 +301,31 @@ h1 {
     border-top-right-radius: 14px;
     overflow: hidden;
 }
+    /* Suaviza las imágenes de placeholder */
+    .product-media > img {
+        transition: opacity .15s ease;
+    }
 
+        .product-media > img.is-placeholder {
+            opacity: .22; /* más tenue */
+            filter: grayscale(1) contrast(.85);
+        }
+
+/* Si también usas imagen grande en la ficha */
+.detail-media > img {
+    transition: opacity .15s ease;
+}
+
+    .detail-media > img.is-placeholder {
+        opacity: .22;
+        filter: grayscale(1) contrast(.85);
+    }
+
+/* Por si el placeholder tiene fondo blanco, realza un poco el contenedor */
+.product-media,
+.detail-media {
+    background: #fafafa;
+}
     /* RATIO del contenedor (elige 1:1 o 4:3) */
     .product-media::before {
         content: "";

@@ -252,7 +252,7 @@ namespace TentaloWebShop.Services
                 // Lógica igual que tu versión MAUI
                 if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
                 {
-                    endpoint = $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' '";
+                    endpoint = $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
                 }
                 else
                 {

@@ -24,18 +24,12 @@ else
         <div class="col-12 col-md-7">
             <h1>@product.Name</h1>
             <div class="mb-2">
-                @if (product.PriceTo.HasValue && product.PriceTo > product.PriceFrom)
-                {
+             
                     <span class="price h4">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
 
-                }
-                else
-                {
-                    <span class="price h4">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) € - @product.PriceTo?.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
-
-                }
+           
             </div>
-            <FiltersBar Filters="product.Tags.ToArray()" />
+          @*   <FiltersBar Filters="product.Tags.ToArray()" /> *@
             <div class="d-flex align-items-center gap-2 my-3">
                 <QuantityStepper Value="qty" ValueChanged="v=> qty=v" />
                 <button class="btn btn-danger btn-lg" @onclick="Add">Añadir al Carrito</button>
@@ -60,8 +54,8 @@ else
         ("Catálogo","/catalogo",false),
         (product!.Name,$"/producto/{product.Slug}",true)
     };
-    private void Add()
+    private async void Add()
     {
-        if (product is not null) Cart.Add(product, qty);
+        if (product is not null) await Cart.Add(product, qty);
     }
 }

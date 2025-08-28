@@ -27,9 +27,9 @@ public class CategoryService
                 var listSubFam = new List<Subcategory>();
                 foreach (var sub in fam.subfamlines)
                 {
-                    listSubFam.Add(new Subcategory { Name = sub.Descripcion, Slug = sub.Descripcion.Replace(" ", "-") });
+                    listSubFam.Add(new Subcategory { Name = sub.No, Slug = sub.No.Replace(" ", "") });
                 }
-                listFam.Add(new Category { Name = fam.Famlia, Slug = fam.Famlia.Replace(" ", "-"), Subs=listSubFam });
+                listFam.Add(new Category { Name = fam.Famlia, Slug = fam.Famlia.Replace(" ", ""), Subs=listSubFam });
             }
             _families=listFam;
             return listFam;

@@ -43,7 +43,19 @@ else
                  })" />
 
 <h1 class="mb-3">@subModel?.Name</h1>
-<ProductGrid Data="items" />
+@if (items is null)
+    {
+        <div class="p-4">Cargando…</div>
+    }
+    else if (items.Count == 0)
+    {
+        <div class="alert alert-info">No hay productos en esta subfamilia.</div>
+    }
+    else
+    {
+        <ProductGrid Data="items" @key="@($"{family}/{sub}")" />
+
+    }
 }
 
 @code {
@@ -53,16 +65,18 @@ else
     private Category? familyModel;
     private Subcategory? subModel;
     private IEnumerable<Subcategory> subs = Enumerable.Empty<Subcategory>();
-    private IEnumerable<Product>? items;
+    private List<Product>? items;
 
     protected override async Task OnParametersSetAsync()
     {
+        items = null;
         familyModel = Categories.GetFamily(family);
         subs = Categories.GetSubs(family);
 
         if (!string.IsNullOrWhiteSpace(sub))
         {
             subModel = Categories.GetSub(family, sub!);
+          
             items = await Products.GetBySubfamilyAsync(family, sub!);
         }
         else

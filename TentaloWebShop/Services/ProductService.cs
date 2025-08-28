@@ -26,13 +26,13 @@ public class ProductService
                     {
 
                         Name = p.Description ?? "",
-                        Slug = p.Description.Replace(" ", "-"),
+                        Slug = p.Description.Replace(" ", ""),
                         Description = p.ingredientes ?? "",
                         PriceFrom = Convert.ToDecimal(p.ActualPrice),
                         PriceTo = Convert.ToDecimal(p.ActualPrice),
-                        ImageUrl = p.ImageUrl,
-                        FamilySlug = (p.FamiliaN.Replace(" ", "-")) ?? "",
-                        SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", "-")
+                        ImageUrl = string.IsNullOrWhiteSpace( p.ImageUrl )? "/images/image.png": p.ImageUrl,
+                        FamilySlug = (p.FamiliaN.Replace(" ", "")) ?? "",
+                        SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", "")
                     });
                 }
                 catch(Exception ex)
@@ -47,18 +47,18 @@ public class ProductService
         _cache = list;
         return list;
     }
-    public async Task<IEnumerable<Product>> GetByFamilyAsync(string familySlug)
+    public async Task<List<Product>> GetByFamilyAsync(string familySlug)
     {
         var all = await GetAllAsync();
-        return all.Where(p => p.FamilySlug.Equals(familySlug, StringComparison.OrdinalIgnoreCase));
+        return all.Where(p => p.FamilySlug.Equals(familySlug, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
-    public async Task<IEnumerable<Product>> GetBySubfamilyAsync(string familySlug, string subSlug)
+    public async Task<List<Product>> GetBySubfamilyAsync(string familySlug, string subSlug)
     {
         var all = await GetAllAsync();
         return all.Where(p =>
-            p.FamilySlug.Equals(familySlug, StringComparison.OrdinalIgnoreCase) &&
-            p.SubfamilySlug.Equals(subSlug, StringComparison.OrdinalIgnoreCase));
+            p.FamilySlug==familySlug &&
+            p.SubfamilySlug==subSlug ).ToList();
     }
 
 }
