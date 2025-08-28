@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <None Include="wwwroot\images\login.png" />
-    <None Include="wwwroot\images\placeholder.png" />
     <None Include="wwwroot\js\localStorage.js" />
   </ItemGroup>
 
