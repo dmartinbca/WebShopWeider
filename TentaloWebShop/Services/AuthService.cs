@@ -71,7 +71,7 @@ public class AuthService
         await InitializeAsync();
         NavUser response = new NavUser();
         HttpClient httpClient = new HttpClient();
-        RestDataService restDataService = new RestDataService(httpClient);
+        RestDataService restDataService = new RestDataService(httpClient, _store);
         var euser= await restDataService.GetAppLoginAPICloud(email,password);
 
        // var match = _users.FirstOrDefault(u => u.user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));

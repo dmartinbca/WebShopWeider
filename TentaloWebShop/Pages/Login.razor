@@ -20,18 +20,16 @@
       <input type="password" class="form-control" @bind="password" />
     </div>
         <button type="button"
-                class="btn btn-danger w-100 btn-busy"
+                class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2"
                 disabled="@isBusy"
-                @onclick="DoLogin"
-                aria-busy="@isBusy" aria-live="polite">
+                @onclick="DoLogin">
 
-            <!-- solo este span gira -->
-            <span class="spinner-border spinner-border-sm"
-                  role="status" aria-hidden="true"
-                  style="@(!isBusy ? "display:none" : null)"></span>
-
-            <!-- el texto nunca recibe animación -->
-            <span class="btn-text">@((isBusy ? "Accediendo…" : "Acceder"))</span>
+            @if (isBusy)
+            {
+                <span class="spinner-border spinner-border-sm align-middle"
+                      role="status" aria-hidden="true"></span>
+            }
+            <span>@(isBusy ? "Accediendo…" : "Acceder")</span>
         </button>
         @if (!string.IsNullOrEmpty(error))
         {

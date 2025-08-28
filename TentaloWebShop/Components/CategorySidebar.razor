@@ -1,40 +1,83 @@
 @inject CategoryService Categories
 @inject NavigationManager Nav
+@using Microsoft.AspNetCore.Components.Routing
+@using System.Text.RegularExpressions
 
 <div class="card">
     <div class="card-header bg-white fw-bold">Catálogo</div>
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-            <a href="/catalogo" class="link-dark">Todos los Productos</a>
-        </li>
+
+    <div class="list-group list-group-flush sidebar-accordion">
+        <a class="list-group-item" href="/catalogo">Todos los Productos</a>
 
         @foreach (var fam in families)
         {
-            <li class="list-group-item">
-                <a class="link-dark fw-semibold" href="@($"/categoria/{fam.Slug}")">@fam.Name</a>
+            var isOpen = openFamilies.Contains(fam.Slug) || IsActiveFamily(fam.Slug);
 
-                <ul class="list-unstyled ms-3 mt-2">
-                    @foreach (var s in fam.Subs)
-                    {
-                        <li class="mb-1">
-                            <a class="link-secondary @(IsActive(fam.Slug, s.Slug) ? "fw-semibold text-dark" : "")"
-                               href="@($"/categoria/{fam.Slug}/{s.Slug}")">
-                                @s.Name
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </li>
+            <div class="list-group-item p-0">
+                <!-- Cabecera de familia -->
+                <button type="button"
+                        class="fam-btn w-100 d-flex align-items-center justify-content-between"
+                        @onclick="() => Toggle(fam.Slug)"
+                        aria-expanded="@isOpen"
+                        aria-controls="@($"sub-{fam.Slug}")">
+                    <span class="fw-semibold text-start">@fam.Name</span>
+                    <span class="chev @(isOpen ? "open" : null)">›</span>
+                </button>
+
+                <!-- Subfamilias (plegable) -->
+                <div id="@($"sub-{fam.Slug}")" class="@($"collapse {(isOpen ? "show" : "")}")">
+                    <ul class="list-unstyled ps-3 py-2 mb-0">
+                        @foreach (var s in fam.Subs)
+                        {
+                            <li class="mb-1">
+                                <a class="link-secondary @(IsActive(fam.Slug, s.Slug) ? "fw-semibold text-dark" : "")"
+                                   href="@($"/categoria/{fam.Slug}/{s.Slug}")">
+                                    @s.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
         }
-    </ul>
+    </div>
 </div>
 
 @code {
     private List<Category> families = new();
+    private HashSet<string> openFamilies = new(StringComparer.OrdinalIgnoreCase);
 
-    protected override void OnInitialized()
-        => families = Categories.GetFamilies();
+    protected override async Task OnInitializedAsync()
+    {
+        // Si tu CategoryService es síncrono, usa: families = Categories.GetFamilies();
+        families = await Categories.GetFamilies();
+        ExpandActiveFromUri(Nav.Uri);
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void Toggle(string slug)
+    {
+        if (!openFamilies.Add(slug))
+            openFamilies.Remove(slug);
+    }
 
     private bool IsActive(string fam, string sub)
         => Nav.Uri.Contains($"/categoria/{fam}/{sub}", StringComparison.OrdinalIgnoreCase);
+
+    private bool IsActiveFamily(string fam)
+        => Nav.Uri.Contains($"/categoria/{fam}", StringComparison.OrdinalIgnoreCase);
+
+    private void OnLocationChanged(object? s, LocationChangedEventArgs e)
+    {
+        ExpandActiveFromUri(e.Location);
+        StateHasChanged();
+    }
+
+    private void ExpandActiveFromUri(string uri)
+    {
+        var m = Regex.Match(uri, @"/categoria/([^/]+)", RegexOptions.IgnoreCase);
+        if (m.Success) openFamilies.Add(m.Groups[1].Value);
+    }
+
+    ~CategorySidebar() => Nav.LocationChanged -= OnLocationChanged;
 }

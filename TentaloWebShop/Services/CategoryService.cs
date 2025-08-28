@@ -5,45 +5,41 @@ namespace TentaloWebShop.Services;
 
 public class CategoryService
 {
+    private readonly RestDataService _rest;
+    public CategoryService(RestDataService rest) => _rest = rest;
     // ⚠️ Rellena aquí tus familias y subfamilias reales
-    private readonly List<Category> _families = new()
-    {
-        new Category {
-            Name = "Better Nutrition", Slug = "better-nutrition",
-            Subs = new()
-            {
-                new Subcategory { Name="Proteínas",   Slug="proteinas" },
-                new Subcategory { Name="Aminoácidos", Slug="aminoacidos" },
-                new Subcategory { Name="Gainers",     Slug="gainers" },
-            }
-        },
-        new Category {
-            Name = "Barritas y Snacks", Slug = "barritas-snacks",
-            Subs = new()
-            {
-                new Subcategory { Name="Barritas",    Slug="barritas" },
-                new Subcategory { Name="Galletas",    Slug="galletas" },
-            }
-        },
-        new Category {
-            Name = "Energéticos y Pre-entrenos", Slug = "energeticos-preentrenos",
-            Subs = new()
-            {
-                new Subcategory { Name="Pre-entreno", Slug="preentreno" },
-                new Subcategory { Name="Geles",       Slug="geles" },
-            }
-        },
-        new Category {
-            Name = "Creatinas", Slug = "creatinas",
-            Subs = new()
-            {
-                new Subcategory { Name="Monohidrato", Slug="monohidrato" },
-                new Subcategory { Name="Otros",       Slug="otros" },
-            }
-        },
-    };
+    private   List<Category> _families = new List<Category>();
 
-    public List<Category> GetFamilies() => _families;
+
+    //public List<Category> GetFamilies() => _families;
+    public async Task<List<Category>> GetFamilies()
+    {
+        var listFam = new List<Category>();
+       
+        HttpClient httpClient = new HttpClient();
+       
+        var efam = await _rest.GetFamiliasAPICloud();
+     
+        if (efam != null)
+        {
+            foreach (var fam in efam)
+            {
+                var listSubFam = new List<Subcategory>();
+                foreach (var sub in fam.subfamlines)
+                {
+                    listSubFam.Add(new Subcategory { Name = sub.Descripcion, Slug = sub.Descripcion.Replace(" ", "-") });
+                }
+                listFam.Add(new Category { Name = fam.Famlia, Slug = fam.Famlia.Replace(" ", "-"), Subs=listSubFam });
+            }
+            _families=listFam;
+            return listFam;
+        }
+        else
+        {
+            return listFam;
+        }
+    }
+
     public Category? GetFamily(string familySlug)
         => _families.FirstOrDefault(f => f.Slug.Equals(familySlug, StringComparison.OrdinalIgnoreCase));
 

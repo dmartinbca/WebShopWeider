@@ -292,29 +292,40 @@ h1 {
         box-shadow: 0 6px 18px rgba(0,0,0,.08);
     }
 
+/* === Tamaño uniforme para las imágenes de producto === */
 .product-media {
     position: relative;
-    border-top-left-radius: var(--radius);
-    border-top-right-radius: var(--radius);
-    overflow: hidden;
-    background: #fafafa;
+    background: #fff;
     border: 1px solid #e5e7eb;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    overflow: hidden;
 }
 
+    /* RATIO del contenedor (elige 1:1 o 4:3) */
     .product-media::before {
         content: "";
         display: block;
-        aspect-ratio: 4 / 3; /* mismo “feeling” que el PDF */
         width: 100%;
+        padding-top: 100%; /* 100%  -> 1:1 (cuadrado) */
+        /* padding-top:75%; */ /* 75%   -> 4:3 (actívalo si prefieres 4:3) */
     }
 
+    /* La imagen siempre se queda dentro, centrada, sin recortar */
     .product-media > img {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain; /* que se vea entera (botellas, barritas…) */
+        object-position: center;
     }
+
+/* (opcional) evita que Bootstrap cambie alturas */
+.card .product-media img {
+    max-height: none !important;
+}
+
 
 .product-card .card-body {
     display: flex;
@@ -406,6 +417,68 @@ h1 {
 .sidebar-cats .list-group-item a.link-secondary:hover {
     color: var(--brand);
 }
+/* Sidebar plegable */
+.sidebar-accordion .list-group-item {
+    border: 0;
+    border-bottom: 1px solid #eee;
+}
 
+.fam-btn {
+    background: transparent;
+    border: 0;
+    padding: .65rem 1rem;
+    cursor: pointer;
+    text-align: left;
+}
+
+    .fam-btn:hover {
+        background: #f8f9fa;
+    }
+
+    .fam-btn .chev {
+        font-weight: 800;
+        transition: transform .18s ease;
+        display: inline-block;
+        transform: rotate(0deg);
+    }
+
+        .fam-btn[aria-expanded="true"] .chev, .fam-btn .chev.open {
+            transform: rotate(90deg);
+        }
+
+.collapse {
+    transition: height .2s ease;
+}
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    font-size: 1.2rem;
+    color: #2158e2;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+    .loading-spinner .spinner {
+        border: 4px solid #e0e8ff;
+        border-top: 4px solid #2158e2;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 18px;
+    }
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
 /* por si alguna clase global lo hereda */
 

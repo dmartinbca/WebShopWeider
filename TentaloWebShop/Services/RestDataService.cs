@@ -7,7 +7,7 @@ using System.Net.NetworkInformation;
 using System.Text.Json;
 using TentaloWebShop.Models;
 using static System.Net.WebRequestMethods;
-
+using static TentaloWebShop.Services.AuthService;
 namespace TentaloWebShop.Services
 {
     public class RestDataService
@@ -23,11 +23,13 @@ namespace TentaloWebShop.Services
         private const string APIGroup = "BCAApp";
         private const string APIVersion = "v2.0";
 
+        private readonly LocalStorageService _store;
 
-        public RestDataService(HttpClient http )
+        private const string KEY_USER = "auth.currentUser";
+        public RestDataService(HttpClient http, LocalStorageService store)
         {
             _http = http;
-          
+            _store = store;
         }
        
         public async Task<NavUser> GetAppLoginAPICloud(string usuario, string password)
@@ -94,8 +96,6 @@ namespace TentaloWebShop.Services
 
             return musuario;
         }
-
-
         public async Task<List<Customer>> GetCustomersAPI( string cliente)
         {
             var resultado = new List<Customer>();
@@ -156,170 +156,151 @@ namespace TentaloWebShop.Services
 
             return resultado;
         }
-        //public async Task<List<FamliasCloud>> GetFamiliasAPICloud()
-        //{
-        //    var resultado = new List<FamliasCloud>();
+        public async Task<List<FamliasCloud>> GetFamiliasAPICloud()
+        {
+            var resultado = new List<FamliasCloud>();
 
-        //    try
-        //    {
-        //        // 1. Obtener token OAuth2 (ajusta si ya lo tienes guardado en tu AppState)
-        //        var request1 = new
-        //        {
-        //            tenant = _appState.Aplicacion.Applicaion_Tenant,
-        //            client_id = _appState.Aplicacion.Usuario,
-        //            client_secret = _appState.Aplicacion.Password,
-        //            scope = "https://api.businesscentral.dynamics.com/.default"
-        //        };
+            try
+            {
+                // 1. Obtener token OAuth2 (ajusta si ya lo tienes guardado en tu AppState)
+                var request1 = new
+                {
+                    tenant =  Tenant,
+                    client_id = usuarioCloud,
+                    client_secret = PassCloud,
+                    scope = "https://api.businesscentral.dynamics.com/.default"
+                };
 
-        //        string token = string.Empty;
-        //        var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
-        //        if (tokenResponse.IsSuccessStatusCode)
-        //        {
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
 
-        //            var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
-        //            token = tokenObj.AccessToken;
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
 
-        //        }
+                }
 
-        //        // 2. Construir URL
-        //        var url = $"{_appState.Aplicacion.Applicaion_URL}{_appState.Aplicacion.Applicaion_Tenant}/{_appState.Aplicacion.Entorno}/api/{_appState.Aplicacion.APIPublisher}/{_appState.Aplicacion.APIGroup}/{_appState.Aplicacion.APIVersion}/companies({_appState.Aplicacion.Empresa})/AppFamilias";
+                // 2. Construir URL
+                var url = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({Empresa})/AppFamiliasWeb?$expand=subfamlines";
 
-        //        // 3. Preparar HttpClient
+                // 3. Preparar HttpClient
 
-        //        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        //        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        //        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        //        request.Headers.Remove("Isolation");
-        //        request.Headers.Add("Isolation", "snapshot");
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
 
-        //        // 4. Llamada (puedes envolver con política Polly si la tienes configurada)
-        //        var response = await _http.SendAsync(request);
+                // 4. Llamada (puedes envolver con política Polly si la tienes configurada)
+                var response = await _http.SendAsync(request);
 
-        //        // 5. Procesar respuesta
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            var content = await response.Content.ReadAsStringAsync();
-        //            var data = JsonSerializer.Deserialize<FamiliasCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                // 5. Procesar respuesta
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<FamiliasCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        //            if (data?.Value != null)
-        //            {
-        //                resultado.Add(new FamliasCloud
-        //                {
-        //                    Parent_Category = "BUSCAR PRODUCTO",
-        //                    OrderFamily = -1,
-        //                    Famlia = "Buscar Producto",
-        //                    Descripcion = "Buscar Producto"
-        //                });
+                    if (data?.Value != null)
+                    {
+                         
 
-        //                resultado.AddRange(
-        //                    data.Value
-        //                        .OrderBy(c => c.OrderFamily)
-        //                        .ThenBy(d => d.Order)
-        //                );
-        //            }
+                        resultado.AddRange(
+                            data.Value
+                                .OrderBy(c => c.Order)
+                                
+                        );
+                    }
 
-        //            // Normalizar Parent_Category
-        //            foreach (var item in resultado)
-        //            {
-        //                if (string.IsNullOrWhiteSpace(item.Parent_Category))
-        //                    item.Parent_Category = item.Famlia;
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"[GetFamiliasAPICloud] {ex.Message}");
-        //    }
+                     
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetFamiliasAPICloud] {ex.Message}");
+            }
 
-        //    return resultado;
-        //}
-        //public async Task<List<ProductCloud>> GetProductosAPICloud(string familia, string subfamilia)
-        //{
-        //    var resultado = new List<ProductCloud>();
+            return resultado;
+        }
+        public async Task<List<ProductCloud>> GetProductosAPICloud(string familia, string subfamilia)
+        {
+            var resultado = new List<ProductCloud>();
+            var saved = await _store.GetAsync<User>("auth.currentUser");
+            try
+            {
+                // 1. Obtener token OAuth2 (igual que en GetFamiliasAPICloud)
+                var requestToken = new
+                {
+                    tenant =  Tenant,
+                    client_id = usuarioCloud,
+                    client_secret = PassCloud,
+                    scope = "https://api.businesscentral.dynamics.com/.default"
+                };
 
-        //    try
-        //    {
-        //        // 1. Obtener token OAuth2 (igual que en GetFamiliasAPICloud)
-        //        var requestToken = new
-        //        {
-        //            tenant = _appState.Aplicacion.Applicaion_Tenant,
-        //            client_id = _appState.Aplicacion.Usuario,
-        //            client_secret = _appState.Aplicacion.Password,
-        //            scope = "https://api.businesscentral.dynamics.com/.default"
-        //        };
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
 
-        //        string token = string.Empty;
-        //        var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
-        //        if (tokenResponse.IsSuccessStatusCode)
-        //        {
-        //            var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
-        //            token = tokenObj.AccessToken;
-        //        }
+                // 2. Construir la URL dinámica según los parámetros recibidos
+                var baseUrl = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({Empresa})";
+                string endpoint;
 
-        //        // 2. Construir la URL dinámica según los parámetros recibidos
-        //        var baseUrl = $"{_appState.Aplicacion.Applicaion_URL}{_appState.Aplicacion.Applicaion_Tenant}/{_appState.Aplicacion.Entorno}/api/{_appState.Aplicacion.APIPublisher}/{_appState.Aplicacion.APIGroup}/{_appState.Aplicacion.APIVersion}/companies({_appState.Aplicacion.Empresa})";
-        //        string endpoint;
+                // Lógica igual que tu versión MAUI
+                if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                {
+                    endpoint = $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' '";
+                }
+                else
+                {
+                    endpoint =  $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                }
 
-        //        // Lógica igual que tu versión MAUI
-        //        if (subfamilia == "BUSCAR PRODUCTO")
-        //        {
-        //            endpoint = _clientState.Customer == null
-        //                ? "/ApiListaProductosIII?$filter=code eq '0'"
-        //                : $"/ApiListaProductosIII?$filter=no eq '{_clientState.Customer.CustNo}' and familia ne ' ' and FamiliaN ne ' '";
-        //        }
-        //        else if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
-        //        {
-        //            endpoint = "/ApiCuentaProductos";
-        //        }
-        //        else
-        //        {
-        //            endpoint = _clientState.Customer == null
-        //                ? $"/ApiListaProductosIII?$filter=code eq '0' and familia eq '{familia}' and FamiliaN eq '{subfamilia}'"
-        //                : $"/ApiListaProductosIII?$filter=no eq '{_clientState.Customer.CustNo}' and familia eq '{familia}' and FamiliaN eq '{subfamilia}'";
-        //        }
+                var url = baseUrl + endpoint;
 
-        //        var url = baseUrl + endpoint;
+                // 3. Crear petición con HttpClient y cabeceras OAuth2 y Isolation
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
 
-        //        // 3. Crear petición con HttpClient y cabeceras OAuth2 y Isolation
-        //        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        //        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        //        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        //        request.Headers.Remove("Isolation");
-        //        request.Headers.Add("Isolation", "snapshot");
+                // 4. Llamada
+                var response = await _http.SendAsync(request);
 
-        //        // 4. Llamada
-        //        var response = await _http.SendAsync(request);
+                // 5. Procesar respuesta
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<ProductoCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        //        // 5. Procesar respuesta
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            var content = await response.Content.ReadAsStringAsync();
-        //            var data = JsonSerializer.Deserialize<ProductoCloudJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (data?.Value != null)
+                    {
+                        // Si hay cliente seleccionado y filtro por familia/subfamilia, filtra por precio válido
+                        if (!string.IsNullOrWhiteSpace(familia) && !string.IsNullOrWhiteSpace(subfamilia))
+                        {
+                            if (!string.IsNullOrWhiteSpace(saved.CustomerNo))
+                                resultado.AddRange(data.Value.Where(c => c.ActualPrice >= 0));
+                            else
+                                resultado.AddRange(data.Value.Where(c => c.ActualPrice == 0));
+                        }
+                        else
+                        {
+                            resultado.AddRange(data.Value);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetProductosAPICloud] {ex.Message}");
+            }
 
-        //            if (data?.Value != null)
-        //            {
-        //                // Si hay cliente seleccionado y filtro por familia/subfamilia, filtra por precio válido
-        //                if (!string.IsNullOrWhiteSpace(familia) && !string.IsNullOrWhiteSpace(subfamilia))
-        //                {
-        //                    if (!string.IsNullOrWhiteSpace(_clientState.Customer?.CustNo))
-        //                        resultado.AddRange(data.Value.Where(c => c.ActualPrice >= 0));
-        //                    else
-        //                        resultado.AddRange(data.Value.Where(c => c.ActualPrice == 0));
-        //                }
-        //                else
-        //                {
-        //                    resultado.AddRange(data.Value);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"[GetProductosAPICloud] {ex.Message}");
-        //    }
-
-        //    return resultado;
-        //}
+            return resultado;
+        }
 
 
     }

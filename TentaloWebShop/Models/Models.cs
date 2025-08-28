@@ -578,8 +578,7 @@ namespace TentaloWebShop.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        [JsonPropertyName("tipo")]
-        public string Tipo { get; set; }
+      
 
         [JsonPropertyName("Familia")]
         public string Famlia { get; set; }
@@ -587,21 +586,7 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("Descripcion")]
         public string Descripcion { get; set; }
 
-        [JsonPropertyName("Parent_Category")]
-        public string Parent_Category { get; set; }
-
-        [JsonPropertyName("imagen")]
-        public string Imagen { get; set; }
-        public bool Ocupado
-        {
-            get => ocupado;
-            set
-            {
-                ocupado = value;
-                NotifyPropertyChanged("Ocupado");
-            }
-        }
-
+   
         private int order;
         [JsonPropertyName("Order")]
         public int Order
@@ -614,46 +599,19 @@ namespace TentaloWebShop.Models
             }
         }
 
-        private int orderfamily;
-        [JsonPropertyName("OrderFamily")]
-        public int OrderFamily
+        public bool Ocupado
         {
-            get => orderfamily;
+            get => ocupado;
             set
             {
-                orderfamily = value;
-                NotifyPropertyChanged("OrderFamily");
+                ocupado = value;
+                NotifyPropertyChanged("Ocupado");
             }
         }
 
-        public bool OcupadoAndroid
-        {
-            get => ocupadoandroid;
-            set
-            {
-                ocupadoandroid = value;
-                NotifyPropertyChanged("OcupadoAndroid");
-            }
-        }
+        [JsonProperty("subfamlines")]
+        public IList<SubFamilia> subfamlines { get; set; }
 
-        private string traducion;
-
-        [JsonPropertyName("traduccion")]
-        public string Traduccion
-        {
-            get => traducion;
-            set
-            {
-                traducion = value;
-                NotifyPropertyChanged("Traduccion");
-            }
-        }
-
-        [JsonPropertyName("ImageBlob@odata.mediaReadLink")]
-
-        public string mediaReadLink { get; set; }
-
-         
 
     }
     public class SubFamilia : INotifyPropertyChanged
@@ -666,20 +624,16 @@ namespace TentaloWebShop.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        [JsonPropertyName("tipo")]
-        public string Tipo { get; set; }
+        
 
-        [JsonPropertyName("famlia")]
-        public string Famlia { get; set; }
+        [JsonPropertyName("No")]
+        public string No { get; set; }
 
-        [JsonPropertyName("subFamlia")]
-        public string subFamlia { get; set; }
-
-        [JsonPropertyName("descripcion")]
+ 
+        [JsonPropertyName("Description")]
         public string Descripcion { get; set; }
 
-        [JsonPropertyName("imagen")]
-        public string Imagen { get; set; }
+        
         public bool Ocupado
         {
             get => ocupado;
@@ -690,491 +644,10 @@ namespace TentaloWebShop.Models
             }
         }
 
-        public bool OcupadoAndroid
-        {
-            get => ocupadoandroid;
-            set
-            {
-                ocupadoandroid = value;
-                NotifyPropertyChanged("OcupadoAndroid");
-            }
-        }
-
-        private string traducion;
-
-        [JsonPropertyName("traduccion")]
-        public string Traduccion
-        {
-            get => traducion;
-            set
-            {
-                traducion = value;
-                NotifyPropertyChanged("Traduccion");
-            }
-        }
+         
     }
 
-    public class SubFamiliasSGJson
-    {
-
-
-
-
-        [JsonPropertyName("@odata.context")]
-        public string OdataContext { get; set; }
-
-        [JsonPropertyName("value")]
-        public IList<SubFamilia> Value { get; set; }
-    }
-
-    //public class Product : INotifyPropertyChanged
-    //{
-    //    #region Event
-
-    //    /// <summary>
-    //    /// The declaration of property changed event.
-    //    /// </summary>
-    //    public event PropertyChangedEventHandler PropertyChanged;
-
-    //    #endregion
-
-    //    #region Methods
-
-    //    /// <summary>
-    //    /// The PropertyChanged event occurs when changing the value of property.
-    //    /// </summary>
-    //    /// <param name="propertyName">Property name</param>
-    //    public void NotifyPropertyChanged(string propertyName)
-    //    {
-    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    //    }
-
-    //    #endregion
-
-    //    #region Fields
-
-    //    private bool isFavourite;
-    //    private bool ocupado;
-    //    private bool ocupadoandroid;
-
-
-    //    private bool llevanotas;
-    //    private string nota;
-
-
-
-    //    private int totalQuantity;
-
-    //    private bool addin;
-    //    private bool extra;
-    //    private bool espan;
-
-    //    #endregion
-
-    //    #region Properties
-
-    //    [JsonPropertyName("agoraNumber")]
-    //    public int ID { get; set; }
-
-    //    [JsonPropertyName("no")]
-    //    public string No { get; set; }
-
-    //    [JsonPropertyName("name")]
-    //    public string Name { get; set; }
-
-    //    [JsonPropertyName("webDescription")]
-    //    public string Summary { get; set; }
-
-    //    [JsonPropertyName("vendorNo")]
-    //    public string VendorNo { get; set; }
-
-    //    [JsonPropertyName("unitofMeasureCode")]
-    //    public string UnitofMeasureCode { get; set; }
-
-    //    [JsonPropertyName("familia")]
-    //    public string Familia { get; set; }
-
-    //    [JsonPropertyName("subFamlia")]
-    //    public string SubFamlia { get; set; }
-
-    //    [JsonPropertyName("directUnitCost")]
-    //    public double directUnitCost { get; set; }
-
-    //    [JsonPropertyName("locationCode")]
-    //    public string LocationCode { get; set; }
-
-    //    [JsonPropertyName("tipo")]
-    //    public string OrderType { get; set; }
-
-    //    [JsonPropertyName("descvar")]
-    //    public string Descvar { get; set; }
-
-    //    [JsonPropertyName("description")]
-    //    public string Description { get; set; }
-
-    //    public double actualprice;
-    //    [JsonPropertyName("ActualPrice")]
-    //    public double ActualPrice
-    //    {
-    //        get => actualprice;
-    //        set
-    //        {
-    //            actualprice = value;
-    //            NotifyPropertyChanged("ActualPrice");
-    //        }
-    //    }
-
-    //    public double DiscountPercent { get; set; }
-
-
-    //    public double OverallRating { get; set; }
-
-    //    public int TotalQuantity
-    //    {
-    //        get => totalQuantity;
-    //        set
-    //        {
-    //            totalQuantity = value;
-    //            NotifyPropertyChanged("TotalQuantity");
-    //        }
-    //    }
-
-    //    private double cantidadencarro;
-    //    public double Cantidadencarro
-    //    {
-    //        get => cantidadencarro;
-    //        set
-    //        {
-    //            cantidadencarro = value;
-    //            NotifyPropertyChanged("Cantidadencarro");
-    //        }
-    //    }
-
-    //    public int SubCategoryId { get; set; }
-
-    //    [JsonPropertyName("purchUnitofMeasure")]
-    //    public string UnitofMeasureCode2 { get; set; }
-
-
-    //    [JsonPropertyName("tipoPrep")]
-    //    public int TipoPrep { get; set; }
-
-
-
-    //    [JsonPropertyName("recomendado")]
-    //    public bool Recomendado { get; set; }
-    //    public string Category { get; set; }
-    //    public double DiscountPrice
-    //    {
-    //        get => ActualPrice - ActualPrice * (DiscountPercent / 100);
-    //        set
-    //        {
-
-    //        }
-    //    }
-    //    public double Importe
-    //    {
-    //        get => ActualPrice * Cantidad;
-
-
-    //    }
-    //    [JsonPropertyName("image")]
-    //    public string imagen { get; set; }
-
-    //    public string Nota
-    //    {
-    //        get => nota;
-
-    //        set
-    //        {
-    //            nota = value;
-    //            NotifyPropertyChanged("Nota");
-    //        }
-
-    //    }
-
-    //    public bool LLevaNotas
-    //    {
-    //        get => llevanotas;
-    //        set
-    //        {
-    //            llevanotas = value;
-    //            NotifyPropertyChanged("LLevaNotas");
-    //        }
-    //    }
-    //    public bool LlevaComplementos { get; set; }
-    //    public bool LLevaExtras { get; set; }
-
-    //    [JsonPropertyName("appAddin")]
-    //    public bool App_Addin
-    //    {
-    //        get => addin;
-    //        set
-    //        {
-    //            addin = value;
-    //            NotifyPropertyChanged("App_Addin");
-    //        }
-    //    }
-
-    //    [JsonPropertyName("appExtra")]
-    //    public bool App_Extra
-    //    {
-    //        get => extra;
-    //        set
-    //        {
-    //            extra = value;
-    //            NotifyPropertyChanged("App_Extra");
-    //        }
-    //    }
-
-
-    //    [JsonPropertyName("descFamily")]
-    //    public string Desc_Family { get; set; }
-
-    //    public bool IsFavourite
-    //    {
-    //        get => isFavourite;
-    //        set
-    //        {
-    //            isFavourite = value;
-    //            NotifyPropertyChanged("IsFavourite");
-    //        }
-    //    }
-
-    //    public bool Ocupado
-    //    {
-    //        get => ocupado;
-    //        set
-    //        {
-    //            ocupado = value;
-    //            NotifyPropertyChanged("Ocupado");
-    //        }
-    //    }
-
-
-
-    //    public bool OcupadoAndroid
-    //    {
-    //        get => ocupadoandroid;
-    //        set
-    //        {
-    //            ocupadoandroid = value;
-    //            NotifyPropertyChanged("OcupadoAndroid");
-    //        }
-    //    }
-
-    //    [JsonPropertyName("inventoryPostingGroup")]
-    //    public string InventoryPostingGroup { get; set; }
-
-    //    [JsonPropertyName("stockUnitofMeasure")]
-    //    public string StockUnitofMeasure { get; set; }
-
-    //    [JsonPropertyName("netChange")]
-    //    public double NetChange { get; set; }
-
-
-    //    [JsonPropertyName("unitCost")]
-    //    public double UnitCost { get; set; }
-
-
-
-
-    //    [JsonPropertyName("cantidadpor")]
-    //    public double Cantidadpor { get; set; }
-
-    //    public double Unidades
-    //    {
-
-    //        get => NetChange / Cantidadpor;
-    //    }
-
-    //    private double precio;
-    //    public double Precio
-    //    {
-    //        get => UnitCost * Cantidadpor;
-    //        set
-    //        {
-    //            precio = value;
-    //            ActualPrice = precio;
-    //            NotifyPropertyChanged("Precio");
-    //        }
-    //    }
-
-    //    [JsonPropertyName("esPan")]
-    //    public bool EsPan
-    //    {
-    //        get => espan;
-    //        set
-    //        {
-    //            espan = value;
-    //            NotifyPropertyChanged("EsPan");
-    //        }
-    //    }
-
-    //    public string Seller { get; set; }
-
-    //    private List<object> quantities;
-
-    //    public List<object> Quantities
-    //    {
-    //        get => quantities;
-    //        set
-    //        {
-    //            quantities = value;
-    //            NotifyPropertyChanged("Quantities");
-    //        }
-    //    }
-
-    //    private IList<Envases> envases;
-    //    [JsonPropertyName("envases")]
-    //    public IList<Envases> Envasess
-    //    {
-    //        get => envases;
-    //        set
-    //        {
-    //            envases = value;
-    //            NotifyPropertyChanged("Envases");
-    //        }
-    //    }
-    //    public List<string> SizeVariants { get; set; }
-
-    //    public int Cantidad { get; set; }
-
-
-    //    [JsonPropertyName("parentWebFamily")]
-    //    public string FamilyCode { get; set; }
-
-    //    [JsonPropertyName("periodicidad")]
-    //    public string Periodicidad { get; set; }
-
-    //    [JsonPropertyName("tipoProducto")]
-    //    public string TipoProducto { get; set; }
-
-    //    //Compnay
-    //    [JsonPropertyName("compnay")]
-    //    public string Compnay { get; set; }
-
-    //    [JsonPropertyName("takeAway")]
-    //    public bool TakeAway { get; set; }
-
-    //    [JsonPropertyName("ordenPrepDefecto")]
-    //    public int ordenPrepDefecto { get; set; }
-
-    //    [JsonPropertyName("esMenu")]
-    //    public bool EsMenu { get; set; }
-
-    //    [JsonPropertyName("lunes")]
-    //    public bool Lunes { get; set; }
-
-    //    [JsonPropertyName("martes")]
-    //    public bool Martes { get; set; }
-
-    //    [JsonPropertyName("miercoles")]
-    //    public bool Miercoles { get; set; }
-
-    //    [JsonPropertyName("jueves")]
-    //    public bool Jueves { get; set; }
-
-    //    [JsonPropertyName("viernes")]
-    //    public bool Viernes { get; set; }
-
-    //    [JsonPropertyName("sabado")]
-    //    public bool Sabado { get; set; }
-
-    //    [JsonPropertyName("domingo")]
-    //    public bool Domingo { get; set; }
-
-    //    [JsonPropertyName("tipoiva")]
-    //    public double TipoIva { get; set; }
-
-    //    [JsonPropertyName("peso_variable")]
-    //    public bool Peso_variable { get; set; }
-
-    //    [JsonPropertyName("peso_real_caja_kg")]
-    //    public double Peso_real_caja_kg { get; set; }
-
-    //    [JsonPropertyName("temperatura_conservación")]
-    //    public string Temperatura_conservación { get; set; }
-
-    //    private string tiempomenu;
-    //    public string TiempoMenu
-    //    {
-    //        get => tiempomenu;
-    //        set
-    //        {
-    //            tiempomenu = value;
-    //            NotifyPropertyChanged("TiempoMenu");
-    //        }
-    //    }
-
-    //    private string color;
-
-    //    public string Color
-    //    {
-    //        get => color;
-    //        set
-    //        {
-    //            color = value;
-    //            NotifyPropertyChanged("Color");
-    //        }
-    //    }
-
-    //    private double? cantidadcontada;
-    //    public double? CantidadContada
-    //    {
-    //        get => cantidadcontada;
-    //        set
-    //        {
-    //            cantidadcontada = value;
-    //            NotifyPropertyChanged("CantidadContada");
-    //        }
-    //    }
-
-    //    private double? cantidadfisica;
-    //    public double? CantidadFisica
-    //    {
-    //        get => cantidadfisica;
-    //        set
-    //        {
-    //            cantidadfisica = value;
-    //            CantidadContada += cantidadfisica;
-    //            NotifyPropertyChanged("CantidadFisica");
-    //        }
-    //    }
-
-    //    public class EnvasesJson
-    //    {
-    //        [JsonPropertyName("@odata.context")]
-    //        public string OdataContext { get; set; }
-
-    //        [JsonPropertyName("value")]
-    //        public IList<Envases> Value { get; set; }
-    //    }
-    //    public class Envases
-    //    {
-    //        [JsonPropertyName("Parent_Item_N_x00BA_")]
-    //        public string Parent_Item_N_x00BA_ { get; set; }
-
-    //        [JsonPropertyName("Item_N_x00BA_")]
-    //        public string Item_N_x00BA_ { get; set; }
-
-    //        [JsonPropertyName("Description")]
-    //        public string Description { get; set; }
-
-    //        [JsonPropertyName("Price")]
-    //        public double Price { get; set; }
-
-    //        [JsonPropertyName("Grup_IVA")]
-    //        public string Grup_IVA { get; set; }
-
-    //        [JsonPropertyName("tipoiva")]
-    //        public double Tipoiva { get; set; }
-    //        public bool Seleccionado { get; set; }
-
-    //    }
-    //    #endregion
-    //}
-
+ 
 
     public class ProductCloud : INotifyPropertyChanged
     {
@@ -1243,8 +716,8 @@ namespace TentaloWebShop.Models
         public string FamiliaN { get; set; }
 
 
-        [JsonPropertyName("SubFamlia")]
-        public string SubFamlia { get; set; }
+        [JsonPropertyName("SubFamilia")]
+        public string SubFamilia { get; set; }
 
 
         [JsonPropertyName("directUnitCost")]
@@ -1270,6 +743,9 @@ namespace TentaloWebShop.Models
 
         [JsonPropertyName("descriptionprod")]
         public string Description { get; set; }
+
+        [JsonPropertyName("ingredientes")]
+        public string ingredientes { get; set; }
 
         public double actualprice;
 
@@ -1333,7 +809,8 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("EAN13")]
         public string EAN13 { get; set; }
 
-
+        [JsonPropertyName("ImageUrl")]
+        public string ImageUrl { get; set; }
 
         [JsonPropertyName("recomendado")]
         public bool Recomendado { get; set; }
