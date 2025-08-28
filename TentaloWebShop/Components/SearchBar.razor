@@ -1,21 +1,131 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager Nav
 
-<div class="input-group my-2 my-lg-0">
-  <input class="form-control" placeholder="Buscar Productos" @bind="term" @bind:event="oninput" @onkeydown="KeyDown" />
-  <button class="btn btn-outline-secondary" @onclick="Go">Buscar</button>
+<div class="search-container">
+    <div class="input-group search-input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text search-icon">
+                <i class="bi bi-search"></i>
+            </span>
+        </div>
+        <input class="form-control search-input"
+               placeholder="@GetPlaceholder()"
+               @bind="term"
+               @bind:event="oninput"
+               @onkeydown="KeyDown"
+               @onfocus="OnFocus"
+               @onblur="OnBlur"
+               autocomplete="off"
+               maxlength="100" />
+        <div class="input-group-append">
+            <button class="btn btn-search"
+                    @onclick="Go"
+                    type="button"
+                    disabled="@(string.IsNullOrWhiteSpace(term))"
+                    aria-label="Buscar productos">
+                <span class="d-none d-sm-inline">Buscar</span>
+                <i class="bi bi-arrow-right d-sm-none"></i>
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(term))
+        {
+            <button class="btn btn-clear"
+                    @onclick="Clear"
+                    type="button"
+                    aria-label="Limpiar búsqueda">
+                <i class="bi bi-x"></i>
+            </button>
+        }
+    </div>
+
+    <!-- Sugerencias rápidas (opcional) -->
+    @if (isFocused && string.IsNullOrWhiteSpace(term))
+    {
+        <div class="search-suggestions">
+            <div class="suggestion-header">Búsquedas populares</div>
+            @foreach (var suggestion in popularSearches)
+            {
+                <button class="suggestion-item" @onclick="() => SearchSuggestion(suggestion)">
+                    <i class="bi bi-clock-history me-2"></i>
+                    @suggestion
+                </button>
+            }
+        </div>
+    }
 </div>
 
 @code {
     [Parameter] public string? Class { get; set; }
     private string term = string.Empty;
+    private bool isFocused = false;
+
+    private readonly string[] popularSearches = new[]
+    {
+        "Proteína",
+        "Creatina",
+        "Barritas",
+        "Vitaminas",
+        "Pre-entreno"
+    };
+
+    private string GetPlaceholder()
+    {
+        return isMobile() ? "Buscar..." : "Buscar productos, marcas, categorías...";
+    }
+
+    private bool isMobile()
+    {
+        // Simplificado - en producción podrías usar JS para detectar el tamaño de pantalla
+        return true; // Para este ejemplo
+    }
+
     private void Go()
     {
-        var q = Uri.EscapeDataString(term ?? "");
+        if (string.IsNullOrWhiteSpace(term)) return;
+
+        var q = Uri.EscapeDataString(term.Trim());
         Nav.NavigateTo($"/buscar?q={q}");
+        isFocused = false;
     }
+
+    private void Clear()
+    {
+        term = string.Empty;
+        isFocused = false;
+    }
+
+    private void SearchSuggestion(string suggestion)
+    {
+        term = suggestion;
+        Go();
+    }
+
     private void KeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter") Go();
+        if (e.Key == "Enter")
+        {
+            Go();
+        }
+        else if (e.Key == "Escape")
+        {
+            isFocused = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnFocus()
+    {
+        isFocused = true;
+    }
+
+    private void OnBlur()
+    {
+        // Delay para permitir clicks en sugerencias
+        Task.Delay(150).ContinueWith(_ =>
+        {
+            isFocused = false;
+            InvokeAsync(StateHasChanged);
+        });
     }
 }

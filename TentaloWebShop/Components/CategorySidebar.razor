@@ -3,36 +3,49 @@
 @using Microsoft.AspNetCore.Components.Routing
 @using System.Text.RegularExpressions
 
-<div class="card">
-    <div class="card-header bg-white fw-bold">Catálogo</div>
+<div class="card category-sidebar">
+    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+        <span>Catálogo</span>
+        <button class="btn btn-sm btn-outline-secondary d-lg-none"
+                @onclick="ToggleMobileMenu"
+                aria-label="Alternar categorías">
+            <i class="bi bi-@(showMobileMenu ? "chevron-up" : "list")"></i>
+        </button>
+    </div>
 
-    <div class="list-group list-group-flush sidebar-accordion">
-        <a class="list-group-item" href="/catalogo">Todos los Productos</a>
+    <div class="list-group list-group-flush sidebar-accordion @(showMobileMenu ? "show-mobile" : "hide-mobile")">
+        <a class="list-group-item list-group-item-action" href="/catalogo">
+            <i class="bi bi-grid me-2"></i>Todos los Productos
+        </a>
 
         @foreach (var fam in families)
         {
             var isOpen = openFamilies.Contains(fam.Slug) || IsActiveFamily(fam.Slug);
 
-            <div class="list-group-item p-0">
+            <div class="list-group-item p-0 family-group">
                 <!-- Cabecera de familia -->
                 <button type="button"
                         class="fam-btn w-100 d-flex align-items-center justify-content-between"
                         @onclick="() => Toggle(fam.Slug)"
                         aria-expanded="@isOpen"
                         aria-controls="@($"sub-{fam.Slug}")">
-                    <span class="fw-semibold text-start">@fam.Name</span>
-                    <span class="chev @(isOpen ? "open" : null)">›</span>
+                    <span class="fw-semibold text-start d-flex align-items-center">
+                        <i class="bi bi-tag me-2"></i>
+                        <span class="family-name">@fam.Name</span>
+                    </span>
+                    <i class="bi bi-chevron-@(isOpen ? "down" : "right") chev-icon"></i>
                 </button>
 
                 <!-- Subfamilias (plegable) -->
-                <div id="@($"sub-{fam.Slug}")" class="@($"collapse {(isOpen ? "show" : "")}")">
+                <div id="@($"sub-{fam.Slug}")" class="@($"collapse subfamily-list {(isOpen ? "show" : "")}")">
                     <ul class="list-unstyled ps-3 py-2 mb-0">
                         @foreach (var s in fam.Subs)
                         {
-                            <li class="mb-1">
-                                <a class="link-secondary @(IsActive(fam.Slug, s.Slug) ? "fw-semibold text-dark" : "")"
+                            <li class="mb-1 subfamily-item">
+                                <a class="subfamily-link @(IsActive(fam.Slug, s.Slug) ? "fw-semibold text-danger active" : "link-secondary")"
                                    href="@($"/categoria/{fam.Slug}/{s.Slug}")">
-                                    @s.Name
+                                    <i class="bi bi-arrow-right-short me-1"></i>
+                                    <span>@s.Name</span>
                                 </a>
                             </li>
                         }
@@ -46,10 +59,10 @@
 @code {
     private List<Category> families = new();
     private HashSet<string> openFamilies = new(StringComparer.OrdinalIgnoreCase);
+    private bool showMobileMenu = false;
 
     protected override async Task OnInitializedAsync()
     {
-        // Si tu CategoryService es síncrono, usa: families = Categories.GetFamilies();
         families = await Categories.GetFamilies();
         ExpandActiveFromUri(Nav.Uri);
         Nav.LocationChanged += OnLocationChanged;
@@ -61,6 +74,11 @@
             openFamilies.Remove(slug);
     }
 
+    private void ToggleMobileMenu()
+    {
+        showMobileMenu = !showMobileMenu;
+    }
+
     private bool IsActive(string fam, string sub)
         => Nav.Uri.Contains($"/categoria/{fam}/{sub}", StringComparison.OrdinalIgnoreCase);
 
@@ -70,6 +88,7 @@
     private void OnLocationChanged(object? s, LocationChangedEventArgs e)
     {
         ExpandActiveFromUri(e.Location);
+        showMobileMenu = false; // Cerrar menú móvil al navegar
         StateHasChanged();
     }
 
