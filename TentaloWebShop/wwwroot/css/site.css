@@ -1700,3 +1700,195 @@ h1 {
         padding: 1rem 1.5rem;
     }
 }
+
+/* ===== ICONO HAMBURGUESA PERSONALIZADO ===== */
+
+/* Botón contenedor del icono */
+.btn-catalog-toggle {
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    background: white;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0;
+}
+
+    .btn-catalog-toggle:hover {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-catalog-toggle:focus {
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        outline: none;
+    }
+
+/* Contenedor del icono hamburguesa */
+.catalog-toggle-icon {
+    width: 18px;
+    height: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+    /* Las tres líneas del hamburguesa */
+    .catalog-toggle-icon span {
+        display: block;
+        height: 2px;
+        width: 100%;
+        background-color: currentColor;
+        border-radius: 2px;
+        transition: all 0.3s ease-in-out;
+        transform-origin: center;
+    }
+
+        /* Estado cerrado (hamburguesa normal) */
+        .catalog-toggle-icon span:first-child {
+            transform: translateY(0) rotate(0);
+        }
+
+        .catalog-toggle-icon span:nth-child(2) {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .catalog-toggle-icon span:last-child {
+            transform: translateY(0) rotate(0);
+        }
+
+    /* Estado abierto (se convierte en X) */
+    .catalog-toggle-icon.open span:first-child {
+        transform: translateY(6px) rotate(45deg);
+    }
+
+    .catalog-toggle-icon.open span:nth-child(2) {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    .catalog-toggle-icon.open span:last-child {
+        transform: translateY(-6px) rotate(-45deg);
+    }
+
+/* ===== HOVER EFFECTS ===== */
+.btn-catalog-toggle:hover .catalog-toggle-icon span {
+    background-color: white;
+}
+
+/* Efecto cuando está cerrado y haces hover */
+.btn-catalog-toggle:hover .catalog-toggle-icon:not(.open) span {
+    transform: scale(1.1);
+}
+
+    .btn-catalog-toggle:hover .catalog-toggle-icon:not(.open) span:first-child {
+        transform: translateX(2px) scale(1.1);
+    }
+
+    .btn-catalog-toggle:hover .catalog-toggle-icon:not(.open) span:last-child {
+        transform: translateX(-2px) scale(1.1);
+    }
+
+/* ===== VARIANTE ALTERNATIVA (Icono más suave) ===== */
+.catalog-toggle-icon-soft {
+    width: 16px;
+    height: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+    .catalog-toggle-icon-soft span {
+        height: 1.5px;
+        background-color: currentColor;
+        border-radius: 1px;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 991.98px) {
+    .btn-catalog-toggle {
+        width: 36px;
+        height: 36px;
+    }
+
+    .catalog-toggle-icon {
+        width: 16px;
+        height: 12px;
+    }
+
+        .catalog-toggle-icon.open span:first-child {
+            transform: translateY(5px) rotate(45deg);
+        }
+
+        .catalog-toggle-icon.open span:last-child {
+            transform: translateY(-5px) rotate(-45deg);
+        }
+}
+
+@media (max-width: 576px) {
+    .btn-catalog-toggle {
+        width: 34px;
+        height: 34px;
+    }
+
+    .catalog-toggle-icon {
+        width: 14px;
+        height: 10px;
+    }
+
+        .catalog-toggle-icon span {
+            height: 1.5px;
+        }
+
+        .catalog-toggle-icon.open span:first-child {
+            transform: translateY(4px) rotate(45deg);
+        }
+
+        .catalog-toggle-icon.open span:last-child {
+            transform: translateY(-4px) rotate(-45deg);
+        }
+}
+
+/* ===== ESTADOS ADICIONALES ===== */
+
+/* Efecto de clic (active) */
+.btn-catalog-toggle:active {
+    transform: scale(0.98);
+}
+
+/* Animación de entrada */
+.catalog-toggle-icon span {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Para usuarios que prefieren movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    .catalog-toggle-icon span,
+    .btn-catalog-toggle {
+        transition: none;
+        animation: none;
+    }
+}
