@@ -20,17 +20,18 @@
             <input type="password" class="form-control" @bind="password" autocomplete="current-password" />
         </div>
 
-        <button type="button"
-                class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2"
-                disabled="@isBusy"
-                @onclick="DoLogin">
-            @if (isBusy)
-            {
-                <span class="spinner-border spinner-border-sm align-middle"
-                      role="status" aria-hidden="true"></span>
-            }
-            <span>@(isBusy ? "Accediendo…" : "Acceder")</span>
-        </button>
+       <button type="button"
+        class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2"
+        style="min-height: 55px;"
+        disabled="@isBusy"
+        @onclick="DoLogin">
+    @if (isBusy)
+    {
+        <span class="spinner-border spinner-border-sm align-middle"
+              role="status" aria-hidden="true"></span>
+    }
+    <span>@(isBusy ? "Accediendo…" : "Acceder")</span>
+</button>
 
         @if (!string.IsNullOrEmpty(error))
         {
