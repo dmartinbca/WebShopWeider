@@ -16,83 +16,101 @@ else
 {
     <div class="profile-container">
         <!-- Header del perfil -->
-        <div class="profile-header">
+      @*   <div class="profile-header">
             <div class="profile-avatar">
                 <div class="avatar-circle">
                     <i class="bi bi-person-fill"></i>
                 </div>
             </div>
             <div class="profile-info">
-                <h1 class="profile-name">@Auth.CurrentUser?.FullName</h1>
-                <p class="profile-email">@Auth.CurrentUser?.Email</p>
-                <span class="profile-badge">
-                    @if (Auth.CurrentUser?.EsMaster == true)
-                    {
-                        <i class="bi bi-star-fill me-1"></i>
-                       
-                                    }
-                    else
-                    {
-                        <i class="bi bi-person-check me-1"></i>
-                      
-                                }
-                </span>
+                <h1 class="profile-name">@Auth.CurrentUser?.Email</h1>
+                
+                
             </div>
-        </div>
-
+        </div> *@
+        <div class="row equal-height">
         <div class="row g-4">
             <!-- Información del Cliente -->
             <div class="col-12 col-xl-8">
-                <div class="card profile-card">
-                    <div class="card-header">
+                <div class="card profile-card client-info-card equal-height-card">
+                    <div class="card-header client-header">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-person-lines-fill me-2"></i>
                             Información del Cliente
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-4">
+                    <div class="card-body p-0">
+                        <div class="row g-0">
                             <div class="col-12 col-md-6">
-                                <div class="info-item">
-                                    <label>Cliente</label>
-                                    <div class="info-value">@Auth.CurrentCustomer?.Name</div>
+                                <div class="client-item">
+                                    <div class="client-label">
+                                        <div class="client-icon icon-person">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <span>Cliente</span>
+                                    </div>
+                                    <div class="client-value">@Auth.CurrentCustomer?.Name</div>
                                 </div>
                             </div>
+
                             <div class="col-12 col-md-6">
-                                <div class="info-item">
-                                    <label>CIF/NIF</label>
-                                    <div class="info-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
+                                <div class="client-item">
+                                    <div class="client-label">
+                                        <div class="client-icon icon-document">
+                                            <i class="bi bi-card-text"></i>
+                                        </div>
+                                        <span>CIF/NIF</span>
+                                    </div>
+                                    <div class="client-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
                                 </div>
                             </div>
+
                             <div class="col-12">
-                                <div class="info-item">
-                                    <label>Dirección</label>
-                                    <div class="info-value">
+                                <div class="client-item client-item-full">
+                                    <div class="client-label">
+                                        <div class="client-icon icon-location">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                        </div>
+                                        <span>Dirección</span>
+                                    </div>
+                                    <div class="client-value client-address">
                                         @Auth.CurrentCustomer?.Address<br />
                                         @Auth.CurrentCustomer?.County<br />
                                         @Auth.CurrentCustomer?.City, @Auth.CurrentCustomer?.PostCode
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-12 col-md-6">
-                                <div class="info-item">
-                                    <label>Teléfono</label>
-                                    <div class="info-value">
+                                <div class="client-item no-border-mobile">
+                                    <div class="client-label">
+                                        <div class="client-icon icon-phone">
+                                            <i class="bi bi-telephone-fill"></i>
+                                        </div>
+                                        <span>Teléfono</span>
+                                    </div>
+                                    <div class="client-value">
                                         @if (!string.IsNullOrEmpty(Auth.CurrentCustomer?.PhoneNo))
                                         {
                                             @Auth.CurrentCustomer?.PhoneNo
                                         }
                                         else
                                         {
-                                            <span class="text-muted">No especificado</span>
+                                            <span class="text-muted-custom">No especificado</span>
                                         }
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-12 col-md-6">
-                                <div class="info-item">
-                                    <label>Email</label>
-                                    <div class="info-value">@Auth.CurrentUser?.Email</div>
+                                <div class="client-item no-border">
+                                    <div class="client-label">
+                                        <div class="client-icon icon-email">
+                                            <i class="bi bi-envelope-fill"></i>
+                                        </div>
+                                        <span>Email</span>
+                                    </div>
+                                    <div class="client-value">@Auth.CurrentUser?.Email</div>
                                 </div>
                             </div>
                         </div>
@@ -102,17 +120,19 @@ else
 
             <!-- Información Financiera -->
             <div class="col-12 col-xl-4">
-                <div class="card profile-card">
-                    <div class="card-header">
+                    <div class="card profile-card financial-summary-card equal-height-card">
+                    <div class="card-header financial-header">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-wallet2 me-2"></i>
                             Resumen Financiero
                         </h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <div class="financial-item">
                             <div class="financial-label">
-                                <i class="bi bi-currency-euro"></i>
+                                <div class="financial-icon icon-balance">
+                                    <i class="bi bi-currency-euro"></i>
+                                </div>
                                 <span>Saldo</span>
                             </div>
                             <div class="financial-value positive">@Eur(Auth.CurrentCustomer?.netChange)</div>
@@ -120,7 +140,9 @@ else
 
                         <div class="financial-item">
                             <div class="financial-label">
-                                <i class="bi bi-exclamation-triangle"></i>
+                                <div class="financial-icon icon-overdue">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
                                 <span>Saldo vencido</span>
                             </div>
                             <div class="financial-value @(Auth.CurrentCustomer?.balanceDue > 0 ? "negative" : "neutral")">
@@ -130,7 +152,9 @@ else
 
                         <div class="financial-item">
                             <div class="financial-label">
-                                <i class="bi bi-credit-card"></i>
+                                <div class="financial-icon icon-credit">
+                                    <i class="bi bi-credit-card"></i>
+                                </div>
                                 <span>Límite de crédito</span>
                             </div>
                             <div class="financial-value neutral">@Eur(Auth.CurrentCustomer?.creditLimitLCY)</div>
@@ -138,15 +162,19 @@ else
 
                         <div class="financial-item">
                             <div class="financial-label">
-                                <i class="bi bi-percent"></i>
+                                <div class="financial-icon icon-discount">
+                                    <i class="bi bi-percent"></i>
+                                </div>
                                 <span>Descuento general</span>
                             </div>
                             <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.Desgeneral)</div>
                         </div>
 
-                        <div class="financial-item">
+                        <div class="financial-item no-border">
                             <div class="financial-label">
-                                <i class="bi bi-tag"></i>
+                                <div class="financial-icon icon-tag">
+                                    <i class="bi bi-tag"></i>
+                                </div>
                                 <span>Descuento PP</span>
                             </div>
                             <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.DescPP)</div>
@@ -154,6 +182,7 @@ else
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 
         <!-- Gráfico de Ventas -->
@@ -198,6 +227,7 @@ else
             </div>
         </div>
     </div>
+
 }
 
 @code {

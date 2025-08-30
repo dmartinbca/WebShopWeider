@@ -28,9 +28,12 @@ public class ProductService
                         Name = p.Description ?? "",
                         Slug = p.Description.Replace(" ", ""),
                         Description = p.ingredientes ?? "",
-                        PriceFrom = Convert.ToDecimal(p.ActualPrice),
+                        PriceFrom = Convert.ToDecimal(p.Presentation_Price),
                         PriceTo = Convert.ToDecimal(p.ActualPrice),
                         ImageUrl = string.IsNullOrWhiteSpace( p.ImageUrl )? "/images/image.png": p.ImageUrl,
+                        Presentation_Price = p.Presentation_Price,
+                        Presentation_Qty = Convert.ToInt32( p.Presentation_Qty),
+                        Presentation_Unit = p.Present_Unit ?? "",
                         FamilySlug = (p.FamiliaN.Replace(" ", "")) ?? "",
                         SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", "")
                     });

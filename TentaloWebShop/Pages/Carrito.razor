@@ -1,6 +1,7 @@
 @page "/carrito"
 @inject CartService Cart
 @inject NavigationManager Nav
+
 <h1>Carrito de Compra</h1>
 
 @if (!Cart.Items.Any())
@@ -19,13 +20,22 @@ else
                         <div class="d-flex align-items-start py-2 border-bottom">
                             <img src="@item.Product.ImageUrl" class="rounded me-3" style="width:72px;height:72px;object-fit:cover;" onerror="this.src='/images/placeholder.png'">
                             <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <a href="@($"/producto/{item.Product.Slug}")" class="link-dark fw-semibold">@item.Product.Name</a>
-                                    <div class="fw-bold">@((item.Product.PriceFrom * item.Quantity).ToString("0.00")) €</div>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <a href="@($"/producto/{item.Product.Slug}")" class="link-dark fw-semibold d-block mb-1">@item.Product.Name</a>
+                                        <div class="text-muted small">
+                                            <span>@item.Product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
+                                            <span class="mx-1">×</span>
+                                            <span>@item.Product.Presentation_Unit</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="h5 mb-0 fw-bold">@((item.Product.PriceFrom * item.Quantity).ToString("0.00")) €</div>
+                                    </div>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 mt-2">
                                     <QuantityStepper Value="item.Quantity" ValueChanged="(v)=> Change(item, v)" />
-                                    <button class="btn btn-link link-danger" @onclick="(()=>Remove(item))">Eliminar</button>
+                                    <button class="btn btn-link link-danger p-0 ms-2" @onclick="(()=>Remove(item))">Eliminar</button>
                                 </div>
                             </div>
                         </div>
@@ -37,8 +47,15 @@ else
             <div class="card">
                 <div class="card-body">
                     <h5>Resumen</h5>
-                    <div class="d-flex justify-content-between"><span>Artículos</span><strong>@Cart.TotalQuantity</strong></div>
-                    <div class="d-flex justify-content-between"><span>Total</span><strong>@Cart.TotalAmount.ToString("0.00") €</strong></div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Artículos</span>
+                        <strong>@Cart.TotalQuantity</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="h6">Total</span>
+                        <strong class="h5">@Cart.TotalAmount.ToString("0.00") €</strong>
+                    </div>
                     <button class="btn btn-danger w-100 mt-3" @onclick="Checkout" disabled>Tramitar pedido</button>
                     <div class="form-text mt-2">* Demo: el checkout está deshabilitado.</div>
                 </div>

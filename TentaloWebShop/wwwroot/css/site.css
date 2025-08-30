@@ -1,6 +1,6 @@
-/* ===== CARRITO MEJORADO ===== */
+Ôªø/* ===== CARRITO MEJORADO ===== */
 .cart-button {
-    border-radius: 25px !important;
+    border-radius: 20px !important;
     padding: 0.5rem 1rem !important;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -151,7 +151,7 @@
         transform: scale(1.1);
     }
 
-/* ===== SIDEBAR CATEGORÕAS ===== */
+/* ===== SIDEBAR CATEGOR√çAS ===== */
 .sidebar-cats {
     background-color: #f8f9fa;
     min-height: calc(100vh - 80px);
@@ -192,7 +192,7 @@
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
-    content: "õ";
+    content: "‚Üí";
     font-weight: bold;
     color: #111111;
 }
@@ -295,7 +295,7 @@
     }
 }
 
-/* ===== ANIMACI”N DE ENTRADA ===== */
+/* ===== ANIMACI√ìN DE ENTRADA ===== */
 .fade-in {
     animation: fadeIn 0.5s ease-in-out;
 }
@@ -338,7 +338,7 @@
         .footer a:hover {
             color: #111111 !important;
         }
-/* ===== MEJORAS RESPONSIVE PARA M”VILES ===== */
+/* ===== MEJORAS RESPONSIVE PARA M√ìVILES ===== */
 
 /* Variables CSS para consistencia */
 :root {
@@ -352,7 +352,7 @@
     --transition: all 0.3s ease;
 }
 
-/* ===== NAVEGACI”N M”VIL ===== */
+/* ===== NAVEGACI√ìN M√ìVIL ===== */
 @media (max-width: 991.98px) {
     .navbar {
         padding: 0.5rem 0;
@@ -413,7 +413,7 @@
             }
 }
 
-/* ===== CARRITO M”VIL ===== */
+/* ===== CARRITO M√ìVIL ===== */
 @media (max-width: 768px) {
     .cart-button {
         padding: 0.5rem 0.75rem !important;
@@ -444,7 +444,7 @@
         box-shadow: var(--shadow-sm);
     }
 
-    /* BotÛn de carrito en navbar collapse */
+    /* Bot√≥n de carrito en navbar collapse */
     .d-flex.gap-3 {
         margin-top: 1rem;
         padding-top: 1rem;
@@ -454,7 +454,7 @@
     }
 }
 
-/* ===== SIDEBAR M”VIL ===== */
+/* ===== SIDEBAR M√ìVIL ===== */
 @media (max-width: 991.98px) {
     .sidebar-cats {
         background: white !important;
@@ -524,7 +524,7 @@
             }
 }
 
-/* ===== PRODUCTOS GRID M”VIL ===== */
+/* ===== PRODUCTOS GRID M√ìVIL ===== */
 @media (max-width: 576px) {
     .product-card {
         margin-bottom: 1rem;
@@ -585,7 +585,7 @@
     }
 }
 
-/* ===== BREADCRUMBS M”VIL ===== */
+/* ===== BREADCRUMBS M√ìVIL ===== */
 @media (max-width: 768px) {
     .breadcrumb {
         font-size: 0.875rem;
@@ -602,7 +602,7 @@
     }
 }
 
-/* ===== SEARCH BAR M”VIL ===== */
+/* ===== SEARCH BAR M√ìVIL ===== */
 @media (max-width: 991.98px) {
     .input-group {
         margin: 1rem 0;
@@ -638,7 +638,7 @@
         }
 }
 
-/* ===== P¡GINA DE PRODUCTO M”VIL ===== */
+/* ===== P√ÅGINA DE PRODUCTO M√ìVIL ===== */
 @media (max-width: 768px) {
     .row.g-4 {
         gap: 1.5rem !important;
@@ -672,7 +672,7 @@
     }
 }
 
-/* ===== CARRITO P¡GINA M”VIL ===== */
+/* ===== CARRITO P√ÅGINA M√ìVIL ===== */
 @media (max-width: 768px) {
     .d-flex.align-items-start {
         flex-direction: column;
@@ -753,7 +753,7 @@
     }
 }
 
-/* ===== ANIMACIONES SUAVES M”VIL ===== */
+/* ===== ANIMACIONES SUAVES M√ìVIL ===== */
 @media (max-width: 768px) {
     * {
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0.2);
@@ -769,7 +769,7 @@
         transform: scale(0.98) translateY(2px);
     }
 }
-/* ===== ESTILOS ESPECÕFICOS PARA CATEGORÕAS M”VIL ===== */
+/* ===== ESTILOS ESPEC√çFICOS PARA CATEGOR√çAS M√ìVIL ===== */
 .category-sidebar {
     border: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -880,7 +880,7 @@
         color: var(--weider-red);
     }
 
-/* ===== RESPONSIVE M”VIL ===== */
+/* ===== RESPONSIVE M√ìVIL ===== */
 @media (max-width: 991.98px) {
     .hide-mobile {
         display: none;
@@ -967,7 +967,7 @@
         transform: translateY(0);
     }
 }
-/* ===== PRODUCT CARD M”VIL OPTIMIZADA ===== */
+/* ===== PRODUCT CARD M√ìVIL OPTIMIZADA ===== */
 .product-card {
     transition: all 0.3s ease;
     border: none;
@@ -1176,7 +1176,7 @@
         transform: translateY(-1px);
     }
 
-/* ===== RESPONSIVE ESPECÕFICO PARA PRODUCTS ===== */
+/* ===== RESPONSIVE ESPEC√çFICO PARA PRODUCTS ===== */
 @media (max-width: 576px) {
     .product-card {
         margin-bottom: 1rem;
@@ -1292,7 +1292,7 @@
     opacity: 0.6;
     background-color: #f8f9fa;
 }
-/* ===== SEARCH BAR M”VIL OPTIMIZADA ===== */
+/* ===== SEARCH BAR M√ìVIL OPTIMIZADA ===== */
 .search-container {
     position: relative;
     width: 100%;
@@ -1447,7 +1447,7 @@
         background: rgba(0, 0, 0, 0.15);
     }
 
-/* ===== RESPONSIVE M”VIL SEARCH BAR ===== */
+/* ===== RESPONSIVE M√ìVIL SEARCH BAR ===== */
 @media (max-width: 768px) {
     .search-input-group {
         border-radius: 20px;
@@ -1578,9 +1578,9 @@ h1 {
         outline: none !important;
     }
 
-/* ===== ESTILOS PARA P¡GINA DE LOGIN ===== */
+/* ===== ESTILOS PARA P√ÅGINA DE LOGIN ===== */
 
-/* TÌtulo de login sin borde */
+/* T√≠tulo de login sin borde */
 .login-title {
     outline: none !important;
     border: none !important;
@@ -1625,7 +1625,7 @@ h1 {
             outline: none;
         }
 
-/* BotÛn de login */
+/* Bot√≥n de login */
 .login-btn {
     background: linear-gradient(135deg, #111111, #000000);
     border: none;
@@ -1704,7 +1704,7 @@ h1 {
 
 /* ===== ICONO HAMBURGUESA PERSONALIZADO ===== */
 
-/* BotÛn contenedor del icono */
+/* Bot√≥n contenedor del icono */
 .btn-catalog-toggle {
     border: 2px solid #111111;
     color: #111111;
@@ -1796,7 +1796,7 @@ h1 {
         transform: translateX(-2px) scale(1.1);
     }
 
-/* ===== VARIANTE ALTERNATIVA (Icono m·s suave) ===== */
+/* ===== VARIANTE ALTERNATIVA (Icono m√°s suave) ===== */
 .catalog-toggle-icon-soft {
     width: 16px;
     height: 12px;
@@ -1884,5 +1884,340 @@ h1 {
     .btn-catalog-toggle {
         transition: none;
         animation: none;
+    }
+}
+/* Para el elemento activo/seleccionado en el sidebar */
+.list-group-item-action.active,
+.list-group-item.active,
+.sidebar-cats .active {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #000000 !important;
+    border-left: 3px solid #000000;
+}
+
+/* Si es un enlace espec√≠fico */
+.sidebar-cats a.active,
+.list-group-item a.active {
+    color: #000000 !important;
+}
+
+/* Para el texto espec√≠fico de CARBO BOOST GEL si tiene una clase especial */
+.text-danger {
+    color: #000000 !important;
+}
+
+ 
+/* Estilos para el resumen financiero mejorado */
+.financial-summary-card {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.financial-summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.financial-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: none;
+    padding: 20px 25px;
+    color: white;
+}
+
+    .financial-header .card-title {
+        font-weight: 600;
+        font-size: 16px;
+        letter-spacing: 0.3px;
+    }
+
+.financial-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: all 0.2s ease;
+}
+
+    .financial-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .financial-item.no-border {
+        border-bottom: none;
+    }
+
+.financial-label {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.financial-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.icon-balance {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+}
+
+.icon-overdue {
+    background: linear-gradient(135deg, #f56565, #e53e3e);
+}
+
+.icon-credit {
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+}
+
+.icon-discount {
+    background: linear-gradient(135deg, #ed8936, #dd6b20);
+}
+
+.icon-tag {
+    background: linear-gradient(135deg, #9f7aea, #805ad5);
+}
+
+.financial-value {
+    font-weight: 700;
+    font-size: 16px;
+    text-align: right;
+}
+
+    .financial-value.positive {
+        color: #48bb78;
+    }
+
+    .financial-value.negative {
+        color: #f56565;
+    }
+
+    .financial-value.neutral {
+        color: #4299e1;
+    }
+
+    .financial-value.highlight {
+        color: #ed8936;
+    }
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .financial-item {
+        padding: 15px 20px;
+    }
+
+    .financial-label {
+        font-size: 13px;
+        gap: 12px;
+    }
+
+    .financial-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .financial-value {
+        font-size: 15px;
+    }
+}
+
+/* Estilos para igualar altura de las cards */
+.equal-height-card {
+    height: 100%;
+}
+
+/* Asegurar que el contenedor row use flexbox para igualar alturas */
+.row.equal-height {
+    display: flex;
+    align-items: stretch;
+}
+
+    .row.equal-height > [class*="col"] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row.equal-height .card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row.equal-height .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+/* Estilos para la informaci√≥n del cliente mejorada */
+.client-info-card {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+    .client-info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
+
+.client-header {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    border-bottom: none;
+    padding: 20px 25px;
+    color: white;
+}
+
+    .client-header .card-title {
+        font-weight: 600;
+        font-size: 16px;
+        letter-spacing: 0.3px;
+    }
+
+.client-item {
+    padding: 20px 25px;
+    border-bottom: 1px solid #f1f3f4;
+    border-right: 1px solid #f1f3f4;
+    transition: all 0.2s ease;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+    .client-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .client-item.no-border {
+        border-bottom: none;
+    }
+
+    .client-item.no-border-mobile {
+        border-right: 1px solid #f1f3f4;
+    }
+
+.client-item-full {
+    border-right: none !important;
+}
+
+.client-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.client-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.icon-person {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.icon-document {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.icon-location {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.icon-phone {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+}
+
+.icon-email {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+}
+
+.client-value {
+    font-weight: 500;
+    color: #2d3748;
+    font-size: 15px;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.client-address {
+    line-height: 1.6;
+}
+
+.text-muted-custom {
+    color: #a0aec0;
+    font-style: italic;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .client-item {
+        padding: 18px 20px;
+        border-right: none !important;
+        min-height: auto;
+    }
+
+        .client-item.no-border-mobile {
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+    .client-label {
+        font-size: 12px;
+        gap: 10px;
+    }
+
+    .client-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .client-value {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 769px) {
+    .col-md-6:nth-child(odd) .client-item {
+        border-right: 1px solid #f1f3f4;
+    }
+
+    .col-md-6:nth-child(even) .client-item {
+        border-right: none;
+    }
+
+    .col-md-6:nth-child(3) .client-item,
+    .col-md-6:nth-child(4) .client-item {
+        border-bottom: none;
     }
 }

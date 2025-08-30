@@ -26,13 +26,18 @@ else
             <div class="mb-2">
              
                     <span class="price h4">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
-
+                <span class="price-single">x</span>
+                <span class="price-single">@product.Presentation_Unit</span>
            
             </div>
           @*   <FiltersBar Filters="product.Tags.ToArray()" /> *@
             <div class="d-flex align-items-center gap-2 my-3">
                 <QuantityStepper Value="qty" ValueChanged="v=> qty=v" />
-                <button class="btn btn-danger btn-lg" @onclick="Add">Añadir al Carrito</button>
+                <button class="btn btn-danger btn-lg" 
+                      @onclick="Add" 
+                       disabled="@(product.PriceFrom <= 0)">
+                       Añadir al Carrito
+                    </button>
             </div>
             <p class="text-muted">@product.Description</p>
            

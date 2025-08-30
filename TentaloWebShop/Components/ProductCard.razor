@@ -33,18 +33,11 @@
         </h6>
 
         <div class="product-price mb-3">
-            @if (Product.PriceTo.HasValue && Product.PriceTo > Product.PriceFrom)
-            {
-                <div class="price-range">
-                    <span class="price-from">@Product.PriceFrom.ToString("N2", es) €</span>
-                    <span class="price-separator">-</span>
-                    <span class="price-to">@Product.PriceTo?.ToString("N2", es) €</span>
-                </div>
-            }
-            else
-            {
-                <span class="price-single">@Product.PriceFrom.ToString("N2", es) €</span>
-            }
+          
+            <span class="price-single">@Product.PriceFrom.ToString("N2", es) €</span>
+            <span class="price-single">x</span>
+            <span class="price-single">@Product.Presentation_Unit</span>
+
         </div>
 
         <div class="mt-auto product-actions">
@@ -56,7 +49,7 @@
             <div class="action-buttons">
                 <button class="btn btn-danger btn-add-cart @(isAdding ? "adding" : "")"
                         @onclick="Add"
-                        disabled="@isAdding"
+                        disabled="@(isAdding || Product.PriceFrom <= 0)"
                         aria-label="Añadir @Product.Name al carrito">
                     @if (isAdding)
                     {
