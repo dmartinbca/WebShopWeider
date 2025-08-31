@@ -3500,3 +3500,150 @@ h1 {
         display: inline-flex !important;
         vertical-align: top !important;
     }
+
+/* TopNav.razor.css */
+
+/* General */
+.navbar {
+    top: 0;
+    z-index: 1030;
+    background-color: white;
+}
+
+.app-icon {
+    height: 40px;
+    width: auto;
+}
+
+/* Desktop - Ocupa todo el ancho */
+@media (min-width: 992px) {
+    .container-fluid {
+        max-width: 100%;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .navbar-nav {
+        flex-shrink: 0;
+    }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            color: #495057;
+            transition: color 0.3s ease;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: #dc3545;
+            }
+
+    .search-section {
+        max-width: 400px;
+    }
+
+    .user-avatar i {
+        font-size: 1.25rem;
+    }
+}
+
+/* Mobile - Iconos en horizontal */
+@media (max-width: 991.98px) {
+    .mobile-actions {
+        display: flex !important;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .mobile-actions .btn-link {
+            padding: 0.5rem !important;
+            color: #495057 !important;
+            text-decoration: none;
+        }
+
+            .mobile-actions .btn-link:hover {
+                color: #dc3545 !important;
+            }
+
+    .navbar-toggler {
+        border: none !important;
+        padding: 0.5rem !important;
+    }
+
+        .navbar-toggler:focus {
+            box-shadow: none !important;
+        }
+
+    /* Menú colapsado móvil */
+    .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-top: 1px solid #dee2e6;
+        padding: 1rem;
+    }
+
+    .navbar-nav {
+        padding: 1rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+        .navbar-nav .nav-link {
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: #f8f9fa;
+                color: #dc3545;
+            }
+
+    .mobile-menu-content {
+        padding-top: 1rem;
+    }
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    min-width: 200px;
+}
+
+.dropdown-header {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+}
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .dropdown-item.text-danger:hover {
+        background-color: #fff5f5;
+    }
+
+/* Botones */
+.btn-outline-secondary {
+    border-color: #dee2e6;
+}
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
