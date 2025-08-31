@@ -6272,3 +6272,234 @@ img {
     .btn:hover {
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
+
+/* Footer.razor.css */
+
+/* ========================================
+   FOOTER CONTAINER
+   ======================================== */
+
+.footer {
+    background-color: white;
+    border-top: 1px solid #dee2e6;
+    margin-top: auto;
+    width: 100%;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* ========================================
+   LOGO Y COPYRIGHT - SIEMPRE JUNTOS
+   ======================================== */
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.footer-logo {
+    height: 55px; /* Logo más grande */
+    width: auto;
+    object-fit: contain;
+}
+
+.footer-copyright {
+    color: #6c757d;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    margin: 0;
+}
+
+/* ========================================
+   NAVEGACIÓN
+   ======================================== */
+
+.footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.footer-link {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+
+    .footer-link:hover {
+        color: #495057;
+        text-decoration: none;
+    }
+
+/* ========================================
+   DESKTOP (≥992px)
+   ======================================== */
+
+@media (min-width: 992px) {
+    .footer-container {
+        flex-wrap: nowrap;
+    }
+
+    .footer-brand {
+        flex: 0 0 auto;
+    }
+
+    .footer-nav {
+        flex: 0 0 auto;
+        margin-left: auto;
+    }
+}
+
+/* ========================================
+   TABLET (768px - 991px)
+   ======================================== */
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .footer-container {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .footer-brand {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-nav {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   MOBILE (<768px)
+   ======================================== */
+
+@media (max-width: 767px) {
+    .footer {
+        padding: 1rem 0 !important;
+    }
+
+    .footer-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    /* Logo y copyright siempre juntos en la misma línea */
+    .footer-brand {
+        flex: 0 0 auto;
+        gap: 0.5rem;
+    }
+
+    .footer-logo {
+        height: 40px; /* Un poco más pequeño en móvil */
+    }
+
+    .footer-copyright {
+        font-size: 0.8rem;
+    }
+
+    /* Enlaces de navegación */
+    .footer-nav {
+        flex: 0 0 auto;
+        gap: 0.75rem;
+    }
+
+    .footer-link {
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   MOBILE PEQUEÑO (<576px)
+   ======================================== */
+
+@media (max-width: 575px) {
+    .footer-container {
+        padding: 0 0.5rem;
+    }
+
+    .footer-logo {
+        height: 35px; /* Aún más pequeño en móviles muy pequeños */
+    }
+
+    .footer-copyright {
+        font-size: 0.75rem;
+    }
+
+    .footer-nav {
+        gap: 0.5rem;
+    }
+
+    .footer-link {
+        font-size: 0.75rem;
+    }
+
+    /* Si el espacio es muy reducido, ocultar algunos enlaces */
+    @media (max-width: 400px) {
+        .footer-nav {
+            /* Mostrar solo el enlace más importante */
+            gap: 0.4rem;
+        }
+
+        .footer-link {
+            font-size: 0.7rem;
+        }
+    }
+}
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
+
+/* Asegurar que el footer esté siempre al final */
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Prevenir que el texto se rompa */
+.footer-brand,
+.footer-nav {
+    white-space: nowrap;
+}
+
+/* Animación suave para enlaces */
+.footer-link {
+    position: relative;
+}
+
+    .footer-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1px;
+        background-color: #495057;
+        transition: width 0.3s ease;
+    }
+
+    .footer-link:hover::after {
+        width: 100%;
+    }

@@ -1,6 +1,18 @@
+@* Footer.razor *@
+
 <footer class="footer py-4 border-top bg-white mt-4">
-  <div class="container d-flex flex-column flex-lg-row justify-content-between">
-    <div>Power by: © Tentalo (2025)</div>
-    <div><a href="/catalogo" class="link-secondary me-3">Catálogo</a><a href="/ofertas" class="link-secondary me-3">Ofertas</a><a href="/novedades" class="link-secondary">Novedades</a></div>
-  </div>
+    <div class="container footer-container">
+        <!-- Logo y Copyright siempre juntos -->
+        <div class="footer-brand">
+            <img src="/images/icononautilo.png" alt="Tentalo Logo" class="footer-logo" />
+            <span class="footer-copyright">© Tentalo (2025)</span>
+        </div>
+
+        <!-- Enlaces de navegación -->
+        <div class="footer-nav">
+            <a href="/catalogo" class="footer-link">Catálogo</a>
+            <a href="/ofertas" class="footer-link">Ofertas</a>
+            <a href="/novedades" class="footer-link">Novedades</a>
+        </div>
+    </div>
 </footer>
