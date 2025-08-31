@@ -48,7 +48,7 @@
                             Factura #@invoice.No
                         </h1>
                     </div>
-                    <span class="status-badge-invoice status-large-invoice status-@GetStatusClass(invoice.Status)">
+                    <span class="status-badge status-large status-@GetStatusClass(invoice.Status)">
                         @GetStatusText(invoice.Status)
                     </span>
                 </div>
@@ -140,16 +140,17 @@
                     <div class="card-body p-0">
                         @if (GetInvoiceLines().Any())
                         {
-                            <div class="table-responsive">
+                            <!-- Tabla para Desktop -->
+                            <div class="table-responsive d-none d-md-block">
                                 <table class="table table-hover invoice-lines-table">
                                     <thead>
                                         <tr>
-                                            <th>Artículo</th>
+                                            <th>Cód.</th>
                                             <th>Descripción</th>
                                             <th class="text-center">Cantidad</th>
                                             <th class="text-end">Precio Unit.</th>
                                             <th class="text-end">IVA %</th>
-                                            <th class="text-end">Descuento</th>
+                                            <th class="text-end">Desc.</th>
                                             <th class="text-end">Total</th>
                                         </tr>
                                     </thead>
@@ -158,7 +159,7 @@
                                         {
                                             <tr>
                                                 <td>
-                                                    <strong>@line.No</strong>
+                                                    <small>@line.No</small>
                                                 </td>
                                                 <td>
                                                     <div class="line-description">
@@ -170,7 +171,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="text-center">
-                                                    <span class="quantity-badge-invoice">@line.Quantity</span>
+                                                    <span class="quantity-badge">@line.Quantity</span>
                                                 </td>
                                                 <td class="text-end">@line.Unit_Price.ToString("N2") €</td>
                                                 <td class="text-end">
@@ -193,6 +194,49 @@
                                         }
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Vista móvil sin código de artículo -->
+                            <div class="d-md-none mobile-invoice-lines">
+                                @foreach (var line in GetInvoiceLines())
+                                {
+                                    <div class="mobile-line-item">
+                                        <div class="mobile-line-header">
+                                            <div class="mobile-line-description">
+                                                <strong>@line.Description</strong>
+                                                @if (!string.IsNullOrEmpty(line.Unit_of_Measure))
+                                                {
+                                                    <small class="text-muted d-block">Unidad: @line.Unit_of_Measure</small>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="mobile-line-details">
+                                            <div class="mobile-line-row">
+                                                <span class="mobile-label">Cantidad:</span>
+                                                <span class="mobile-value">@line.Quantity</span>
+                                            </div>
+                                            <div class="mobile-line-row">
+                                                <span class="mobile-label">Precio Unit:</span>
+                                                <span class="mobile-value">@line.Unit_Price.ToString("N2") €</span>
+                                            </div>
+                                            <div class="mobile-line-row">
+                                                <span class="mobile-label">IVA:</span>
+                                                <span class="mobile-value">@line.VAT_Percent.ToString("N0")%</span>
+                                            </div>
+                                            @if (line.Line_Discount_Percent > 0)
+                                            {
+                                                <div class="mobile-line-row">
+                                                    <span class="mobile-label">Descuento:</span>
+                                                    <span class="mobile-value text-success">@line.Line_Discount_Percent.ToString("N1")%</span>
+                                                </div>
+                                            }
+                                            <div class="mobile-line-row mobile-line-total">
+                                                <span class="mobile-label">Total:</span>
+                                                <span class="mobile-value"><strong>@line.Amount.ToString("N2") €</strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         }
                         else
@@ -233,7 +277,7 @@
                                 </div>
                             }
                             <hr />
-                            <div class="summary-row total-invoice">
+                            <div class="summary-row total">
                                 <span>Total a Pagar:</span>
                                 <span>@invoice.Amount_Including_VAT.ToString("N2") €</span>
                             </div>
@@ -398,7 +442,7 @@
             "paid" => "Pagada",
             "cancelled" => "Cancelada",
             "overdue" => "Vencida",
-            _ => status ?? "Desconocido"
+            _ => status ?? "Abierta"
         };
     }
 }

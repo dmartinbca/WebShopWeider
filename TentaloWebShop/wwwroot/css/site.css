@@ -4510,3 +4510,921 @@ h1 {
         font-size: 3rem;
     }
 }
+
+/* TopNav.razor.css */
+
+/* General */
+.navbar {
+    top: 0;
+    z-index: 1030;
+    background-color: white;
+}
+
+.app-icon {
+    height: 40px;
+    width: auto;
+}
+
+/* Desktop - Ocupa todo el ancho */
+@media (min-width: 992px) {
+    /* Container al 100% del ancho */
+    .container-fluid {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Logo con tamaño fijo */
+    .navbar-brand {
+        flex-shrink: 0;
+        margin-right: 2rem;
+    }
+
+    /* Hacer que el contenido ocupe todo el espacio disponible */
+    .navbar-collapse {
+        display: flex !important;
+        flex: 1;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Barra de búsqueda con ancho flexible */
+    .search-section {
+        flex: 0 1 350px;
+        min-width: 200px;
+        margin-right: auto;
+        margin-left: 1rem;
+    }
+
+    /* Enlaces de navegación - distribuidos con espaciado uniforme */
+    .navbar-nav {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 0 2rem !important;
+    }
+
+        .navbar-nav .nav-item {
+            flex: 0 0 auto;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: #dc3545;
+            }
+
+            /* Línea decorativa bajo los enlaces al hover */
+            .navbar-nav .nav-link::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background-color: #dc3545;
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+            }
+
+            .navbar-nav .nav-link:hover::after {
+                width: 80%;
+            }
+
+    /* Acciones de escritorio al final */
+    .desktop-actions {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+    }
+
+    /* Usuario */
+    .user-avatar i {
+        font-size: 1.25rem;
+    }
+
+    .dropdown-toggle {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+    }
+
+        .dropdown-toggle:hover {
+            background-color: #e9ecef;
+        }
+}
+
+/* Desktop Extra Grande - Para pantallas muy anchas */
+@media (min-width: 1400px) {
+    .container-fluid {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .navbar-nav {
+        gap: 1rem;
+    }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 2rem;
+        }
+
+    .search-section {
+        flex: 0 1 450px;
+        margin: 0 3rem;
+    }
+}
+
+/* Mobile - Iconos en horizontal */
+@media (max-width: 991.98px) {
+    .mobile-actions {
+        display: flex !important;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .mobile-actions .btn-link {
+            padding: 0.5rem !important;
+            color: #495057 !important;
+            text-decoration: none;
+        }
+
+            .mobile-actions .btn-link:hover {
+                color: #dc3545 !important;
+            }
+
+    .navbar-toggler {
+        border: none !important;
+        padding: 0.5rem !important;
+    }
+
+        .navbar-toggler:focus {
+            box-shadow: none !important;
+        }
+
+    /* Menú colapsado móvil */
+    .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-top: 1px solid #dee2e6;
+        padding: 1rem;
+    }
+
+    .navbar-nav {
+        padding: 1rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+        .navbar-nav .nav-link {
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: #f8f9fa;
+                color: #dc3545;
+            }
+
+    .mobile-menu-content {
+        padding-top: 1rem;
+    }
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    min-width: 200px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.dropdown-header {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+}
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .dropdown-item.text-danger:hover {
+        background-color: #fff5f5;
+    }
+
+/* Botones */
+.btn-outline-secondary {
+    border-color: #dee2e6;
+}
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+/* Ajustes para hacer que el navbar ocupe todo el ancho */
+.navbar > .container-fluid {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Asegurar que en desktop los elementos se distribuyan correctamente */
+@media (min-width: 992px) {
+    .navbar {
+        padding: 0.5rem 0;
+    }
+
+        /* Distribuir el espacio de forma óptima */
+        .navbar > .container-fluid {
+            gap: 1rem;
+        }
+
+    /* Asegurar que el collapse ocupe el espacio necesario */
+    .navbar-collapse.show,
+    .navbar-collapse.collapse {
+        flex: 1;
+        display: flex !important;
+    }
+}
+
+/* Pedido.razor.css */
+
+/* ========================================
+   ESTILOS GENERALES
+   ======================================== */
+
+.container-fluid {
+    max-width: 1400px;
+    padding: 1rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+/* Cards */
+.order-detail-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.order-detail-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+    .order-detail-header .card-title {
+        color: #495057;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+    }
+
+/* ========================================
+   INFORMACIÓN DEL PEDIDO
+   ======================================== */
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+    .info-label i {
+        font-size: 1rem;
+    }
+
+.info-value {
+    color: #212529;
+    font-weight: 500;
+    padding-left: 1.5rem;
+}
+
+/* ========================================
+   BADGES DE ESTADO
+   ======================================== */
+
+.status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+    .status-badge.status-large {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-released {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.status-completed {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.status-unknown {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+/* ========================================
+   TABLA DE LÍNEAS - DESKTOP
+   ======================================== */
+
+.order-lines-table {
+    margin: 0;
+}
+
+    .order-lines-table thead {
+        background-color: #f8f9fa;
+    }
+
+        .order-lines-table thead th {
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+    .order-lines-table tbody td {
+        padding: 1rem 0.75rem;
+        vertical-align: middle;
+    }
+
+.line-description {
+    max-width: 300px;
+}
+
+.quantity-badge {
+    background-color: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+/* ========================================
+   VISTA MÓVIL DE LÍNEAS (<768px)
+   ======================================== */
+
+.mobile-order-lines {
+    padding: 0;
+}
+
+.mobile-line-item {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background-color: white;
+}
+
+    .mobile-line-item:last-child {
+        border-bottom: none;
+    }
+
+.mobile-line-header {
+    margin-bottom: 0.75rem;
+}
+
+.mobile-line-description {
+    font-size: 0.95rem;
+}
+
+    .mobile-line-description strong {
+        color: #212529;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+.mobile-line-details {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+}
+
+.mobile-line-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+    .mobile-line-row.mobile-line-total {
+        border-top: 1px solid #dee2e6;
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+    }
+
+.mobile-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.mobile-value {
+    color: #212529;
+    font-weight: 500;
+    text-align: right;
+}
+
+/* ========================================
+   RESUMEN DEL PEDIDO
+   ======================================== */
+
+.order-summary {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+    .summary-row.discount {
+        color: #28a745;
+    }
+
+    .summary-row.total {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #212529;
+        padding-top: 1rem;
+    }
+
+.order-summary hr {
+    margin: 0.75rem 0;
+    border-color: #dee2e6;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
+
+.order-actions .btn {
+    padding: 0.75rem;
+    font-weight: 500;
+}
+
+    .order-actions .btn i {
+        font-size: 1rem;
+    }
+
+/* ========================================
+   RESPONSIVE - MOBILE
+   ======================================== */
+
+@media (max-width: 767px) {
+    .container-fluid {
+        padding: 0.5rem;
+    }
+
+    .order-detail-card {
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+    }
+
+    .order-detail-header {
+        padding: 0.75rem;
+    }
+
+        .order-detail-header .card-title {
+            font-size: 1rem;
+        }
+
+    /* Breadcrumb más pequeño en móvil */
+    .breadcrumb {
+        font-size: 0.875rem;
+        padding: 0.5rem 0;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    /* Status badge adaptativo */
+    .status-badge.status-large {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Información del pedido */
+    .info-value {
+        font-size: 0.9rem;
+    }
+
+    /* Resumen en móvil */
+    .order-summary {
+        padding: 0.75rem;
+    }
+
+    .summary-row {
+        font-size: 0.9rem;
+    }
+
+        .summary-row.total {
+            font-size: 1.1rem;
+        }
+}
+
+/* ========================================
+   TABLET (768px - 991px)
+   ======================================== */
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .line-description {
+        max-width: 200px;
+    }
+
+    .order-lines-table {
+        font-size: 0.9rem;
+    }
+
+        .order-lines-table thead th {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .order-lines-table tbody td {
+            padding: 0.75rem 0.5rem;
+        }
+}
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
+
+/* Scrollbar personalizada para tabla responsive */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-line-item {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Print styles */
+@media print {
+    .order-actions,
+    .btn,
+    .breadcrumb {
+        display: none !important;
+    }
+
+    .order-detail-card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+}
+/* app.css - Estilos Globales */
+
+/* ========================================
+   RESET PARA FULL WIDTH
+   ======================================== */
+
+/* Asegurar que el body y html ocupen todo el ancho */
+html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* MainLayout - ocupar todo el ancho */
+.page {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+}
+
+.content {
+    width: 100%;
+    padding: 0;
+}
+
+/* ========================================
+   CONTAINERS - FULL WIDTH
+   ======================================== */
+
+/* Override Bootstrap container-fluid para ocupar todo el ancho */
+.container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Ajustes para diferentes tamaños de pantalla */
+@media (min-width: 576px) {
+    .container-fluid {
+        padding-right: 1.5rem;
+        padding-left: 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container-fluid {
+        padding-right: 2rem;
+        padding-left: 2rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .container-fluid {
+        padding-right: 2.5rem;
+        padding-left: 2.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container-fluid {
+        padding-right: 3rem;
+        padding-left: 3rem;
+    }
+}
+
+@media (min-width: 1400px) {
+    .container-fluid {
+        padding-right: 4rem;
+        padding-left: 4rem;
+    }
+}
+
+/* Pantallas muy grandes */
+@media (min-width: 1920px) {
+    .container-fluid {
+        padding-right: 5rem;
+        padding-left: 5rem;
+    }
+}
+
+/* ========================================
+   GRID SYSTEM - AJUSTES
+   ======================================== */
+
+/* Asegurar que las filas ocupen todo el ancho */
+.row {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: calc(-1 * var(--bs-gutter-y));
+    margin-right: 0;
+    margin-left: 0;
+}
+
+    .row > * {
+        padding-right: calc(var(--bs-gutter-x) * .5);
+        padding-left: calc(var(--bs-gutter-x) * .5);
+        margin-top: var(--bs-gutter-y);
+    }
+
+/* ========================================
+   NAVBAR - FULL WIDTH
+   ======================================== */
+
+.navbar {
+    width: 100%;
+}
+
+    .navbar .container-fluid {
+        width: 100%;
+        max-width: 100%;
+    }
+
+/* ========================================
+   PÁGINAS ESPECÍFICAS
+   ======================================== */
+
+/* Catálogo */
+.catalog-container {
+    width: 100%;
+}
+
+/* Pedido */
+.order-container {
+    width: 100%;
+}
+
+/* Carrito */
+.cart-container {
+    width: 100%;
+}
+
+/* ========================================
+   CARDS Y COMPONENTES
+   ======================================== */
+
+/* Cards ocupan el espacio disponible */
+.card {
+    width: 100%;
+}
+
+/* Tablas responsive */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* ========================================
+   SIDEBAR (Si existe)
+   ======================================== */
+
+/* Si tienes un sidebar, ajústalo así */
+.sidebar {
+    position: sticky;
+    top: 70px; /* Altura del navbar */
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+    }
+}
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
+
+/* Clase helper para forzar full width */
+.full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Prevenir scroll horizontal */
+.no-horizontal-scroll {
+    overflow-x: hidden;
+}
+
+/* ========================================
+   FIXES PARA BOOTSTRAP
+   ======================================== */
+
+/* Corregir márgenes negativos de Bootstrap que pueden causar scroll horizontal */
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+    .row > [class*="col-"] {
+        padding-right: calc(var(--bs-gutter-x) * .5);
+        padding-left: calc(var(--bs-gutter-x) * .5);
+    }
+
+/* ========================================
+   RESPONSIVE IMAGES
+   ======================================== */
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ========================================
+   LAYOUT CON SIDEBAR Y CONTENIDO
+   ======================================== */
+
+/* Para páginas con sidebar lateral */
+.layout-with-sidebar {
+    display: flex;
+    width: 100%;
+    gap: 0;
+}
+
+.layout-sidebar {
+    flex: 0 0 280px;
+    width: 280px;
+}
+
+.layout-content {
+    flex: 1;
+    min-width: 0; /* Previene que el contenido se desborde */
+    width: calc(100% - 280px);
+}
+
+@media (max-width: 991.98px) {
+    .layout-with-sidebar {
+        flex-direction: column;
+    }
+
+    .layout-sidebar,
+    .layout-content {
+        width: 100%;
+    }
+}

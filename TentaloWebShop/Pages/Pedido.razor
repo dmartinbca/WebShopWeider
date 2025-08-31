@@ -118,15 +118,16 @@
                     <div class="card-body p-0">
                         @if (GetOrderLines().Any())
                         {
-                            <div class="table-responsive">
+                            <!-- Tabla para Desktop -->
+                            <div class="table-responsive d-none d-md-block">
                                 <table class="table table-hover order-lines-table">
                                     <thead>
                                         <tr>
-                                            <th>Artículo</th>
+                                            <th>Cod.</th>
                                             <th>Descripción</th>
                                             <th class="text-center">Cantidad</th>
-                                            <th class="text-end">Precio Unit.</th>
-                                            <th class="text-end">Descuento</th>
+                                            <th class="text-end">Precio</th>
+                                            <th class="text-end">Desc.</th>
                                             <th class="text-end">Total</th>
                                         </tr>
                                     </thead>
@@ -135,7 +136,7 @@
                                         {
                                             <tr>
                                                 <td>
-                                                    <strong>@line.No</strong>
+                                                    <small>@line.No</small>
                                                 </td>
                                                 <td>
                                                     <div class="line-description">
@@ -167,6 +168,45 @@
                                         }
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Vista móvil sin código de artículo -->
+                            <div class="d-md-none mobile-order-lines">
+                                @foreach (var line in GetOrderLines())
+                                {
+                                    <div class="mobile-line-item">
+                                        <div class="mobile-line-header">
+                                            <div class="mobile-line-description">
+                                                <strong>@line.Description</strong>
+                                                @if (!string.IsNullOrEmpty(line.Unit_of_Measure))
+                                                {
+                                                    <small class="text-muted d-block">Unidad: @line.Unit_of_Measure</small>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="mobile-line-details">
+                                            <div class="mobile-line-row">
+                                                <span class="mobile-label">Cantidad:</span>
+                                                <span class="mobile-value">@line.Quantity</span>
+                                            </div>
+                                            <div class="mobile-line-row">
+                                                <span class="mobile-label">Precio Unit:</span>
+                                                <span class="mobile-value">@line.Unit_Price.ToString("N2") €</span>
+                                            </div>
+                                            @if (line.Line_Discount_Percent > 0)
+                                            {
+                                                <div class="mobile-line-row">
+                                                    <span class="mobile-label">Desc:</span>
+                                                    <span class="mobile-value text-success">@line.Line_Discount_Percent.ToString("N1")%</span>
+                                                </div>
+                                            }
+                                            <div class="mobile-line-row mobile-line-total">
+                                                <span class="mobile-label">Total:</span>
+                                                <span class="mobile-value"><strong>@line.Amount.ToString("N2") €</strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         }
                         else
