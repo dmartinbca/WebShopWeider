@@ -6503,3 +6503,349 @@ main {
     .footer-link:hover::after {
         width: 100%;
     }
+
+/* MobileFullWidth.css - Solución para ocupar todo el ancho en móvil */
+
+/* ========================================
+   RESET GLOBAL PARA MÓVIL
+   ======================================== */
+
+/* Eliminar márgenes y padding del body en móvil */
+@media (max-width: 767px) {
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden;
+    }
+
+    /* Eliminar padding de los containers principales */
+    .container,
+    .container-fluid,
+    .container-sm,
+    .container-md,
+    .container-lg,
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* MainLayout y page */
+    .page {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    main {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .content {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Navbar móvil */
+    .navbar {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+        .navbar .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+
+    /* Cards y componentes */
+    .card {
+        border-radius: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    /* Catálogo específico */
+    .catalog-container {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Productos grid */
+    .product-grid {
+        padding: 0.5rem !important;
+        margin: 0 !important;
+    }
+
+    .product-card {
+        margin: 0.25rem !important;
+    }
+
+    /* Carrito */
+    .cart-container,
+    .cart-item {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* Pedidos y Facturas */
+    .order-card,
+    .invoice-card {
+        margin-left: 0.5rem !important;
+        margin-right: 0.5rem !important;
+        border-radius: 0.5rem !important;
+    }
+
+    /* Sidebar de categorías */
+    .sidebar {
+        margin: 0 !important;
+        padding: 0.5rem !important;
+        border-radius: 0 !important;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Títulos de página */
+    h1, h2, h3 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* Botones de acción en headers */
+    .d-flex.justify-content-between {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* Footer */
+    .footer .container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* Formularios */
+    .form-group,
+    .form-control {
+        margin-left: 0.5rem !important;
+        margin-right: 0.5rem !important;
+    }
+
+    /* Alerts y notificaciones */
+    .alert {
+        margin-left: 0.5rem !important;
+        margin-right: 0.5rem !important;
+        border-radius: 0.25rem !important;
+    }
+
+    /* Tablas responsive */
+    .table-responsive {
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    /* Modales */
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .modal-content {
+        border-radius: 0 !important;
+    }
+
+    /* Dropdown menus */
+    .dropdown-menu {
+        border-radius: 0.25rem !important;
+    }
+
+    /* Badges y pills */
+    .badge,
+    .status-badge {
+        font-size: 0.75rem !important;
+    }
+
+    /* Imágenes de productos */
+    .product-image {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Grids de Bootstrap */
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+        .row > [class*="col-"] {
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
+        }
+
+    /* Específico para el detalle del producto */
+    .product-detail-container {
+        padding: 0 !important;
+    }
+
+    .product-detail-card {
+        border-radius: 0 !important;
+        margin: 0 !important;
+    }
+}
+
+/* ========================================
+   AJUSTES PARA PANTALLAS MUY PEQUEÑAS
+   ======================================== */
+
+@media (max-width: 375px) {
+    /* iPhone SE y similares */
+    .navbar {
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+    }
+
+    .product-grid {
+        padding: 0.25rem !important;
+    }
+
+    h1 {
+        font-size: 1.25rem !important;
+    }
+
+    h2 {
+        font-size: 1.1rem !important;
+    }
+
+    .btn {
+        padding: 0.375rem 0.5rem !important;
+        font-size: 0.875rem !important;
+    }
+}
+
+/* ========================================
+   FIXES ESPECÍFICOS PARA TU APP
+   ======================================== */
+
+/* Eliminar el marco gris del catálogo */
+@media (max-width: 767px) {
+    /* El contenedor principal del catálogo */
+    .catalog-header {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0.5rem !important;
+        border-radius: 0 !important;
+    }
+
+    /* Sección "Todos los Productos" */
+    .products-section {
+        background: white !important;
+        padding: 0.5rem !important;
+        margin: 0 !important;
+    }
+
+    /* Grid de productos */
+    .products-container {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Cada producto individual */
+    .col-6,
+    .col-sm-6,
+    .col-md-4 {
+        padding: 0.25rem !important;
+    }
+
+    /* Carrito de compra */
+    .cart-page {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Pedidos lista */
+    .orders-list {
+        padding: 0.5rem !important;
+        margin: 0 !important;
+    }
+
+    /* Detalle del producto */
+    .product-page {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
+
+/* ========================================
+   IMPORTANTE: OVERRIDE PARA BOOTSTRAP
+   ======================================== */
+
+@media (max-width: 767px) {
+    /* Forzar que todo ocupe el 100% */
+    * {
+        max-width: 100% !important;
+    }
+
+    /* Eliminar márgenes horizontales de Bootstrap */
+    .mx-auto {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .ms-auto {
+        margin-left: 0 !important;
+    }
+
+    .me-auto {
+        margin-right: 0 !important;
+    }
+
+    /* Padding de containers */
+    .px-3 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .px-4 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .px-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+}
+
+/* ========================================
+   SCROLL HORIZONTAL FIX
+   ======================================== */
+
+/* Prevenir scroll horizontal */
+html,
+body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+}
+
+/* ========================================
+   DEBUG - OPCIONAL
+   ======================================== */
+
+/* Descomentar para ver los bordes de todos los elementos */
+/* @media (max-width: 767px) {
+    * {
+        border: 1px solid red !important;
+    }
+} */
