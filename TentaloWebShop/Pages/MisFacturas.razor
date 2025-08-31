@@ -51,69 +51,66 @@
             @foreach (var invoice in invoices.OrderByDescending(o => o.Order_Date))
             {
                 <div class="col-12">
-                    <div class="card invoice-card-uniform" @onclick="() => ViewInvoice(invoice.No)">
-                        <div class="card-body">
-                            <div class="d-flex align-items-start py-2">
-                                <i class="bi bi-receipt invoice-icon me-3"></i>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="invoice-header-uniform">
-                                                <div class="invoice-info-uniform">
-                                                    <div class="invoice-number-uniform fw-semibold d-block mb-1">
-                                                        Factura #@invoice.No
-                                                    </div>
-                                                    <div class="text-muted small mb-2">
-                                                        @DateTime.TryParse(invoice.Order_Date, out var invoiceDate)
-                                                        @(invoiceDate != default ? invoiceDate.ToString("dd/MM/yyyy") : invoice.Order_Date)
-                                                    </div>
-                                                </div>
-                                                <div class="invoice-status-uniform">
-                                                    <span class="status-badge-uniform-invoice status-@GetStatusClass(invoice.Status)">
-                                                        @GetStatusText(invoice.Status)
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="invoice-summary-uniform">
-                                                <div class="summary-item-uniform">
-                                                    <i class="bi bi-box me-2"></i>
-                                                    <span>@InvoiceService.GetOrderLineCount(invoice) artículos</span>
-                                                </div>
-                                                <div class="summary-item-uniform">
-                                                    <i class="bi bi-geo-alt me-2"></i>
-                                                    <span>@(!string.IsNullOrEmpty(invoice.Sell_to_City) ? invoice.Sell_to_City : "Dirección no especificada")</span>
-                                                </div>
-                                                @if (DateTime.TryParse(invoice.Posting_Date, out var postingDate))
-                                                {
-                                                    <div class="summary-item-uniform">
-                                                        <i class="bi bi-calendar-check me-2"></i>
-                                                        <span>Contabilizada: @postingDate.ToString("dd/MM/yyyy")</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="invoice-total-uniform">
-                                                <div class="h5 mb-0 fw-bold">@InvoiceService.GetOrderTotal(invoice).ToString("N2") €</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2 mt-2">
-                                        <button class="btn btn-link link-success p-0 ms-2" @onclick:stopPropagation="true" @onclick="() => ViewInvoice(invoice.No)">
-                                            Ver Detalle
-                                        </button>
-                                        <button class="btn btn-link link-secondary p-0 ms-2" @onclick:stopPropagation="true" @onclick="() => DownloadInvoice(invoice.No)">
-                                            Descargar PDF
-                                        </button>
-                                        @if (invoice.Status?.ToLower() != "paid")
-                                        {
-                                            <button class="btn btn-link link-success p-0 ms-2" @onclick:stopPropagation="true" @onclick="() => PayInvoice(invoice.No)">
-                                                Pagar
-                                            </button>
-                                        }
-                                    </div>
+                    <div class="invoice-card" @onclick="() => ViewInvoice(invoice.No)">
+                        <div class="invoice-header">
+                            <div class="invoice-info">
+                                <div class="invoice-number">
+                                    <i class="bi bi-receipt me-2"></i>
+                                    Factura #@invoice.No
+                                </div>
+                                <div class="invoice-date">
+                                    @DateTime.TryParse(invoice.Order_Date, out var invoiceDate)
+                                    @(invoiceDate != default ? invoiceDate.ToString("dd/MM/yyyy") : invoice.Order_Date)
                                 </div>
                             </div>
+                            <div class="invoice-status">
+                                <span class="status-badge status-@GetStatusClass(invoice.Status)">
+                                    @GetStatusText(invoice.Status)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="invoice-details">
+                            <div class="invoice-summary">
+                                <div class="summary-item">
+                                    <i class="bi bi-box me-2"></i>
+                                    <span>@InvoiceService.GetOrderLineCount(invoice) artículos</span>
+                                </div>
+                                <div class="summary-item">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    <span>@(!string.IsNullOrEmpty(invoice.Sell_to_City) ? invoice.Sell_to_City : "Dirección no especificada")</span>
+                                </div>
+                                @if (DateTime.TryParse(invoice.Posting_Date, out var postingDate))
+                                {
+                                    <div class="summary-item">
+                                        <i class="bi bi-calendar-check me-2"></i>
+                                        <span>Contabilizada: @postingDate.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="invoice-amount">
+                                <div class="amount-label">Total</div>
+                                <div class="amount-value">@InvoiceService.GetOrderTotal(invoice).ToString("N2") €</div>
+                            </div>
+                        </div>
+
+                        <div class="invoice-footer">
+                            <button class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-eye me-2"></i>
+                                Ver Detalle
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm ms-2" @onclick:stopPropagation="true" @onclick="() => DownloadInvoice(invoice.No)">
+                                <i class="bi bi-download me-2"></i>
+                                Descargar PDF
+                            </button>
+                            @if (invoice.Status?.ToLower() != "paid")
+                            {
+                                <button class="btn btn-success btn-sm ms-2" @onclick:stopPropagation="true" @onclick="() => PayInvoice(invoice.No)">
+                                    <i class="bi bi-credit-card me-2"></i>
+                                    Pagar
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -200,7 +197,7 @@
             "paid" => "Pagada",
             "cancelled" => "Cancelada",
             "overdue" => "Vencida",
-            _ => status ?? "Desconocido"
+            _ => status ?? "Abierta"
         };
     }
 }
