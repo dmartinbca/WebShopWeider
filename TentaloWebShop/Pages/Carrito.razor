@@ -42,7 +42,7 @@ else
                         </div>
                         <h3 class="result-title">¡Pedido Confirmado!</h3>
                         <p class="result-message">
-                            Su pedido ha sido procesado correctamente.<br/>
+                            Su pedido ha sido procesado correctamente.<br />
                             En breve recibirá un email con los detalles de su compra.
                         </p>
                         <div class="result-summary">
@@ -79,6 +79,7 @@ else
             </div>
         </div>
     }
+
     <div class="row g-4">
         <div class="col-12 col-lg-8">
             <!-- Lista de productos -->
@@ -86,25 +87,42 @@ else
                 <div class="card-body">
                     @foreach (var item in Cart.Items)
                     {
-                        <div class="d-flex align-items-start py-2 border-bottom">
-                            <img src="@item.Product.ImageUrl" class="rounded me-3" style="width:72px;height:72px;object-fit:cover;" onerror="this.src='/images/placeholder.png'">
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <a href="@($"/producto/{item.Product.Slug}")" class="link-dark fw-semibold d-block mb-1">@item.Product.Name</a>
-                                        <div class="text-muted small">
-                                            <span>@item.Product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
-                                            <span class="mx-1">×</span>
-                                            <span>@item.Product.Presentation_Unit</span>
-                                        </div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="h5 mb-0 fw-bold">@((item.Product.PriceFrom * item.Quantity).ToString("0.00")) €</div>
+                        <div class="cart-item">
+                            <!-- Imagen del producto -->
+                            <img src="@item.Product.ImageUrl"
+                                 class="cart-item-image"
+                                 alt="@item.Product.Name"
+                                 onerror="this.src='/images/placeholder.png'">
+
+                            <!-- Contenido del producto -->
+                            <div class="cart-item-content">
+                                <!-- Información del producto -->
+                                <div class="cart-item-info">
+                                    <a href="@($"/producto/{item.Product.Slug}")" class="cart-item-name">
+                                        @item.Product.Name
+                                    </a>
+                                    <div class="cart-item-details">
+                                        <span>@item.Product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
+                                        <span class="mx-1">×</span>
+                                        <span>@item.Product.Presentation_Unit</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center gap-2 mt-2">
-                                    <QuantityStepper Value="item.Quantity" ValueChanged="(v)=> Change(item, v)" />
-                                    <button class="btn btn-link link-danger p-0 ms-2" @onclick="(()=>Remove(item))">Eliminar</button>
+
+                                <!-- Precio y cantidad (móvil: en la misma línea) -->
+                                <div class="cart-item-price-section">
+                                    <div class="cart-item-price">
+                                        @((item.Product.PriceFrom * item.Quantity).ToString("0.00")) €
+                                    </div>
+                                    <div class="cart-item-quantity">
+                                        <QuantityStepper Value="item.Quantity" ValueChanged="(v) => Change(item, v)" />
+                                    </div>
+                                </div>
+
+                                <!-- Botón eliminar (móvil: pegado a la izquierda) -->
+                                <div class="cart-item-actions">
+                                    <button class="btn btn-link btn-sm text-danger p-0" @onclick="(() => Remove(item))">
+                                        Eliminar
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -135,7 +153,7 @@ else
                                 }
                             </select>
                         </div>
-                        
+
                         @if (!string.IsNullOrEmpty(selectedAddressId))
                         {
                             var selectedAddress = Auth.CurrentUser.CustomerAddres.FirstOrDefault(a => a.Code == selectedAddressId);
@@ -148,8 +166,8 @@ else
                                     <div class="address-details">
                                         <div class="address-name">@selectedAddress.Name @selectedAddress.Name2</div>
                                         <div class="address-full">
-                                            @selectedAddress.Address<br/>
-                                            @selectedAddress.County<br/>
+                                            @selectedAddress.Address<br />
+                                            @selectedAddress.County<br />
                                             @selectedAddress.City, @selectedAddress.PostCode
                                         </div>
                                         @if (!string.IsNullOrEmpty(selectedAddress.Contact))
@@ -184,7 +202,7 @@ else
                 </div>
             </div>
         </div>
-        
+
         <div class="col-12 col-lg-4">
             <div class="card">
                 <div class="card-body">
@@ -206,13 +224,13 @@ else
                         <span class="h6">Importe Total</span>
                         <strong class="h5">@Cart.ImporteTotal.ToString("0.00") €</strong>
                     </div>
-                    
-                    <button class="btn btn-danger w-100 mt-3" 
-                            @onclick="Checkout" 
+
+                    <button class="btn btn-danger w-100 mt-3"
+                            @onclick="Checkout"
                             disabled="@(!CanProceedToCheckout)">
                         Tramitar pedido
                     </button>
-                    
+
                     <div class="form-text mt-2">
                         @if (!CanProceedToCheckout && Auth.CurrentUser?.CustomerAddres?.Any() == true)
                         {
@@ -221,7 +239,6 @@ else
                                 Selecciona una dirección de envío para continuar
                             </span>
                         }
-                         
                     </div>
                 </div>
             </div>
@@ -229,23 +246,21 @@ else
     </div>
 }
 
-
-
 @code {
     private string selectedAddressId = "";
     private bool isProcessingOrder = false;
     private bool orderCompleted = false;
     private bool orderSuccess = false;
     private string orderErrorMessage = "";
-    
-    private bool CanProceedToCheckout => 
-        Auth.CurrentUser?.CustomerAddres?.Any() != true || 
+
+    private bool CanProceedToCheckout =>
+        Auth.CurrentUser?.CustomerAddres?.Any() != true ||
         !string.IsNullOrEmpty(selectedAddressId);
 
     async Task Change(CartItem item, int qty) => await Cart.Update(item.Product.Id, qty);
     async Task Remove(CartItem item) => await Cart.Remove(item.Product.Id);
-    
-    async Task Checkout() 
+
+    async Task Checkout()
     {
         isProcessingOrder = true;
         orderCompleted = false;
@@ -254,8 +269,8 @@ else
         try
         {
             // Simular llamada a API externa
-            var success = await Cart.ProcessOrder(Cart.Items, selectedAddressId,Auth.CurrentUser.Email,Auth.CurrentUser.CustomerNo);
-            
+            var success = await Cart.ProcessOrder(Cart.Items, selectedAddressId, Auth.CurrentUser.Email, Auth.CurrentUser.CustomerNo);
+
             orderSuccess = success.IsSuccess;
             if (!orderSuccess)
             {
@@ -275,7 +290,6 @@ else
         }
     }
 
-   
     private void OnAddressSelectionChanged()
     {
         StateHasChanged();
@@ -287,10 +301,10 @@ else
         if (!string.IsNullOrEmpty(address.Name2))
             displayText += $" {address.Name2}";
         displayText += $" - {address.City}";
-        
+
         if (!string.IsNullOrEmpty(address.AddressType))
             displayText += $" ({address.AddressType})";
-            
+
         return displayText;
     }
 
