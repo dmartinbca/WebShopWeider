@@ -15,9 +15,11 @@ public class Product
     public double inventario100 { get; set; }
     public double inventarioNo100 { get; set; }
     public string EAN13 { get; set; }
+
+    public string UnitofMeasure { get; set; }
     public double TipoIva { get; set; }
     public bool Promotion { get; set; }
-
+    public string Itemno { get; set; } = "";
     public double Descuento { get; set; }
      public int Presentation_Qty { get; set; }
     public double Presentation_Price { get; set; }

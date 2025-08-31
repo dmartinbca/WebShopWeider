@@ -1,49 +1,56 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.ObjectModel;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.NetworkInformation;
 using System.Runtime.Intrinsics.Arm;
+using System.Text;
 using System.Text.Json;
 using TentaloWebShop.Models;
 using static System.Net.WebRequestMethods;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static TentaloWebShop.Services.AuthService;
 namespace TentaloWebShop.Services
 {
     public class RestDataService
     {
-        private readonly HttpClient _http;
-        private const string Empresa = "34efe56f-d278-ee11-817a-002248a140e0";
-        private const string Tenant = "77a19bf5-b81d-4933-a146-51e48b3c063f";
-        private const string Url = "https://api.businesscentral.dynamics.com/v2.0/";
-        private const string usuarioCloud = "1994a7d2-3932-40d0-8691-4163bf044eb1";
-        private const string PassCloud = "YDo8Q~hmkUK_mTviuIrNWqpJoppuHQUNoTNGSdd6";
-        private const string Entorno = "BCA";
-        private const string APIPublisher = "BCA";
-        private const string APIGroup = "BCAApp";
-        private const string APIVersion = "v2.0";
-
-        private readonly LocalStorageService _store;
 
         private const string KEY_USER = "auth.currentUser";
-        public RestDataService(HttpClient http, LocalStorageService store)
+        //private const string Empresa = "34efe56f-d278-ee11-817a-002248a140e0";
+        //private const string Tenant = "77a19bf5-b81d-4933-a146-51e48b3c063f";
+        //private const string Url = "https://api.businesscentral.dynamics.com/v2.0/";
+        //private const string usuarioCloud = "1994a7d2-3932-40d0-8691-4163bf044eb1";
+        //private const string PassCloud = "YDo8Q~hmkUK_mTviuIrNWqpJoppuHQUNoTNGSdd6";
+        //private const string Entorno = "BCA";
+        //private const string APIPublisher = "BCA";
+        //private const string APIGroup = "BCAApp";
+        //private const string APIVersion = "v2.0";
+
+        private readonly HttpClient _http;
+        private readonly LocalStorageService _store;
+        private readonly ApiSettings _apiSettings;
+
+        public RestDataService(HttpClient http, LocalStorageService store, IOptions<ApiSettings> apiSettings)
         {
             _http = http;
             _store = store;
+            _apiSettings = apiSettings.Value;
         }
-       
+
         public async Task<NavUser> GetAppLoginAPICloud(string usuario, string password)
         {
 
             NavUser musuario = null;
             var request1 = new
             {
-                tenant = Tenant,
-                client_id = usuarioCloud,
-                client_secret = PassCloud,
-                scope = "https://api.businesscentral.dynamics.com/.default"
+                tenant = _apiSettings.Tenant,
+               
             };
 
             try
@@ -61,7 +68,7 @@ namespace TentaloWebShop.Services
                  
                
                 // 3. Construir URL
-                var url = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({ Empresa})/AppUsuarios?$filter=usuario eq '{usuario}' and password eq '{password}'";
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppUsuarios?$filter=usuario eq '{usuario.ToLower()}' and password eq '{password}'";
 
                 // 4. Crear petición HTTP y añadir cabecera OAuth Bearer
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -106,10 +113,8 @@ namespace TentaloWebShop.Services
                 // 1. Obtener token OAuth2
                 var request1 = new
                 {
-                    tenant = Tenant,
-                    client_id = usuarioCloud,
-                    client_secret = PassCloud,
-                    scope = "https://api.businesscentral.dynamics.com/.default"
+                    tenant = _apiSettings.Tenant,
+                    
                 };
 
                 string token = string.Empty;
@@ -123,7 +128,7 @@ namespace TentaloWebShop.Services
                 }
                 // 2. Construir URL con filtro por cliente
                 string fecha = DateTime.Now.ToString("yyyy-MM-dd");
-                string baseUrl = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({Empresa})/AppCustomers";
+                string baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppCustomers";
                 string filter = $"?$filter=no eq '{cliente}' and orderDateFilterOnly le {fecha}";
 
                 string fullUrl = baseUrl + filter;
@@ -167,10 +172,8 @@ namespace TentaloWebShop.Services
                 // 1. Obtener token OAuth2 (ajusta si ya lo tienes guardado en tu AppState)
                 var request1 = new
                 {
-                    tenant =  Tenant,
-                    client_id = usuarioCloud,
-                    client_secret = PassCloud,
-                    scope = "https://api.businesscentral.dynamics.com/.default"
+                    tenant = _apiSettings.Tenant,
+                    
                 };
 
                 string token = string.Empty;
@@ -184,7 +187,7 @@ namespace TentaloWebShop.Services
                 }
 
                 // 2. Construir URL
-                var url = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({Empresa})/AppFamiliasWeb?$expand=subfamlines";
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppFamiliasWeb?$expand=subfamlines";
 
                 // 3. Preparar HttpClient
 
@@ -233,10 +236,8 @@ namespace TentaloWebShop.Services
                 // 1. Obtener token OAuth2 (igual que en GetFamiliasAPICloud)
                 var requestToken = new
                 {
-                    tenant =  Tenant,
-                    client_id = usuarioCloud,
-                    client_secret = PassCloud,
-                    scope = "https://api.businesscentral.dynamics.com/.default"
+                    tenant = _apiSettings.Tenant,
+                   
                 };
 
                 string token = string.Empty;
@@ -248,7 +249,7 @@ namespace TentaloWebShop.Services
                 }
 
                 // 2. Construir la URL dinámica según los parámetros recibidos
-                var baseUrl = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({Empresa})";
+                var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})";
                 string endpoint;
 
                 // Lógica igual que tu versión MAUI
@@ -312,10 +313,8 @@ namespace TentaloWebShop.Services
             {
                 var request1 = new
                 {
-                    tenant = Tenant,
-                    client_id = usuarioCloud,
-                    client_secret = PassCloud,
-                    scope = "https://api.businesscentral.dynamics.com/.default"
+                    tenant = _apiSettings.Tenant,
+                   
                 };
 
                 string token = string.Empty;
@@ -329,7 +328,7 @@ namespace TentaloWebShop.Services
                 }
 
                 // Construir URL con filtro
-                var url = $"{Url}{Tenant}/{Entorno}/api/{APIPublisher}/{APIGroup}/{APIVersion}/companies({Empresa})/APIDataSales?$filter=Cliente eq '{cliente}'";
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/APIDataSales?$filter=Cliente eq '{cliente}'";
 
                 // 3. Crear petición con HttpClient y cabeceras OAuth2 y Isolation
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -363,7 +362,372 @@ namespace TentaloWebShop.Services
         }
 
 
+        public async Task<List<CustomerAddres>> GetDirecciones(string cliente)
+        {
+            var resultado = new List<CustomerAddres>();
+
+            try
+            {
+                var request1 = new
+                {
+                    tenant = _apiSettings.Tenant,
+                   
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+
+                }
+
+              
+                // Construir URL
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/ApiDirEnvios?$filter=customerNo eq '{cliente}'";
+
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                var response = await _http.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var data = System.Text.Json.JsonSerializer.Deserialize<CustomerAddresJSON>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (data?.Value != null)
+                    {
+                        resultado.AddRange(data.Value);
+
+                    }
+                }
+
+              
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR GetDirecciones] {ex.Message}");
+                return resultado;
+            }
+        }
+
+
+        public async Task<Status> PedidoVenta(List<CartItem> carro, string Observaciones, string direnvio, string usuario, string cliente)
+        {
+            var result = new Status();
+            direnvio ??= string.Empty;
+            var fecha = DateTime.Now.ToString("yyyy-MM-dd");
+            int nuevoNumeroPedido = 0;
+            try
+            {
+                var request1 = new
+                {
+                    tenant = _apiSettings.Tenant,
+                    
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+
+                // 2. Obtener número de pedido
+                var urlBuffer = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppBufferNumero";
+
+                var request = new HttpRequestMessage(HttpMethod.Get, urlBuffer);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                var response = await _http.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var contentB = await response.Content.ReadAsStringAsync();
+                    var data = System.Text.Json.JsonSerializer.Deserialize<BufferNumeroJSON>(contentB, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })?.Value?.FirstOrDefault();
+                    if (data == null)
+                        return new Status { IsSuccess = false, Message = "Número de pedido no válido" };
+                    nuevoNumeroPedido = data.maxId + 1;
+                }
+
+                // 3. Construir líneas
+                var lineas = carro.Select((p, i) => new BufferPedidos
+                {
+                    Id = nuevoNumeroPedido + i,
+                    Almacen = "001",
+                    Articulo = p.Product.Itemno,
+                    Descripcion = p.Product.Name,
+                    Cantidad = p.Quantity,
+                    Tipo_Pedido = "WebShop",
+                    Cliente = cliente,
+                    EnviadaHacienda = false,
+                    Estado = "Pendiente",
+                    Fecha = fecha,
+                    Fecha_Envio = fecha,
+                    MailFactura = false,
+                    MailPedido = false,
+                    Notificacion = false,
+                    Obervaciones = Observaciones,
+                    Pedido = nuevoNumeroPedido,
+                    Precio = Convert.ToDouble(p.Product.PriceFrom),
+                    ProcesadaFactura = false,
+                    ProcesadoPedido = false,
+                    Proveedor = "",
+                    Tipo = "Customer",
+                    Tocken = "",
+                    Unidad = p.Product.UnitofMeasure,
+                    Usuario = usuario,
+                    IdGUID = Guid.NewGuid(),
+                    Token = "",
+                    Descuento_Linea = 0
+                }).ToList();
+
+                // 4. Crear cabecera
+                var cabecera = new cabPedidosVenta
+                {
+                    Pedido = nuevoNumeroPedido,
+                    Cod_Cliente = cliente,
+                    Fecha = fecha,
+                    Descuento_Cabecera = 0,
+                    Observaciones = Observaciones,
+                    Estado = "Pendiente",
+                    Direnvio = direnvio,
+                    Usuario = usuario,
+                    Obervaciones_Pedido = "",
+                    Tipo = "Pedido",
+                    detPedidos = lineas
+                };
+
+                // 5. Enviar pedido - ERRORES CORREGIDOS AQUÍ
+                var urlPedido = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/cabPedidos?$expand=detPedidos";
+
+                // Debug: verificar serialización
+                var json = System.Text.Json.JsonSerializer.Serialize(cabecera);
+                Console.WriteLine($"JSON generado: {json}"); // Para debug - eliminar en producción
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var requestP = new HttpRequestMessage(HttpMethod.Post, urlPedido); // CORREGIDO: era urlBuffer
+                requestP.Content = content;
+                requestP.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                requestP.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                requestP.Headers.Remove("Isolation");
+                requestP.Headers.Add("Isolation", "snapshot");
+
+                var responsep = await _http.SendAsync(requestP); // CORREGIDO: era request
+
+                if (responsep.StatusCode != HttpStatusCode.Created)
+                {
+                    var errorContent = await responsep.Content.ReadAsStringAsync();
+                    return new Status
+                    {
+                        IsSuccess = false,
+                        Message = $"Error al crear pedido: {responsep.StatusCode} - {errorContent}"
+                    };
+                }
+
+                // 6. Procesar pedido
+                var procesar = await ProcesarPedido(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
+                return procesar ?? new Status { IsSuccess = false, Message = "Error procesando el pedido" };
+            }
+            catch (Exception ex)
+            {
+                return new Status { IsSuccess = false, Message = $"[ERROR PedidoVenta] {ex.Message}" };
+            }
+        }
+
+        public async Task<Status> ProcesarPedido(string docref, string email, string emailcc, string emailcco, string asunto, string body)
+        {
+            try
+            {
+                // 1. Obtener token
+                var request1 = new
+                {
+                    tenant = _apiSettings.Tenant,
+                    
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+                else
+                {
+                    return new Status { IsSuccess = false, Message = "Error obteniendo token de autenticación" };
+                }
+
+                // 2. Procesar pedido
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/ApiProcesarpedidos({docref})/Microsoft.NAV.ProcesarPedido";
+
+                var envio = new DocumentoEnvio
+                {
+                    email = email,
+                    emailcc = emailcc,
+                    emailcco = emailcco,
+                    asunto = asunto,
+                    body = body
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(envio), Encoding.UTF8, "application/json");
+                var requestP = new HttpRequestMessage(HttpMethod.Post, url);
+                requestP.Content = content;
+                requestP.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                requestP.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                requestP.Headers.Remove("Isolation");
+                requestP.Headers.Add("Isolation", "snapshot");
+
+                var responsep = await _http.SendAsync(requestP);
+
+                if (responsep.IsSuccessStatusCode)
+                {
+                    return new Status { IsSuccess = true, Message = "Pedido procesado correctamente." };
+                }
+                else
+                {
+                    var errorContent = await responsep.Content.ReadAsStringAsync();
+                    return new Status { IsSuccess = false, Message = $"Error procesando pedido: {responsep.StatusCode} - {errorContent}" };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new Status
+                {
+                    IsSuccess = false,
+                    Message = $"[ERROR ProcesarPedido] {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<List<OrderNAVCabecera>> ListaPedidosCabeceraVenta(string cliente)
+        {
+            var resultado = new List<OrderNAVCabecera>();
+
+            try
+            {
+                var request1 = new
+                {
+                    tenant = _apiSettings.Tenant,
+
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+
+                }
+
+            
+                var fecha = DateTime.Now;
+                var fechastr = new DateTime(fecha.Year, 1, 1).ToString("yyyy-MM-dd");
+
+                var urlBase = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/APIPSalesOrders";
+                var filtro =  $"$filter=Document_Type eq 'Order' and Sell_to_Customer_No eq '{cliente}' and Order_Date ge {fechastr}&$expand=salelines";
+
+                var url = $"{urlBase}?{filtro}";
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                var response = await _http.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var data = System.Text.Json.JsonSerializer.Deserialize<PedidosNAVJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (data?.Value != null)
+                    {
+                        resultado.AddRange(data.Value);
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR ListaPedidosCabeceraVenta] {ex.Message}");
+            }
+
+            return resultado;
+        }
+ 
+            public async Task<List<OrderNAVCabecera>> ListaFacturaCabeceraVenta(string cliente)
+        {
+            var resultado = new List<OrderNAVCabecera>();
+
+            try
+            {
+                var request1 = new
+                {
+                    tenant = _apiSettings.Tenant,
+
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+
+                }
+
+
+                var fecha = DateTime.Now;
+                var fechastr = new DateTime(fecha.Year, 1, 1).ToString("yyyy-MM-dd");
+
+                var urlBase = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/APISalesInvoices";
+                var filtro = $"$filter=Sell_to_Customer_No eq '{cliente}' and Posting_Date ge {fechastr}&$expand=saleInvoicelines";
+
+                var url = $"{urlBase}?{filtro}";
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                var response = await _http.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var data = System.Text.Json.JsonSerializer.Deserialize<PedidosNAVJson>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (data?.Value != null)
+                    {
+                        resultado.AddRange(data.Value);
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR ListaPedidosCabeceraVenta] {ex.Message}");
+            }
+
+            return resultado;
+        }
 
     }
+
 
 }

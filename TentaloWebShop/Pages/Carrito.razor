@@ -1,6 +1,8 @@
 @page "/carrito"
 @inject CartService Cart
 @inject NavigationManager Nav
+@inject AuthService Auth
+@using TentaloWebShop.Models
 
 <h1>Carrito de Compra</h1>
 
@@ -11,9 +13,76 @@
 }
 else
 {
+    <!-- Overlay de procesamiento -->
+    @if (isProcessingOrder)
+    {
+        <div class="processing-overlay">
+            <div class="processing-modal">
+                <div class="spinner-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+                <h4 class="processing-title">Procesando su pedido...</h4>
+                <p class="processing-text">Por favor, espere mientras tramitamos su solicitud</p>
+            </div>
+        </div>
+    }
+
+    <!-- Modal de resultado -->
+    @if (orderCompleted)
+    {
+        <div class="result-overlay">
+            <div class="result-modal">
+                @if (orderSuccess)
+                {
+                    <div class="result-content success">
+                        <div class="result-icon success-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h3 class="result-title">¡Pedido Confirmado!</h3>
+                        <p class="result-message">
+                            Su pedido ha sido procesado correctamente.<br/>
+                            En breve recibirá un email con los detalles de su compra.
+                        </p>
+                        <div class="result-summary">
+                            <div class="summary-item">
+                                <strong>Total: @Cart.ImporteTotal.ToString("0.00") €</strong>
+                            </div>
+                            <div class="summary-item">
+                                Artículos: @Cart.TotalQuantity
+                            </div>
+                        </div>
+                        <button class="btn btn-success btn-lg w-100" @onclick="ReturnToCatalog">
+                            <i class="bi bi-arrow-left me-2"></i>Volver al Catálogo
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="result-content error">
+                        <div class="result-icon error-icon">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <h3 class="result-title">Error en el Pedido</h3>
+                        <p class="result-message">@orderErrorMessage</p>
+                        <div class="result-buttons">
+                            <button class="btn btn-primary me-2" @onclick="RetryOrder">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reintentar
+                            </button>
+                            <button class="btn btn-outline-secondary" @onclick="ReturnToCatalog">
+                                <i class="bi bi-arrow-left me-2"></i>Volver al Catálogo
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
     <div class="row g-4">
         <div class="col-12 col-lg-8">
-            <div class="card">
+            <!-- Lista de productos -->
+            <div class="card mb-4">
                 <div class="card-body">
                     @foreach (var item in Cart.Items)
                     {
@@ -42,7 +111,80 @@ else
                     }
                 </div>
             </div>
+
+            <!-- Dirección de envío -->
+            <div class="card shipping-address-card">
+                <div class="card-header shipping-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-truck me-2"></i>
+                        Dirección de Envío
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Auth.CurrentUser?.CustomerAddres?.Any() == true)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Selecciona la dirección de envío:</label>
+                            <select class="form-select" @bind="selectedAddressId" @bind:after="OnAddressSelectionChanged">
+                                <option value="">-- Selecciona una dirección --</option>
+                                @foreach (var address in Auth.CurrentUser.CustomerAddres)
+                                {
+                                    <option value="@address.Code">
+                                        @GetAddressDisplayText(address)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(selectedAddressId))
+                        {
+                            var selectedAddress = Auth.CurrentUser.CustomerAddres.FirstOrDefault(a => a.Code == selectedAddressId);
+                            if (selectedAddress != null)
+                            {
+                                <div class="selected-address">
+                                    <div class="address-icon">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                    </div>
+                                    <div class="address-details">
+                                        <div class="address-name">@selectedAddress.Name @selectedAddress.Name2</div>
+                                        <div class="address-full">
+                                            @selectedAddress.Address<br/>
+                                            @selectedAddress.County<br/>
+                                            @selectedAddress.City, @selectedAddress.PostCode
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(selectedAddress.Contact))
+                                        {
+                                            <div class="address-contact">
+                                                <i class="bi bi-person-fill me-1"></i>@selectedAddress.Contact
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(selectedAddress.MobileNumber))
+                                        {
+                                            <div class="address-phone">
+                                                <i class="bi bi-telephone-fill me-1"></i>@selectedAddress.MobileNumber
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <div class="no-address-notice">
+                            <div class="notice-icon">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <div class="notice-text">
+                                <strong>Sin direcciones registradas</strong>
+                                <p class="mb-0 text-muted">No tienes direcciones de envío registradas. El pedido se tramitará con la dirección por defecto.</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
+        
         <div class="col-12 col-lg-4">
             <div class="card">
                 <div class="card-body">
@@ -53,19 +195,116 @@ else
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="h6">Total</span>
+                        <span class="h6">Base Imponible</span>
                         <strong class="h5">@Cart.TotalAmount.ToString("0.00") €</strong>
                     </div>
-                    <button class="btn btn-danger w-100 mt-3" @onclick="Checkout" disabled>Tramitar pedido</button>
-                    <div class="form-text mt-2">* Demo: el checkout está deshabilitado.</div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="h6">IVA</span>
+                        <strong class="h5">@Cart.TotalVat.ToString("0.00") €</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="h6">Importe Total</span>
+                        <strong class="h5">@Cart.ImporteTotal.ToString("0.00") €</strong>
+                    </div>
+                    
+                    <button class="btn btn-danger w-100 mt-3" 
+                            @onclick="Checkout" 
+                            disabled="@(!CanProceedToCheckout)">
+                        Tramitar pedido
+                    </button>
+                    
+                    <div class="form-text mt-2">
+                        @if (!CanProceedToCheckout && Auth.CurrentUser?.CustomerAddres?.Any() == true)
+                        {
+                            <span class="text-warning">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                Selecciona una dirección de envío para continuar
+                            </span>
+                        }
+                         
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 }
 
+
+
 @code {
+    private string selectedAddressId = "";
+    private bool isProcessingOrder = false;
+    private bool orderCompleted = false;
+    private bool orderSuccess = false;
+    private string orderErrorMessage = "";
+    
+    private bool CanProceedToCheckout => 
+        Auth.CurrentUser?.CustomerAddres?.Any() != true || 
+        !string.IsNullOrEmpty(selectedAddressId);
+
     async Task Change(CartItem item, int qty) => await Cart.Update(item.Product.Id, qty);
     async Task Remove(CartItem item) => await Cart.Remove(item.Product.Id);
-    void Checkout() => Nav.NavigateTo("/login");
+    
+    async Task Checkout() 
+    {
+        isProcessingOrder = true;
+        orderCompleted = false;
+        StateHasChanged();
+
+        try
+        {
+            // Simular llamada a API externa
+            var success = await Cart.ProcessOrder(Cart.Items, selectedAddressId,Auth.CurrentUser.Email,Auth.CurrentUser.CustomerNo);
+            
+            orderSuccess = success.IsSuccess;
+            if (!orderSuccess)
+            {
+                orderErrorMessage = success.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            orderSuccess = false;
+            orderErrorMessage = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isProcessingOrder = false;
+            orderCompleted = true;
+            StateHasChanged();
+        }
+    }
+
+   
+    private void OnAddressSelectionChanged()
+    {
+        StateHasChanged();
+    }
+
+    private string GetAddressDisplayText(CustomerAddres address)
+    {
+        var displayText = $"{address.Name}";
+        if (!string.IsNullOrEmpty(address.Name2))
+            displayText += $" {address.Name2}";
+        displayText += $" - {address.City}";
+        
+        if (!string.IsNullOrEmpty(address.AddressType))
+            displayText += $" ({address.AddressType})";
+            
+        return displayText;
+    }
+
+    private async Task ReturnToCatalog()
+    {
+        await Cart.Clear();
+        Nav.NavigateTo("/catalogo");
+    }
+
+    private void RetryOrder()
+    {
+        orderCompleted = false;
+        orderSuccess = false;
+        orderErrorMessage = "";
+        StateHasChanged();
+    }
 }

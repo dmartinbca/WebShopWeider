@@ -647,7 +647,63 @@ namespace TentaloWebShop.Models
          
     }
 
- 
+    public class cabPedidosVenta
+    {
+        [JsonProperty("Pedido")]
+        public int Pedido { get; set; }
+
+        [JsonProperty("Cod_Cliente")]
+        public string Cod_Cliente { get; set; }
+
+        [JsonProperty("Fecha")]
+        public string Fecha { get; set; }
+
+        [JsonProperty("Descuento_Cabecera")]
+        public double Descuento_Cabecera { get; set; }
+
+        [JsonProperty("Observaciones")]
+        public string Observaciones { get; set; }
+
+        [JsonProperty("Obervaciones_Pedido")]
+        public string Obervaciones_Pedido { get; set; }
+
+        [JsonProperty("Usuario")]
+        public string Usuario { get; set; }
+
+        [JsonProperty("Estado")]
+        public string Estado { get; set; }
+
+        [JsonProperty("Direnvio")]
+        public string Direnvio { get; set; }
+
+        [JsonProperty("Tipo")]
+        public string Tipo { get; set; }
+
+        [JsonProperty("detPedidos")]
+        public IList<BufferPedidos> detPedidos { get; set; }
+
+    }
+
+    public class DocumentoEnvio
+    {
+        [JsonProperty("email")]
+        public string email { get; set; }
+
+        [JsonProperty("emailcc")]
+        public string emailcc { get; set; }
+
+        [JsonProperty("emailcco")]
+        public string emailcco { get; set; }
+
+        [JsonProperty("asunto")]
+        public string asunto { get; set; }
+
+        [JsonProperty("body")]
+        public string body { get; set; }
+
+        [JsonProperty("tipodoc")]
+        public string tipodoc { get; set; }
+    }
 
     public class ProductCloud : INotifyPropertyChanged
     {
@@ -1156,5 +1212,108 @@ namespace TentaloWebShop.Models
         public int orden { get; set; }
         public string Tipo { get; set; }
 
+    }
+
+    public class BufferNumero
+    {
+
+        [JsonProperty("maxId")]
+        public int maxId { get; set; }
+
+
+    }
+
+    public class BufferNumeroJSON
+    {
+
+        [JsonProperty("@odata.context")]
+        public string OdataContext { get; set; }
+
+        [JsonProperty("value")]
+        public IList<BufferNumero> Value { get; set; }
+    }
+
+    public class BufferPedidos
+    {
+        [JsonProperty("Id")]
+        public int Id { get; set; }
+
+        [JsonProperty("Fecha")]
+        public string Fecha { get; set; }
+
+        [JsonProperty("Usuario")]
+        public string Usuario { get; set; }
+
+        [JsonProperty("Tocken")]
+        public string Tocken { get; set; }
+
+        [JsonProperty("Pedido")]
+        public int Pedido { get; set; }
+
+        [JsonProperty("Proveedor")]
+        public string Proveedor { get; set; }
+
+        [JsonProperty("Articulo")]
+        public string Articulo { get; set; }
+
+        [JsonProperty("Descripcion")]
+        public string Descripcion { get; set; }
+
+        [JsonProperty("Precio")]
+        public double Precio { get; set; }
+        [JsonProperty("Cantidad")]
+        public double Cantidad { get; set; }
+
+        [JsonProperty("Tipo_Pedido")]
+        public string Tipo_Pedido { get; set; }
+
+        [JsonProperty("Tipo")]
+        public string Tipo { get; set; }
+
+        [JsonProperty("Fecha_Envio")]
+        public string Fecha_Envio { get; set; }
+
+        [JsonProperty("Cliente")]
+        public string Cliente { get; set; }
+
+        [JsonProperty("Unidad")]
+        public string Unidad { get; set; }
+
+        [JsonProperty("Estado")]
+        public string Estado { get; set; }
+
+        [JsonProperty("Obervaciones")]
+        public string Obervaciones { get; set; }
+
+        [JsonProperty("Notificacion")]
+        public bool Notificacion { get; set; }
+        [JsonProperty("MailPedido")]
+        public bool MailPedido { get; set; }
+
+        [JsonProperty("MailFactura")]
+        public bool MailFactura { get; set; }
+
+        [JsonProperty("ProcesadoPedido")]
+        public bool ProcesadoPedido { get; set; }
+
+        [JsonProperty("ProcesadaFactura")]
+        public bool ProcesadaFactura { get; set; }
+
+        [JsonProperty("EnviadaHacienda")]
+        public bool EnviadaHacienda { get; set; }
+
+
+        [JsonProperty("Almacen")]
+        public string Almacen { get; set; }
+
+        //IdGUID
+        [JsonProperty("IdGUID")]
+        public Guid IdGUID { get; set; }
+
+        [JsonProperty("Token")]
+        public string Token { get; set; }
+
+        [JsonProperty("Descuento_Linea")]
+        public double Descuento_Linea { get; set; }
     }
 }

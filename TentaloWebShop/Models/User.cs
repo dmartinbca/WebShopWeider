@@ -19,5 +19,6 @@ public class User
 
     public string VatBusPostingGroup { get; set; } = "";
 
+    public List<CustomerAddres> CustomerAddres { get; set; }
 
 }

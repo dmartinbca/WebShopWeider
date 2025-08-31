@@ -1,12 +1,184 @@
 @page "/pedidos"
+@inject OrderService OrderService
 @inject AuthService Auth
+@inject NavigationManager Nav
+@using TentaloWebShop.Models
 
-<h1>Mis Pedidos</h1>
-@if (!Auth.IsAuthenticated)
-{
-    <div class="alert alert-warning">Debes iniciar sesión.</div>
-}
-else
-{
-    <div class="alert alert-info">No tienes pedidos todavía.</div>
+<PageTitle>Mis Pedidos</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">
+                    <i class="bi bi-bag-check me-2"></i>
+                    Mis Pedidos
+                </h1>
+                <button class="btn btn-outline-primary" @onclick="RefreshOrders">
+                    <i class="bi bi-arrow-clockwise me-2"></i>
+                    Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando pedidos...</p>
+        </div>
+    }
+    else if (!orders.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-bag-x"></i>
+            </div>
+            <h3>No hay pedidos</h3>
+            <p class="text-muted">Aún no has realizado ningún pedido.</p>
+            <a href="/catalogo" class="btn btn-primary">
+                <i class="bi bi-shop me-2"></i>
+                Ir al Catálogo
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var order in orders.OrderByDescending(o => o.Order_Date))
+            {
+                <div class="col-12">
+                    <div class="order-card" @onclick="() => ViewOrder(order.No)">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <div class="order-number">
+                                    <i class="bi bi-receipt me-2"></i>
+                                    Pedido #@order.No
+                                </div>
+                                <div class="order-date">
+                                    @DateTime.TryParse(order.Order_Date, out var orderDate)
+                                    @(orderDate != default ? orderDate.ToString("dd/MM/yyyy") : order.Order_Date)
+                                </div>
+                            </div>
+                            <div class="order-status">
+                                <span class="status-badge status-@GetStatusClass(order.Status)">
+                                    @GetStatusText(order.Status)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="order-details">
+                            <div class="order-summary">
+                                <div class="summary-item">
+                                    <i class="bi bi-box me-2"></i>
+                                    <span>@OrderService.GetOrderLineCount(order) artículos</span>
+                                </div>
+                                <div class="summary-item">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    <span>@(!string.IsNullOrEmpty(order.Sell_to_City) ? order.Sell_to_City : "Dirección no especificada")</span>
+                                </div>
+                            </div>
+
+                            <div class="order-amount">
+                                <div class="amount-label">Total</div>
+                                <div class="amount-value">@OrderService.GetOrderTotal(order).ToString("N2") €</div>
+                            </div>
+                        </div>
+
+                        <div class="order-footer">
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye me-2"></i>
+                                Ver Detalle
+                            </button>
+                            @if (order.Status?.ToLower() == "open" || order.Status?.ToLower() == "released")
+                            {
+                                <button class="btn btn-outline-secondary btn-sm ms-2" @onclick:stopPropagation="true" @onclick="() => DownloadOrder(order.No)">
+                                    <i class="bi bi-download me-2"></i>
+                                    Descargar
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<OrderNAVCabecera> orders = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        isLoading = true;
+        try
+        {
+            var customerNo = Auth.CurrentUser?.CustomerNo ?? "";
+            if (string.IsNullOrEmpty(customerNo))
+            {
+                Nav.NavigateTo("/login");
+                return;
+            }
+
+            orders = await OrderService.GetOrdersAsync(customerNo);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading orders: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task RefreshOrders()
+    {
+        OrderService.ClearCache();
+        await LoadOrders();
+    }
+
+    private void ViewOrder(string orderNo)
+    {
+        Nav.NavigateTo($"/pedido/{orderNo}");
+    }
+
+    private async Task DownloadOrder(string orderNo)
+    {
+        // Implementar descarga de pedido
+        Console.WriteLine($"Descargando pedido: {orderNo}");
+    }
+
+    private string GetStatusClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "open" => "pending",
+            "released" => "released",
+            "closed" => "completed",
+            "cancelled" => "cancelled",
+            _ => "unknown"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "open" => "Abierto",
+            "released" => "Liberado",
+            "closed" => "Cerrado",
+            "cancelled" => "Cancelado",
+            _ => status ?? "Desconocido"
+        };
+    }
 }

@@ -24,8 +24,13 @@ public class AuthService
     private List<(User user, string password)> _users = new();
 
     private List<(Customer cust,string cod)> _u_custsers = new();
-
-    public AuthService(LocalStorageService store) => _store = store;
+    private readonly RestDataService _rest;
+   
+    public AuthService(LocalStorageService store, RestDataService rest)
+    {
+               _store = store;
+        _rest = rest;
+    }
 
     public async Task InitializeAsync()
     {
@@ -70,22 +75,28 @@ public class AuthService
     {
         await InitializeAsync();
         NavUser response = new NavUser();
-        HttpClient httpClient = new HttpClient();
-        RestDataService restDataService = new RestDataService(httpClient, _store);
-        var euser= await restDataService.GetAppLoginAPICloud(email,password);
+         
+        var euser= await _rest.GetAppLoginAPICloud(email,password);
 
        // var match = _users.FirstOrDefault(u => u.user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
         if (euser is not null )
         {
+            var eAddress = await _rest.GetDirecciones(euser.CustomerNo);
+
             var parts = email.Split('@');
-            var newUser = new User { Email = euser.Usuario,   FullName=euser.CustomerName, CustomerNo=euser.CustomerNo, EsMaster=euser.EsMaster, };
+            if (eAddress==null)
+            {
+                eAddress = new List<CustomerAddres>();
+            }
+               
+            var newUser = new User { Email = euser.Usuario,   FullName=euser.CustomerName, CustomerNo=euser.CustomerNo, EsMaster=euser.EsMaster, CustomerAddres=eAddress};
             _users.Add((newUser, password));
             await PersistUsers();
 
             CurrentUser = newUser;
             await PersistCurrent(CurrentUser);
 
-            var cust = await restDataService.GetCustomersAPI(euser.CustomerNo);
+            var cust = await _rest.GetCustomersAPI(euser.CustomerNo);
             _u_custsers.Add((cust.FirstOrDefault(),cust.FirstOrDefault().CustNo ));
             await PersistCustomers();
             CurrentCustomer= cust.FirstOrDefault();

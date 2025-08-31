@@ -2221,3 +2221,1282 @@ h1 {
         border-bottom: none;
     }
 }
+
+.ingredients-compact {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #28a745;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+    .ingredients-compact .ingredients-header {
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+
+    .ingredients-compact .ingredients-text {
+        font-size: 12px;
+    }
+
+/* Estilos para la dirección de envío en el carrito */
+.shipping-address-card {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.shipping-header {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-bottom: none;
+    padding: 20px 25px;
+    color: white;
+}
+
+    .shipping-header .card-title {
+        font-weight: 600;
+        font-size: 16px;
+        letter-spacing: 0.3px;
+    }
+
+.selected-address {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #28a745;
+    margin-top: 15px;
+}
+
+.address-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.address-details {
+    flex-grow: 1;
+}
+
+.address-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.address-full {
+    color: #4a5568;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.address-contact,
+.address-phone {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.no-address-notice {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    background: #e3f2fd;
+    border-radius: 8px;
+    border-left: 4px solid #2196f3;
+}
+
+.notice-icon {
+    width: 40px;
+    height: 40px;
+    background: #2196f3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notice-text strong {
+    color: #1976d2;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Estilos para procesamiento y resultado de pedidos */
+.processing-overlay,
+.result-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.processing-modal,
+.result-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    margin: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.spinner-container {
+    margin-bottom: 30px;
+}
+
+.spinner-border {
+    width: 4rem;
+    height: 4rem;
+    border-width: 0.4em;
+}
+
+.processing-title {
+    color: #2d3748;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.processing-text {
+    color: #6c757d;
+    font-size: 16px;
+    margin-bottom: 0;
+}
+
+.result-content {
+    animation: resultFadeIn 0.4s ease-out;
+}
+
+@keyframes resultFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    font-size: 40px;
+}
+
+.success-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.error-icon {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+.result-title {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.success .result-title {
+    color: #28a745;
+}
+
+.error .result-title {
+    color: #dc3545;
+}
+
+.result-message {
+    color: #6c757d;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.result-summary {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.summary-item {
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+    .summary-item:last-child {
+        margin-bottom: 0;
+    }
+
+.result-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+    .selected-address {
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .address-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+
+    .address-name {
+        font-size: 15px;
+    }
+
+    .no-address-notice {
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .notice-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+
+    .processing-modal,
+    .result-modal {
+        padding: 25px;
+        width: 95%;
+    }
+
+    .result-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+    }
+
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .result-buttons {
+        flex-direction: column;
+    }
+
+        .result-buttons .btn {
+            width: 100%;
+            margin: 0 0 10px 0;
+        }
+}
+
+/* Estilos para páginas de pedidos */
+
+/* Estado vacío */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+    .empty-icon i {
+        display: block;
+    }
+
+/* Lista de pedidos */
+.order-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: #007bff;
+    }
+
+.order-header {
+    display: flex;
+    justify-content: between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.order-info {
+    flex-grow: 1;
+}
+
+.order-number {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 4px;
+}
+
+.order-date {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.order-status {
+    flex-shrink: 0;
+}
+
+/* Badges de estado */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-large {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-released {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-completed {
+    background: #cce5ff;
+    color: #0056b3;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-unknown {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.order-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.order-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+    .summary-item i {
+        color: #007bff;
+    }
+
+.order-amount {
+    text-align: right;
+}
+
+.amount-label {
+    font-size: 12px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.amount-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #28a745;
+}
+
+.order-footer {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+/* Detalle del pedido */
+.order-detail-card {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.order-detail-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 20px 25px;
+    border-bottom: none;
+}
+
+    .order-detail-header .card-title {
+        font-weight: 600;
+        font-size: 16px;
+        letter-spacing: 0.3px;
+    }
+
+/* Información de pedido */
+.info-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+    .info-label i {
+        color: #007bff;
+        width: 16px;
+    }
+
+.info-value {
+    color: #2d3748;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Tabla de líneas */
+.order-lines-table {
+    margin: 0;
+}
+
+    .order-lines-table thead th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px 12px;
+    }
+
+    .order-lines-table tbody td {
+        padding: 16px 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f3f4;
+    }
+
+    .order-lines-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+.line-description {
+    max-width: 300px;
+}
+
+.quantity-badge {
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* Resumen del pedido */
+.order-summary {
+    margin-bottom: 20px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+    .summary-row.discount {
+        color: #28a745;
+    }
+
+    .summary-row.total {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2d3748;
+        padding: 16px 0 8px 0;
+    }
+
+.order-actions {
+    gap: 10px;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .order-card {
+        padding: 16px;
+    }
+
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .order-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .order-amount {
+        text-align: left;
+        width: 100%;
+    }
+
+    .amount-value {
+        font-size: 18px;
+    }
+
+    .order-lines-table {
+        font-size: 14px;
+    }
+
+        .order-lines-table thead th,
+        .order-lines-table tbody td {
+            padding: 12px 8px;
+        }
+
+        /* Ocultar algunas columnas en móvil */
+        .order-lines-table .d-none-mobile {
+            display: none !important;
+        }
+
+    .line-description {
+        max-width: 200px;
+    }
+
+    .summary-row.total {
+        font-size: 16px;
+    }
+
+    .order-actions .btn {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .empty-state {
+        padding: 40px 15px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+    }
+
+    .order-number {
+        font-size: 16px;
+    }
+
+    .amount-value {
+        font-size: 16px;
+    }
+}
+
+/* Breadcrumb personalizado */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+
+.breadcrumb-item.active {
+    color: #6c757d;
+}
+
+/* Estilos para páginas de facturas - Esquema verde/teal */
+
+/* Lista de facturas */
+.invoice-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+    .invoice-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+        border-color: #28a745;
+    }
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.invoice-info {
+    flex-grow: 1;
+}
+
+.invoice-number {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 4px;
+}
+
+    .invoice-number i {
+        color: #28a745;
+    }
+
+.invoice-date {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.invoice-status {
+    flex-shrink: 0;
+}
+
+/* Badges de estado para facturas */
+.status-badge-invoice {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-large-invoice {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.status-badge-invoice.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge-invoice.status-released {
+    background: #cff4fc;
+    color: #055160;
+}
+
+.status-badge-invoice.status-paid {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge-invoice.status-overdue {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge-invoice.status-cancelled {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.status-badge-invoice.status-unknown {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f1f8f4;
+    border-radius: 8px;
+}
+
+.invoice-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summary-item i {
+    color: #28a745;
+}
+
+.invoice-amount {
+    text-align: right;
+}
+
+.amount-value-invoice {
+    font-size: 20px;
+    font-weight: 700;
+    color: #20c997;
+}
+
+.invoice-footer {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+/* Detalle de factura */
+.invoice-detail-card {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.invoice-detail-header {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 20px 25px;
+    border-bottom: none;
+}
+
+    .invoice-detail-header .card-title {
+        font-weight: 600;
+        font-size: 16px;
+        letter-spacing: 0.3px;
+    }
+
+/* Tabla de líneas de factura */
+.invoice-lines-table {
+    margin: 0;
+}
+
+    .invoice-lines-table thead th {
+        background: #f1f8f4;
+        border-bottom: 2px solid #d4edda;
+        font-weight: 600;
+        color: #155724;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px 12px;
+    }
+
+    .invoice-lines-table tbody td {
+        padding: 16px 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f8f4;
+    }
+
+    .invoice-lines-table tbody tr:hover {
+        background-color: #f9fdf9;
+    }
+
+.quantity-badge-invoice {
+    background: #d1ecf1;
+    color: #0c5460;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.vat-badge {
+    background: #e7f3ff;
+    color: #0066cc;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Resumen de factura */
+.invoice-summary .summary-row.total-invoice {
+    font-size: 18px;
+    font-weight: 700;
+    color: #155724;
+    padding: 16px 0 8px 0;
+}
+
+.invoice-summary .summary-row.discount {
+    color: #20c997;
+}
+
+.invoice-actions {
+    gap: 10px;
+}
+
+/* Alertas específicas para facturas */
+.alert-success {
+    border-left: 4px solid #28a745;
+}
+
+.alert-warning {
+    border-left: 4px solid #ffc107;
+}
+
+/* Badges adicionales para facturas */
+.payment-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.payment-status-paid {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.payment-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.payment-status-overdue {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Hover effects específicos para facturas */
+.invoice-card .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.invoice-card .btn-outline-success:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+/* Customización de spinners para facturas */
+.spinner-border.text-success {
+    color: #28a745 !important;
+}
+
+/* Iconos específicos para facturas */
+.invoice-card i.bi-receipt,
+.invoice-detail-header i.bi-receipt {
+    color: #20c997;
+}
+
+/* Estados de pago visual */
+.payment-indicator {
+    position: relative;
+    padding-left: 20px;
+}
+
+    .payment-indicator::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .payment-indicator.paid::before {
+        background-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+    }
+
+    .payment-indicator.pending::before {
+        background-color: #ffc107;
+        box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+    }
+
+    .payment-indicator.overdue::before {
+        background-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+    }
+
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+    .invoice-card {
+        padding: 16px;
+    }
+
+    .invoice-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .invoice-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .invoice-amount {
+        text-align: left;
+        width: 100%;
+    }
+
+    .amount-value-invoice {
+        font-size: 18px;
+    }
+
+    .invoice-lines-table {
+        font-size: 14px;
+    }
+
+        .invoice-lines-table thead th,
+        .invoice-lines-table tbody td {
+            padding: 12px 8px;
+        }
+
+        /* Ocultar columnas menos importantes en móvil */
+        .invoice-lines-table th:nth-child(5),
+        .invoice-lines-table td:nth-child(5),
+        .invoice-lines-table th:nth-child(6),
+        .invoice-lines-table td:nth-child(6) {
+            display: none;
+        }
+
+    .invoice-summary .summary-row.total-invoice {
+        font-size: 16px;
+    }
+
+    .invoice-actions .btn {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .invoice-number {
+        font-size: 16px;
+    }
+
+    .amount-value-invoice {
+        font-size: 16px;
+    }
+
+    .status-badge-invoice {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+/* Animaciones específicas para facturas */
+@keyframes invoiceSuccess {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.invoice-card.payment-success {
+    animation: invoiceSuccess 0.3s ease-in-out;
+    border-color: #28a745;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+}
+
+/* Mejoras visuales adicionales */
+.invoice-detail-header {
+    position: relative;
+    overflow: hidden;
+}
+
+    .invoice-detail-header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: rotate(45deg);
+        transition: all 0.6s;
+    }
+
+.invoice-detail-card:hover .invoice-detail-header::before {
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+/* CSS específico para tu QuantityStepper con input-group */
+
+.quantity-input {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    max-width: 200px !important;
+    gap: 0 !important;
+}
+
+    .quantity-input .btn {
+        width: 44px !important;
+        height: 44px !important;
+        background-color: #000 !important;
+        color: white !important;
+        border: 2px solid #dee2e6 !important;
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        font-size: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+        .quantity-input .btn:hover {
+            background-color: #333 !important;
+            color: white !important;
+            border-color: #adb5bd !important;
+        }
+
+        .quantity-input .btn:focus,
+        .quantity-input .btn:active {
+            background-color: #000 !important;
+            color: white !important;
+            border-color: #666 !important;
+            box-shadow: none !important;
+        }
+
+    .quantity-input .form-control {
+        width: 60px !important;
+        height: 44px !important;
+        border: 2px solid #dee2e6 !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-radius: 0 !important;
+        text-align: center !important;
+        background-color: white !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+        .quantity-input .form-control:focus {
+            border-color: #dee2e6 !important;
+            border-left: none !important;
+            border-right: none !important;
+            box-shadow: none !important;
+        }
+
+/* Desktop - Alineado a la izquierda */
+@media (min-width: 769px) {
+    .quantity-input {
+        justify-content: flex-start !important;
+        margin: 0 !important;
+        transform: none !important;
+        left: auto !important;
+        position: relative !important;
+    }
+
+    .product-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+        .product-actions .btn:not(.quantity-input .btn) {
+            min-width: 120px;
+            padding: 8px 16px;
+            text-align: center;
+        }
+}
+
+/* Móvil - Centrado */
+@media (max-width: 768px) {
+    .quantity-input {
+        justify-content: center !important;
+        margin: 0 auto !important;
+        width: 148px !important;
+        position: relative !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+
+    .product-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 0 15px;
+    }
+
+        .product-actions .btn:not(.quantity-input .btn) {
+            min-width: 140px;
+            width: 140px;
+            padding: 10px 16px;
+            text-align: center;
+            margin: 0 auto;
+        }
+}
+
+@media (max-width: 576px) {
+    .quantity-input {
+        width: 140px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+
+        .quantity-input .btn {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 16px !important;
+        }
+
+        .quantity-input .form-control {
+            width: 60px !important;
+            height: 40px !important;
+            font-size: 15px !important;
+        }
+
+    .product-actions .btn:not(.quantity-input .btn) {
+        min-width: 130px;
+        width: 130px;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+/* Override Bootstrap input-group específico */
+.input-group.quantity-input > .btn:not(:first-child),
+.input-group.quantity-input > .btn-group:not(:first-child) {
+    margin-left: 0 !important;
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+}
+
+.input-group.quantity-input > .btn:not(:last-child),
+.input-group.quantity-input > .btn-group:not(:last-child) {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+.input-group.quantity-input .btn + .btn {
+    border-left: 2px solid #dee2e6 !important;
+}
+
+/* Asegurar estructura horizontal siempre */
+.input-group.quantity-input,
+.quantity-input {
+    flex-wrap: nowrap !important;
+}
+
+    .quantity-input > * {
+        display: inline-flex !important;
+        vertical-align: top !important;
+    }
