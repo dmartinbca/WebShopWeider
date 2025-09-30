@@ -255,11 +255,11 @@ namespace TentaloWebShop.Services
                 // Lógica igual que tu versión MAUI
                 if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
                 {
-                    endpoint = $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
+                    endpoint = $"/ApiListaProductosIV?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
                 }
                 else
                 {
-                    endpoint =  $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                    endpoint =  $"/ApiListaProductosIV?$filter=no eq '{saved.CustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
                 }
 
                 var url = baseUrl + endpoint;
