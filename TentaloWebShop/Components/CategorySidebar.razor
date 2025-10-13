@@ -4,9 +4,10 @@
 @using System.Text.RegularExpressions
 
 <div class="card category-sidebar">
-    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+    <div class="card-header">
         <span>Catálogo</span>
         <button class="btn btn-sm btn-catalog-toggle d-lg-none"
+                type="button"
                 @onclick="ToggleMobileMenu"
                 aria-label="Alternar categorías">
             <div class="catalog-toggle-icon @(showMobileMenu ? "open" : "")">
@@ -18,56 +19,54 @@
     </div>
 
     <div class="list-group list-group-flush sidebar-accordion @(showMobileMenu ? "show-mobile" : "hide-mobile")">
-        <a class="list-group-item list-group-item-action @(IsAllProducts() ? "active" : "")"
+        <!-- Todos los Productos -->
+        <a class="list-group-item list-group-item-action @(IsAllProductsActive() ? "active" : "")"
            href="/catalogo">
-            <i class="bi bi-grid me-2"></i>Todos los Productos
+            <i class="bi bi-grid me-2"></i>
+            Todos los Productos
         </a>
 
+        <!-- Familias y Subfamilias -->
         @foreach (var fam in families)
         {
             var isOpen = openFamilies.Contains(fam.Slug) || IsActiveFamily(fam.Slug);
-            var isActiveFamily = IsActiveFamily(fam.Slug) && !IsActiveSubfamily();
 
             <div class="list-group-item p-0 family-group">
-                <!-- Contenedor de la familia -->
+                <!-- Header de Familia: Link + Botón Expandir -->
                 <div class="family-header">
-                    <!-- Link a la familia (área principal) -->
-                    <a href="/categoria/@fam.Slug"
-                       class="fam-link @(isActiveFamily ? "active-family" : "")"
-                       @onclick="() => CloseMobileMenu()"
-                       @onclick:preventDefault="false">
+                    <!-- Link a la familia -->
+                    <a href="@($"/categoria/{fam.Slug}")"
+                       class="fam-link @(IsActiveFamily(fam.Slug) ? "active-family" : "")">
                         <i class="bi bi-tag me-2"></i>
                         <span class="family-name">@fam.Name</span>
                     </a>
 
-                    <!-- Botón de expansión/colapso -->
+                    <!-- Botón para expandir/colapsar subfamilias -->
                     @if (fam.Subs.Any())
                     {
                         <button type="button"
                                 class="expand-btn"
                                 @onclick="() => Toggle(fam.Slug)"
+                                @onclick:stopPropagation="true"
                                 aria-expanded="@isOpen"
-                                aria-label="@(isOpen ? "Contraer" : "Expandir") subcategorías"
-                                aria-controls="@($"sub-{fam.Slug}")">
+                                aria-label="@(isOpen ? "Colapsar" : "Expandir") subfamilias">
                             <i class="bi bi-chevron-@(isOpen ? "down" : "right")"></i>
                         </button>
                     }
                 </div>
 
-                <!-- Subfamilias (plegable) -->
+                <!-- Lista de Subfamilias (Colapsable) -->
                 @if (fam.Subs.Any())
                 {
-                    <div id="@($"sub-{fam.Slug}")"
-                         class="@($"collapse subfamily-list {(isOpen ? "show" : "")}")">
-                        <ul class="list-unstyled ps-3 py-2 mb-0">
+                    <div class="subfamily-list @(isOpen ? "show" : "")">
+                        <ul class="list-unstyled mb-0">
                             @foreach (var s in fam.Subs)
                             {
-                                <li class="mb-1 subfamily-item">
+                                <li class="subfamily-item">
                                     <a class="subfamily-link @(IsActive(fam.Slug, s.Slug) ? "active" : "")"
-                                       href="/categoria/@fam.Slug/@s.Slug"
-                                       @onclick="() => CloseMobileMenu()">
-                                        <i class="bi bi-circle-fill me-2"></i>
-                                        @s.Name
+                                       href="@($"/categoria/{fam.Slug}/{s.Slug}")">
+                                        <i class="bi bi-circle-fill me-2" style="font-size: 0.35rem;"></i>
+                                        <span>@s.Name</span>
                                     </a>
                                 </li>
                             }
@@ -81,78 +80,53 @@
 
 @code {
     private List<Category> families = new();
-    private HashSet<string> openFamilies = new();
-    private bool showMobileMenu;
+    private HashSet<string> openFamilies = new(StringComparer.OrdinalIgnoreCase);
+    private bool showMobileMenu = false;
 
     protected override async Task OnInitializedAsync()
     {
         families = await Categories.GetFamilies();
+        ExpandActiveFromUri(Nav.Uri);
         Nav.LocationChanged += OnLocationChanged;
-
-        // Abrir la familia activa al cargar
-        var currentFamily = GetCurrentFamily();
-        if (!string.IsNullOrEmpty(currentFamily))
-        {
-            openFamilies.Add(currentFamily);
-        }
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        StateHasChanged();
     }
 
     private void Toggle(string slug)
     {
-        if (openFamilies.Contains(slug))
+        if (!openFamilies.Add(slug))
             openFamilies.Remove(slug);
-        else
-            openFamilies.Add(slug);
+        StateHasChanged();
     }
 
     private void ToggleMobileMenu()
     {
         showMobileMenu = !showMobileMenu;
+        StateHasChanged();
     }
 
-    private void CloseMobileMenu()
+    private bool IsAllProductsActive()
+        => Nav.Uri.EndsWith("/catalogo", StringComparison.OrdinalIgnoreCase);
+
+    private bool IsActive(string fam, string sub)
+        => Nav.Uri.Contains($"/categoria/{fam}/{sub}", StringComparison.OrdinalIgnoreCase);
+
+    private bool IsActiveFamily(string fam)
+        => Nav.Uri.Contains($"/categoria/{fam}", StringComparison.OrdinalIgnoreCase)
+           && !Nav.Uri.Contains($"/categoria/{fam}/", StringComparison.OrdinalIgnoreCase);
+
+    private void OnLocationChanged(object? s, LocationChangedEventArgs e)
     {
+        ExpandActiveFromUri(e.Location);
         showMobileMenu = false;
+        StateHasChanged();
     }
 
-    private bool IsAllProducts()
+    private void ExpandActiveFromUri(string uri)
     {
-        var path = new Uri(Nav.Uri).AbsolutePath;
-        return path == "/catalogo";
-    }
-
-    private bool IsActiveFamily(string familySlug)
-    {
-        var path = new Uri(Nav.Uri).AbsolutePath;
-        var pattern = $"/categoria/{Regex.Escape(familySlug)}";
-        return Regex.IsMatch(path, pattern, RegexOptions.IgnoreCase);
-    }
-
-    private bool IsActiveSubfamily()
-    {
-        var path = new Uri(Nav.Uri).AbsolutePath;
-        var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        // Tiene subcategoría si tiene más de 2 partes después de categoria
-        return parts.Length >= 3 && parts[0] == "categoria";
-    }
-
-    private bool IsActive(string familySlug, string subSlug)
-    {
-        var path = new Uri(Nav.Uri).AbsolutePath;
-        var expected = $"/categoria/{familySlug}/{subSlug}";
-        return path.Equals(expected, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private string? GetCurrentFamily()
-    {
-        var path = new Uri(Nav.Uri).AbsolutePath;
-        var match = Regex.Match(path, @"/categoria/([^/]+)", RegexOptions.IgnoreCase);
-        return match.Success ? match.Groups[1].Value : null;
+        var m = Regex.Match(uri, @"/categoria/([^/]+)", RegexOptions.IgnoreCase);
+        if (m.Success)
+        {
+            openFamilies.Add(m.Groups[1].Value);
+        }
     }
 
     public void Dispose()

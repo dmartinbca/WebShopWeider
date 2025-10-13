@@ -9,36 +9,37 @@
 {
     <div class="p-4">Cargando…</div>
 }
-else
+else if (string.IsNullOrWhiteSpace(sub))
 {
-    <Breadcrumbs Crumbs="@breadcrumbs" />
+    @* Vista de FAMILIA: productos de toda la familia con filtros *@
+    <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
+                 {
+                     ("Catálogo","/catalogo",false),
+                     (familyModel!.Name,$"/categoria/{familyModel!.Slug}",true)
+                 })" />
 
+    <!-- Header con título -->
     <div class="category-page">
-        <!-- Título de la sección -->
-        <div class="category-header mb-4">
-            <h1 class="category-title">@currentTitle</h1>
-            @if (!string.IsNullOrWhiteSpace(sub))
-            {
-                <button class="btn btn-outline-secondary btn-sm" @onclick="ClearSubcategory">
-                    <i class="bi bi-arrow-left me-1"></i>Ver todos en @familyModel.Name
-                </button>
-            }
+        <div class="category-header mb-3">
+            <h1 class="category-title mb-0">@familyModel!.Name</h1>
         </div>
 
+        <!-- Filtros de Subcategorías Horizontales -->
         @if (subs.Any())
         {
-            <!-- Chips de subcategorías como filtros -->
             <div class="subcategory-filters mb-4">
                 <div class="filter-chips">
-                    <button class="filter-chip @(string.IsNullOrWhiteSpace(sub) ? "active" : "")"
-                            @onclick="() => NavigateToFamily()">
-                        <i class="bi bi-grid-fill me-1"></i>
+                    <!-- Botón "Todos" activo cuando no hay subfamilia seleccionada -->
+                    <button class="filter-chip active">
+                        <i class="bi bi-grid-3x3-gap-fill me-1"></i>
                         Todos
                     </button>
+
+                    <!-- Botones de cada Subcategoría -->
                     @foreach (var s in subs)
                     {
-                        <button class="filter-chip @(sub == s.Slug ? "active" : "")"
-                                @onclick="() => NavigateToSubcategory(s.Slug)">
+                        <button class="filter-chip" 
+                                @onclick='() => Nav.NavigateTo($"/categoria/{familyModel!.Slug}/{s.Slug}")'>
                             @s.Name
                         </button>
                     }
@@ -46,38 +47,117 @@ else
             </div>
         }
 
-        <!-- Grid de productos -->
-        <div class="products-section">
-            @if (items is null)
-            {
-                <div class="text-center p-5">
-                    <div class="spinner-border text-danger" role="status">
-                        <span class="visually-hidden">Cargando productos...</span>
-                    </div>
-                    <p class="mt-3 text-muted">Cargando productos...</p>
-                </div>
-            }
-            else if (items.Count == 0)
-            {
-                <div class="alert alert-info d-flex align-items-center" role="alert">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <div>
-                        No hay productos disponibles en esta @(string.IsNullOrWhiteSpace(sub) ? "categoría" : "subcategoría").
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="products-count mb-3">
-                    <span class="text-muted">
-                        <i class="bi bi-box-seam me-1"></i>
-                        @items.Count @(items.Count == 1 ? "producto" : "productos") @(string.IsNullOrWhiteSpace(sub) ? "en esta categoría" : "en esta subcategoría")
-                    </span>
-                </div>
-                <ProductGrid Data="items" @key="@currentKey" />
-            }
-        </div>
+        <!-- Contador de productos -->
+        @if (items != null)
+        {
+            <div class="products-count text-muted mb-3">
+                <i class="bi bi-box-seam"></i>
+                <strong>@items.Count</strong> producto@(items.Count != 1 ? "s" : "") en total
+            </div>
+        }
     </div>
+
+    <!-- Grid de Productos -->
+    @if (items is null)
+    {
+        <div class="p-4 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando productos...</p>
+        </div>
+    }
+    else if (items.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No hay productos en esta familia.
+        </div>
+    }
+    else
+    {
+        <div class="products-section">
+            <ProductGrid Data="items" @key="@($"{family}")" />
+        </div>
+    }
+}
+else
+{
+    @* Vista de SUBFAMILIA: productos filtrados *@
+    <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
+                 {
+                     ("Catálogo","/catalogo",false),
+                     (familyModel!.Name,$"/categoria/{familyModel!.Slug}",false),
+                     (subModel?.Name ?? sub!,$"/categoria/{familyModel!.Slug}/{sub}",true)
+                 })" />
+
+    <!-- Header con título y botón Ver todos -->
+    <div class="category-page">
+        <div class="category-header mb-3">
+            <h1 class="category-title mb-0">@subModel?.Name</h1>
+            <a href="@($"/categoria/{familyModel!.Slug}")" class="btn btn-outline-secondary">
+                <i class="bi bi-grid me-1"></i>
+                Ver todos en @familyModel.Name
+            </a>
+        </div>
+
+        <!-- Filtros de Subcategorías Horizontales -->
+        @if (subs.Any())
+        {
+            <div class="subcategory-filters mb-4">
+                <div class="filter-chips">
+                    <!-- Botón "Todos" -->
+                    <button class="filter-chip" @onclick='() => Nav.NavigateTo($"/categoria/{familyModel!.Slug}")'>
+                        <i class="bi bi-grid-3x3-gap-fill me-1"></i>
+                        Todos
+                    </button>
+
+                    <!-- Botones de cada Subcategoría -->
+                    @foreach (var s in subs)
+                    {
+                        var isActive = s.Slug.Equals(sub, StringComparison.OrdinalIgnoreCase);
+                        <button class="filter-chip @(isActive ? "active" : "")" 
+                                @onclick='() => Nav.NavigateTo($"/categoria/{familyModel!.Slug}/{s.Slug}")'>
+                            @s.Name
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Contador de productos -->
+        @if (items != null)
+        {
+            <div class="products-count text-muted mb-3">
+                <i class="bi bi-box-seam"></i>
+                <strong>@items.Count</strong> producto@(items.Count != 1 ? "s" : "") en esta subcategoría
+            </div>
+        }
+    </div>
+
+    <!-- Grid de Productos -->
+    @if (items is null)
+    {
+        <div class="p-4 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando productos...</p>
+        </div>
+    }
+    else if (items.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No hay productos en esta subfamilia.
+        </div>
+    }
+    else
+    {
+        <div class="products-section">
+            <ProductGrid Data="items" @key="@($"{family}/{sub}")" />
+        </div>
+    }
 }
 
 @code {
@@ -88,29 +168,6 @@ else
     private Subcategory? subModel;
     private IEnumerable<Subcategory> subs = Enumerable.Empty<Subcategory>();
     private List<Product>? items;
-    private string currentKey => $"{family}/{sub ?? "all"}";
-    private string currentTitle => string.IsNullOrWhiteSpace(sub) 
-        ? familyModel?.Name ?? "" 
-        : subModel?.Name ?? sub ?? "";
-
-    private List<(string text, string url, bool last)> breadcrumbs
-    {
-        get
-        {
-            var crumbs = new List<(string, string, bool)>
-            {
-                ("Catálogo", "/catalogo", false),
-                (familyModel!.Name, $"/categoria/{familyModel!.Slug}", string.IsNullOrWhiteSpace(sub))
-            };
-
-            if (!string.IsNullOrWhiteSpace(sub))
-            {
-                crumbs.Add((subModel?.Name ?? sub!, $"/categoria/{familyModel!.Slug}/{sub}", true));
-            }
-
-            return crumbs;
-        }
-    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -120,30 +177,15 @@ else
 
         if (!string.IsNullOrWhiteSpace(sub))
         {
-            // Vista de SUBFAMILIA: productos filtrados por subfamilia
+            // Vista de SUBFAMILIA: mostrar solo productos de esa subfamilia
             subModel = Categories.GetSub(family, sub!);
             items = await Products.GetBySubfamilyAsync(family, sub!);
         }
         else
         {
-            // Vista de FAMILIA: todos los productos de la familia
+            // Vista de FAMILIA: mostrar TODOS los productos de la familia
             subModel = null;
             items = await Products.GetByFamilyAsync(family);
         }
-    }
-
-    private void NavigateToFamily()
-    {
-        Nav.NavigateTo($"/categoria/{family}");
-    }
-
-    private void NavigateToSubcategory(string subSlug)
-    {
-        Nav.NavigateTo($"/categoria/{family}/{subSlug}");
-    }
-
-    private void ClearSubcategory()
-    {
-        Nav.NavigateTo($"/categoria/{family}");
     }
 }
