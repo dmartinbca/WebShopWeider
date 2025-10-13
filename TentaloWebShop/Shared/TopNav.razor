@@ -2,13 +2,25 @@
 @inject NavigationManager Nav
 @inject CartService Cart
 
+<!-- Nuevo menú móvil tipo drawer - Solo accesible en móvil (< 992px) -->
+<!-- El componente se renderiza pero el botón para abrirlo solo aparece en móvil -->
+<MobileMenu IsOpen="@mobileMenuOpen" IsOpenChanged="@((value) => mobileMenuOpen = value)" />
+
 <nav class="navbar navbar-expand-lg border-bottom sticky-top">
     <div class="container-fluid">
+        <!-- Botón de menú hamburguesa para móvil (a la izquierda) -->
+        <button class="btn btn-menu-toggle d-lg-none" 
+                @onclick="OpenMobileMenu"
+                aria-label="Abrir menú">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <!-- Logo -->
         <a href="/" class="navbar-brand d-flex align-items-center">
             <img src="/images/Weiderlogo.png" alt="Logo" class="app-icon" />
         </a>
 
-        <!-- Mobile Actions - Visible solo en móvil -->
+        <!-- Mobile Actions - Visible solo en móvil (a la derecha) -->
         <div class="mobile-actions d-lg-none">
             <!-- Carrito Móvil -->
             <CartIcon />
@@ -53,16 +65,12 @@
                     <i class="bi bi-person-circle fs-5"></i>
                 </button>
             }
-
-            <!-- Botón Menú -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample">
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </div>
 
-        <div class="collapse navbar-collapse" id="navbarsExample">
+        <!-- Desktop Navigation - Visible solo en desktop -->
+        <div class="d-none d-lg-flex flex-grow-1 align-items-center justify-content-between">
             <!-- Desktop: Barra de búsqueda -->
-            <div class="search-section d-none d-lg-block flex-grow-1 mx-lg-4">
+            <div class="search-section flex-grow-1 mx-4">
                 <SearchBar />
             </div>
 
@@ -75,7 +83,7 @@
             </ul>
 
             <!-- Desktop: Sección del carrito y usuario -->
-            <div class="desktop-actions d-none d-lg-flex align-items-center gap-3">
+            <div class="desktop-actions d-flex align-items-center gap-3">
                 <!-- Carrito -->
                 <CartIcon />
 
@@ -124,26 +132,19 @@
                     </div>
                 }
             </div>
-
-            <!-- Mobile: Búsqueda y botones de autenticación -->
-            <div class="mobile-menu-content d-lg-none">
-                <div class="my-3">
-                    <SearchBar />
-                </div>
-                @if (!Auth.IsAuthenticated)
-                {
-                    <div class="d-grid gap-2 mt-3">
-                        <a class="btn btn-outline-secondary" href="/login">Acceder</a>
-                        <a class="btn btn-danger" href="/register">Registrar</a>
-                    </div>
-                }
-            </div>
         </div>
     </div>
 </nav>
 
 @code {
+    private bool mobileMenuOpen = false;
+
     protected override void OnInitialized() => Cart.Changed += StateHasChanged;
+
+    private void OpenMobileMenu()
+    {
+        mobileMenuOpen = true;
+    }
 
     private async Task Logout()
     {

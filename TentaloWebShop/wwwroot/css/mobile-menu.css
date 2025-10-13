@@ -1,0 +1,345 @@
+﻿/* ========================================
+   MOBILE MENU - DRAWER/OFFCANVAS
+   ======================================== */
+
+/* Overlay oscuro */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Menú lateral */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 320px;
+    max-width: 85vw;
+    height: 100vh;
+    background: white;
+    z-index: 1050;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: left 0.3s ease-in-out;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .mobile-menu.open {
+        left: 0;
+    }
+
+/* Header del menú */
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1rem;
+    background: #111111;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+    .mobile-menu-header h5 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+.btn-close-menu {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+    .btn-close-menu:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+/* Contenido del menú */
+.mobile-menu-content {
+    padding-bottom: 2rem;
+}
+
+/* Búsqueda */
+.mobile-menu-search {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+    .mobile-menu-search .input-group-text {
+        color: #6c757d;
+    }
+
+    .mobile-menu-search .form-control {
+        border-left: 1px solid #dee2e6;
+    }
+
+        .mobile-menu-search .form-control:focus {
+            border-color: #111111;
+            box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.1);
+        }
+
+/* Secciones del menú */
+.mobile-menu-section {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.section-title {
+    padding: 1rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #6c757d;
+    letter-spacing: 0.5px;
+    background: #f8f9fa;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+}
+
+/* Lista de categorías */
+.category-list {
+    padding: 0;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    color: #212529;
+    text-decoration: none;
+    border: none;
+    background: white;
+    width: 100%;
+    text-align: left;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+    .category-item:hover {
+        background: #f8f9fa;
+        color: #111111;
+    }
+
+.category-toggle {
+    border-bottom: 1px solid #e9ecef;
+}
+
+    .category-toggle.active {
+        background: #f8f9fa;
+        color: #111111;
+        font-weight: 600;
+    }
+
+/* Subcategorías */
+.subcategory-list {
+    background: #f8f9fa;
+    padding: 0.5rem 0;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+.subcategory-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    color: #495057;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+    .subcategory-item:hover {
+        background: white;
+        color: #111111;
+        padding-left: 2.75rem;
+    }
+
+    .subcategory-item i {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+/* Enlaces rápidos */
+.quick-links {
+    padding: 0.5rem 0;
+}
+
+.quick-link-item {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    color: #212529;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+    .quick-link-item:hover {
+        background: #f8f9fa;
+        color: #111111;
+        padding-left: 1.25rem;
+    }
+
+/* Sección MÁS */
+.more-links {
+    padding: 0.5rem 0;
+}
+
+.more-item {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    color: #212529;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+    .more-item:hover {
+        background: #f8f9fa;
+        color: #111111;
+        padding-left: 1.25rem;
+    }
+
+    .more-item.text-danger:hover {
+        background: #fff5f5;
+        color: #dc3545 !important;
+    }
+
+    .more-item i {
+        width: 24px;
+    }
+
+/* Divider */
+.mobile-menu-section hr {
+    margin: 0.5rem 1rem;
+    opacity: 0.1;
+}
+
+/* ========================================
+   ANIMACIONES Y TRANSICIONES
+   ======================================== */
+
+.category-group {
+    border-bottom: 1px solid #f8f9fa;
+}
+
+/* Iconos */
+.mobile-menu i {
+    transition: transform 0.2s;
+}
+
+.category-toggle:hover i {
+    transform: scale(1.1);
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADA
+   ======================================== */
+
+.mobile-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mobile-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.mobile-menu::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+    .mobile-menu::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 360px) {
+    .mobile-menu {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .mobile-menu-header {
+        padding: 1rem;
+    }
+
+    .category-item,
+    .quick-link-item,
+    .more-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .subcategory-item {
+        padding: 0.625rem 1rem 0.625rem 2.25rem;
+    }
+}
+
+/* ========================================
+   ACCESIBILIDAD
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .mobile-menu,
+    .mobile-menu-overlay,
+    .subcategory-list {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* Focus visible para teclado */
+.category-item:focus-visible,
+.quick-link-item:focus-visible,
+.more-item:focus-visible {
+    outline: 2px solid #111111;
+    outline-offset: -2px;
+}

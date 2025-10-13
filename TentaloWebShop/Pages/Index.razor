@@ -1,4 +1,156 @@
 @page "/"
+@implements IDisposable
 
-<h1 class="mb-3">Catálogo</h1>
- <ProductGrid />
+<!-- Carrusel Hero -->
+<div class="hero-carousel">
+    <div class="carousel-wrapper">
+        @for (int i = 0; i < carouselImages.Length; i++)
+        {
+            int index = i;
+            <div class="carousel-slide @(currentSlide == index ? "active" : "")"
+                 style="position: absolute; width: 100%; height: 100%; opacity: @(currentSlide == index ? "1" : "0"); transition: opacity 1s ease-in-out;">
+                <img src="@carouselImages[index].ImageUrl" alt="@carouselImages[index].Alt"
+                     style="width: 100%; height: 100%; object-fit: cover; object-position: center;" />
+                <div class="carousel-overlay">
+                    <div class="carousel-content container">
+                        <h1 class="hero-title">@carouselImages[index].Title</h1>
+                        <p class="hero-subtitle">@carouselImages[index].Subtitle</p>
+                        @if (!string.IsNullOrEmpty(carouselImages[index].ButtonText))
+                        {
+                            <a href="@carouselImages[index].ButtonLink" class="btn btn-hero">
+                                @carouselImages[index].ButtonText
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Indicadores -->
+    <div class="carousel-indicators">
+        @for (int i = 0; i < carouselImages.Length; i++)
+        {
+            int index = i;
+            <button class="indicator @(currentSlide == index ? "active" : "")"
+                    @onclick="() => GoToSlide(index)"
+                    aria-label="Ir a slide @(index + 1)">
+            </button>
+        }
+    </div>
+
+    <!-- Controles de navegación -->
+    <button class="carousel-control prev" @onclick="PreviousSlide" aria-label="Anterior">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+    <button class="carousel-control next" @onclick="NextSlide" aria-label="Siguiente">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+</div>
+
+<!-- Catálogo de productos -->
+<div class="container py-4">
+    <h1 class="mb-3">Nuestros Productos</h1>
+    <ProductGrid />
+</div>
+
+@code {
+    private int currentSlide = 0;
+    private Timer autoPlayTimer;
+    private const int AutoPlayInterval = 5000; // 5 segundos
+
+    // Array de imágenes del carrusel - Personaliza estas según tus productos
+    private CarouselItem[] carouselImages = new[]
+    {
+        new CarouselItem
+        {
+            ImageUrl = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80",
+            Alt = "Suplementos deportivos de alta calidad",
+            Title = "Potencia Tu Rendimiento",
+            Subtitle = "Complementos alimenticios diseñados para deportistas exigentes",
+            ButtonText = "Ver Productos",
+            ButtonLink = "/catalogo"
+        },
+        new CarouselItem
+        {
+            ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80",
+            Alt = "Nutrición deportiva profesional",
+            Title = "Nutrición de Élite",
+            Subtitle = "Fórmulas científicamente respaldadas para alcanzar tus metas",
+            ButtonText = "Ver Ofertas",
+            ButtonLink = "/ofertas"
+        },
+        new CarouselItem
+        {
+            ImageUrl = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80",
+            Alt = "Ejercicio y suplementación",
+            Title = "Alcanza Tus Objetivos",
+            Subtitle = "El complemento perfecto para tu entrenamiento diario",
+            ButtonText = "Ver Novedades",
+            ButtonLink = "/novedades"
+        },
+        new CarouselItem
+        {
+            ImageUrl = "https://images.unsplash.com/photo-1623874228601-f4193c7b1818?w=1600&q=80",
+            Alt = "Productos premium para deportistas",
+            Title = "Calidad Premium",
+            Subtitle = "Productos certificados con los más altos estándares",
+            ButtonText = "Ver Packs",
+            ButtonLink = "/packs"
+        }
+    };
+
+    protected override void OnInitialized()
+    {
+        StartAutoPlay();
+    }
+
+    private void StartAutoPlay()
+    {
+        autoPlayTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                NextSlide();
+                StateHasChanged();
+            });
+        }, null, AutoPlayInterval, AutoPlayInterval);
+    }
+
+    private void NextSlide()
+    {
+        currentSlide = (currentSlide + 1) % carouselImages.Length;
+    }
+
+    private void PreviousSlide()
+    {
+        currentSlide = (currentSlide - 1 + carouselImages.Length) % carouselImages.Length;
+    }
+
+    private void GoToSlide(int index)
+    {
+        currentSlide = index;
+        ResetAutoPlay();
+    }
+
+    private void ResetAutoPlay()
+    {
+        autoPlayTimer?.Dispose();
+        StartAutoPlay();
+    }
+
+    public void Dispose()
+    {
+        autoPlayTimer?.Dispose();
+    }
+
+    private class CarouselItem
+    {
+        public string ImageUrl { get; set; }
+        public string Alt { get; set; }
+        public string Title { get; set; }
+        public string Subtitle { get; set; }
+        public string ButtonText { get; set; }
+        public string ButtonLink { get; set; }
+    }
+}

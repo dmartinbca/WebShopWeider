@@ -1,0 +1,197 @@
+﻿@inject CategoryService Categories
+@inject AuthService Auth
+@inject NavigationManager Nav
+@implements IAsyncDisposable
+
+<!-- Overlay oscuro cuando el menú está abierto -->
+@if (IsOpen)
+{
+    <div class="mobile-menu-overlay" @onclick="Close"></div>
+}
+
+<!-- Menú lateral deslizable -->
+<div class="mobile-menu @(IsOpen ? "open" : "")">
+    <div class="mobile-menu-header">
+        <h5 class="mb-0 fw-bold">Menú</h5>
+        <button class="btn-close-menu" @onclick="Close" aria-label="Cerrar menú">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="mobile-menu-content">
+        <!-- Búsqueda -->
+        <div class="mobile-menu-search">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text"
+                       class="form-control border-start-0"
+                       placeholder="Buscar productos..."
+                       @bind="searchQuery"
+                       @bind:event="oninput">
+            </div>
+        </div>
+
+        <!-- Categorías -->
+        <div class="mobile-menu-section">
+            <div class="section-title">
+                <i class="bi bi-grid-3x3-gap me-2"></i>
+                CATEGORÍAS
+            </div>
+
+            <div class="category-list">
+                <!-- Todos los productos -->
+                <a class="category-item" href="/catalogo" @onclick="Close">
+                    <i class="bi bi-grid me-2"></i>
+                    <span>Todos los Productos</span>
+                </a>
+
+                <!-- Lista de familias con subfamilias -->
+                @foreach (var family in families)
+                {
+                    <div class="category-group">
+                        <button class="category-item category-toggle @(expandedFamily == family.Slug ? "active" : "")"
+                                @onclick="() => ToggleFamily(family.Slug)">
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <i class="bi bi-tag me-2"></i>
+                                <span>@family.Name</span>
+                            </div>
+                            <i class="bi bi-chevron-@(expandedFamily == family.Slug ? "up" : "down")"></i>
+                        </button>
+
+                        @if (expandedFamily == family.Slug && family.Subs.Any())
+                        {
+                            <div class="subcategory-list">
+                                @foreach (var sub in family.Subs)
+                                {
+                                    <a class="subcategory-item"
+                                       href="/categoria/@family.Slug/@sub.Slug"
+                                       @onclick="Close">
+                                        <i class="bi bi-dot"></i>
+                                        @sub.Name
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Enlaces rápidos -->
+        <div class="mobile-menu-section">
+            <div class="section-title">
+                <i class="bi bi-bookmark me-2"></i>
+                ACCESOS RÁPIDOS
+            </div>
+            <div class="quick-links">
+                <a class="quick-link-item" href="/packs" @onclick="Close">
+                    <i class="bi bi-box-seam me-2"></i>
+                    Packs
+                </a>
+                <a class="quick-link-item" href="/ofertas" @onclick="Close">
+                    <i class="bi bi-tags me-2"></i>
+                    Ofertas
+                </a>
+                <a class="quick-link-item" href="/novedades" @onclick="Close">
+                    <i class="bi bi-star me-2"></i>
+                    Novedades
+                </a>
+            </div>
+        </div>
+
+        <!-- Sección MÁS -->
+        <div class="mobile-menu-section">
+            <div class="section-title">
+                <i class="bi bi-three-dots me-2"></i>
+                MÁS
+            </div>
+            <div class="more-links">
+                @if (Auth.IsAuthenticated)
+                {
+                    <a class="more-item" href="/perfil" @onclick="Close">
+                        <i class="bi bi-person me-2"></i>
+                        Mi cuenta
+                    </a>
+                    <a class="more-item" href="/pedidos" @onclick="Close">
+                        <i class="bi bi-bag me-2"></i>
+                        Mis Pedidos
+                    </a>
+                    <a class="more-item" href="/facturas" @onclick="Close">
+                        <i class="bi bi-receipt me-2"></i>
+                        Mis Facturas
+                    </a>
+                    <hr class="my-2" />
+                }
+                else
+                {
+                    <a class="more-item" href="/login" @onclick="Close">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Iniciar sesión
+                    </a>
+                    <a class="more-item" href="/register" @onclick="Close">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Registrarse
+                    </a>
+                    <hr class="my-2" />
+                }
+
+                <a class="more-item" href="/ayuda" @onclick="Close">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Preguntas frecuentes
+                </a>
+                <a class="more-item" href="/sobre-nosotros" @onclick="Close">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Quiénes somos
+                </a>
+
+                @if (Auth.IsAuthenticated)
+                {
+                    <button class="more-item text-danger border-0 bg-transparent w-100 text-start"
+                            @onclick="HandleLogout">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        Cerrar sesión
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+
+    private List<Category> families = new();
+    private string? expandedFamily = null;
+    private string searchQuery = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        families = await Categories.GetFamilies();
+    }
+
+    private void ToggleFamily(string familySlug)
+    {
+        expandedFamily = expandedFamily == familySlug ? null : familySlug;
+    }
+
+    private async Task Close()
+    {
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+
+    private async Task HandleLogout()
+    {
+        await Auth.Logout();
+        await Close();
+        Nav.NavigateTo("/");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Cleanup si es necesario
+    }
+}

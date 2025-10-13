@@ -2,20 +2,17 @@
 @inject NavigationManager Nav
 
 <div class="card product-card h-100">
-    <div class="product-media" @onclick="Open" role="button" tabindex="0"
-         @onkeypress="@(async (e) => { if (e.Key == "Enter" || e.Key == " ") await Task.Run(Open); })">
+    <div class="product-media" @onclick="Open" role="button" tabindex="0">
         <div class="image-container">
             <img src="@(!string.IsNullOrWhiteSpace(Product.ImageUrl) ? Product.ImageUrl : "/images/image.png")"
                  alt="@Product.Name"
                  loading="lazy"
-                 onerror="this.src='/images/image.png'; this.classList.add('is-placeholder');"
-                 onload="if (this.src.indexOf('/images/image.png') !== -1) this.classList.add('is-placeholder');" />
+                 onerror="this.src='/images/image.png';" />
             <div class="image-overlay">
                 <i class="bi bi-eye"></i>
             </div>
         </div>
 
-        <!-- Badges/Tags -->
         @if (Product.Tags.Any())
         {
             <div class="product-badges">
@@ -33,41 +30,33 @@
         </h6>
 
         <div class="product-price mb-3">
-          
             <span class="price-single">@Product.PriceFrom.ToString("N2", es) €</span>
             <span class="price-single">x</span>
             <span class="price-single">@Product.Presentation_Unit</span>
-
         </div>
 
-        <div class="mt-auto product-actions">
-            <!-- Quantity and Add to Cart - Mobile Optimized -->
-            <div class="quantity-section mb-2">
-                <QuantityStepper Value="qty" ValueChanged="(v) => qty = v" />
-            </div>
+        <div class="mt-auto">
+            @* CONTADOR Y CARRITO AL 50% CADA UNO *@
+            <div class="product-actions-row">
+                @* Contador - 50% *@
+                <div class="counter-wrapper">
+                    <QuantityStepper Value="qty" ValueChanged="(v) => qty = v" />
+                </div>
 
-            <div class="action-buttons">
-                <button class="btn btn-danger btn-add-cart @(isAdding ? "adding" : "")"
-                        @onclick="Add"
-                        disabled="@(isAdding || Product.PriceFrom <= 0)"
-                        aria-label="Añadir @Product.Name al carrito">
+                @* Botón Carrito - 50% *@
+                <button class="btn-cart-full @(isAdding ? "adding" : "")"
+                        @onclick="AddToCart"
+                        type="button"
+                        disabled="@(Product.PriceFrom <= 0 || isAdding)"
+                        title="Añadir al carrito">
                     @if (isAdding)
                     {
-                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        <span>Añadiendo...</span>
+                        <span class="spinner-border spinner-border-sm"></span>
                     }
                     else
                     {
-                        <i class="bi bi-cart-plus me-1"></i>
-                        <span class="d-none d-sm-inline">Añadir</span>
+                        <i class="bi bi-cart-plus"></i>
                     }
-                </button>
-
-                <button class="btn btn-outline-secondary btn-view"
-                        @onclick="Open"
-                        aria-label="Ver detalles de @Product.Name">
-                    <i class="bi bi-eye"></i>
-                    <span class="d-none d-md-inline ms-1">Ver</span>
                 </button>
             </div>
         </div>
@@ -75,19 +64,21 @@
 </div>
 
 @code {
-    [Parameter] public Product Product { get; set; } = default!;
+    [Parameter] public Product Product { get; set; } = null!;
     private int qty = 1;
-    private bool isAdding = false;
-    private readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
+    private bool isAdding;
+    private System.Globalization.CultureInfo es = System.Globalization.CultureInfo.GetCultureInfo("es-ES");
 
-    private async Task Add()
+    private void Open() => Nav.NavigateTo($"/producto/{Product.Slug}");
+
+    private async Task AddToCart()
     {
-        if (qty < 1) qty = 1;
+        if (isAdding || Product.PriceFrom <= 0) return;
+
         isAdding = true;
         try
         {
             await Cart.Add(Product, qty);
-            // Feedback visual breve
             await Task.Delay(300);
         }
         finally
@@ -95,6 +86,4 @@
             isAdding = false;
         }
     }
-
-    private void Open() { Nav.NavigateTo($"/producto/{Product.Slug}"); }
 }
