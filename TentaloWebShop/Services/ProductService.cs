@@ -40,7 +40,8 @@ public class ProductService
                         Presentation_Qty = Convert.ToInt32( p.Presentation_Qty),
                         Presentation_Unit = p.Present_Unit ?? "",
                         FamilySlug = (p.FamiliaN.Replace(" ", "")) ?? "",
-                        SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", "")
+                        SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", ""),
+                        DescProducto = string.IsNullOrEmpty(p.descripcion_Producto) ? p.Description : p.descripcion_Producto
                     });
                 }
                 catch(Exception ex)

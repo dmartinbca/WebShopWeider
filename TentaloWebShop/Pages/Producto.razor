@@ -17,12 +17,12 @@ else
     var sub = Categories.GetSub(product.FamilySlug, product.SubfamilySlug);
 
     <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
-                              {
-                                  ("Catálogo","/catalogo",false),
-                                  (fam?.Name ?? "Familia",$"/categoria/{fam?.Slug}", false),
-                                  (sub?.Name ?? "Subfamilia",$"/categoria/{fam?.Slug}/{sub?.Slug}", false),
-                                  (product.Name,$"/producto/{product.Slug}", true)
-                              })" />
+                                           {
+                                               ("Catálogo","/catalogo",false),
+                                               (fam?.Name ?? "Familia",$"/categoria/{fam?.Slug}", false),
+                                               (sub?.Name ?? "Subfamilia",$"/categoria/{fam?.Slug}/{sub?.Slug}", false),
+                                               (product.Name,$"/producto/{product.Slug}", true)
+                                           })" />
 
 <div class="product-detail-page">
     <div class="row g-4">
@@ -147,7 +147,7 @@ else
                                 Descripción del Producto
                             </h3>
                             <p class="content-text">
-                                @product.Description
+                                @product.DescProducto
                             </p>
                         </div>
                     </div>
@@ -204,16 +204,16 @@ else
 
 <style>
     /* ========================================
-       PÁGINA DE DETALLE DEL PRODUCTO
-       ======================================== */
+           PÁGINA DE DETALLE DEL PRODUCTO
+           ======================================== */
 
     .product-detail-page {
         padding: 1rem 0;
     }
 
     /* ========================================
-       SECCIÓN DE IMAGEN
-       ======================================== */
+           SECCIÓN DE IMAGEN
+           ======================================== */
 
     .product-image-section {
         position: relative;
@@ -263,8 +263,8 @@ else
         }
 
     /* ========================================
-       SECCIÓN DE INFORMACIÓN
-       ======================================== */
+           SECCIÓN DE INFORMACIÓN
+           ======================================== */
 
     .product-info-section {
         padding: 1rem 0;
@@ -325,14 +325,15 @@ else
     }
 
     /* ========================================
-       SECCIÓN DE COMPRA
-       ======================================== */
+           SECCIÓN DE COMPRA - VERSIÓN COMPACTA
+           ======================================== */
 
     .product-purchase-section {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
         margin-bottom: 2rem;
+        max-width: 500px; /* Limita el ancho máximo en pantallas grandes */
     }
 
     .quantity-selector-container {
@@ -346,6 +347,12 @@ else
         color: #495057;
         margin: 0;
         font-size: 1rem;
+        white-space: nowrap;
+    }
+
+    /* Hacer el QuantityStepper más compacto */
+    .quantity-selector-container ::deep .quantity-stepper {
+        max-width: 140px;
     }
 
     .btn-add-to-cart {
@@ -362,6 +369,8 @@ else
         gap: 0.5rem;
         box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         transition: all 0.3s ease;
+        width: 100%;
+        max-width: 100%; /* Se ajusta al contenedor padre */
     }
 
         .btn-add-to-cart:hover:not(:disabled) {
@@ -377,8 +386,8 @@ else
         }
 
     /* ========================================
-       CARACTERÍSTICAS DEL PRODUCTO
-       ======================================== */
+           CARACTERÍSTICAS DEL PRODUCTO
+           ======================================== */
 
     .product-features {
         display: flex;
@@ -408,8 +417,8 @@ else
     }
 
     /* ========================================
-       TABS DE INFORMACIÓN
-       ======================================== */
+           TABS DE INFORMACIÓN
+           ======================================== */
 
     .product-tabs-section {
         margin-top: 3rem;
@@ -453,23 +462,20 @@ else
     }
 
     @@keyframes fadeIn {
-        from
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
 
-    {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* ========================================
-       CONTENIDO DE LOS TABS
-       ======================================== */
+           CONTENIDO DE LOS TABS
+           ======================================== */
 
     .content-card {
         background: white;
@@ -525,159 +531,168 @@ else
     }
 
     /* ========================================
-       RESPONSIVE - TABLET
-       ======================================== */
+           RESPONSIVE - DESKTOP EXTRA GRANDE
+           ======================================== */
+
+    @@media (min-width: 1400px) {
+        .product-purchase-section {
+            max-width: 450px; /* Aún más compacto en pantallas muy grandes */
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - TABLET
+           ======================================== */
 
     @@media (max-width: 991.98px) {
-        .product-detail-title
-
-    {
-        font-size: 1.75rem;
-    }
-
-    .price-amount {
-        font-size: 2rem;
-    }
-
-    .price-currency {
-        font-size: 1.5rem;
-    }
-
-    .product-features {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    }
-
-    /* ========================================
-       RESPONSIVE - MOBILE
-       ======================================== */
-
-    @@media (max-width: 767.98px) {
-        .product-detail-page
-
-    {
-        padding: 0.5rem 0;
-    }
-
-    .product-image-container {
-        padding: 1rem;
-        border-radius: 12px;
-    }
-
-    .product-main-image {
-        max-height: 300px;
-    }
-
-    .product-badge {
-        top: 1rem;
-        right: 1rem;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-    }
-
-    .product-detail-title {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .price-amount {
-        font-size: 1.75rem;
-    }
-
-    .price-currency {
-        font-size: 1.25rem;
-    }
-
-    .product-price-unit {
-        font-size: 1rem;
-    }
-
-    .product-purchase-section {
-        gap: 1rem;
-    }
-
-    .quantity-selector-container {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .btn-add-to-cart {
-        width: 100%;
-        padding: 0.875rem 1.5rem;
-        font-size: 1rem;
-    }
-
-    .product-features {
-        padding: 1rem;
-        gap: 0.75rem;
-    }
-
-    .feature-icon {
-        font-size: 1.25rem;
-    }
-
-    .feature-text {
-        font-size: 0.875rem;
-    }
-
-    .product-tabs-section {
-        margin-top: 2rem;
-    }
-
-    .product-tabs {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-        .product-tabs .nav-link {
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            white-space: nowrap;
+        .product-purchase-section {
+            max-width: none; /* Quita el límite en tablets */
         }
 
-    .content-card {
-        padding: 1.25rem;
-    }
+        .product-detail-title {
+            font-size: 1.75rem;
+        }
 
-    .content-title {
-        font-size: 1.25rem;
-        margin-bottom: 1rem;
-    }
+        .price-amount {
+            font-size: 2rem;
+        }
 
-    .content-text {
-        font-size: 0.9375rem;
-    }
+        .price-currency {
+            font-size: 1.5rem;
+        }
 
+        .product-features {
+            flex-direction: column;
+            gap: 1rem;
+        }
     }
 
     /* ========================================
-       PANTALLAS MUY PEQUEÑAS
-       ======================================== */
+           RESPONSIVE - MOBILE
+           ======================================== */
+
+    @@media (max-width: 767.98px) {
+        .product-detail-page {
+            padding: 0.5rem 0;
+        }
+
+        .product-image-container {
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .product-main-image {
+            max-height: 300px;
+        }
+
+        .product-badge {
+            top: 1rem;
+            right: 1rem;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .product-detail-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .price-amount {
+            font-size: 1.75rem;
+        }
+
+        .price-currency {
+            font-size: 1.25rem;
+        }
+
+        .product-price-unit {
+            font-size: 1rem;
+        }
+
+        .product-purchase-section {
+            gap: 1rem;
+        }
+
+        .quantity-selector-container {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+            .quantity-selector-container ::deep .quantity-stepper {
+                max-width: none;
+            }
+
+        .btn-add-to-cart {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .product-features {
+            padding: 1rem;
+            gap: 0.75rem;
+        }
+
+        .feature-icon {
+            font-size: 1.25rem;
+        }
+
+        .feature-text {
+            font-size: 0.875rem;
+        }
+
+        .product-tabs-section {
+            margin-top: 2rem;
+        }
+
+        .product-tabs {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+            .product-tabs .nav-link {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+                white-space: nowrap;
+            }
+
+        .content-card {
+            padding: 1.25rem;
+        }
+
+        .content-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .content-text {
+            font-size: 0.9375rem;
+        }
+    }
+
+    /* ========================================
+           PANTALLAS MUY PEQUEÑAS
+           ======================================== */
 
     @@media (max-width: 375px) {
-        .product-detail-title
+        .product-detail-title {
+            font-size: 1.25rem;
+        }
 
-    {
-        font-size: 1.25rem;
-    }
+        .price-amount {
+            font-size: 1.5rem;
+        }
 
-    .price-amount {
-        font-size: 1.5rem;
-    }
+        .btn-add-to-cart {
+            padding: 0.75rem 1rem;
+            font-size: 0.9375rem;
+        }
 
-    .btn-add-to-cart {
-        padding: 0.75rem 1rem;
-        font-size: 0.9375rem;
-    }
-
-    .product-tabs .nav-link {
-        padding: 0.625rem 0.75rem;
-        font-size: 0.8125rem;
-    }
-
+        .product-tabs .nav-link {
+            padding: 0.625rem 0.75rem;
+            font-size: 0.8125rem;
+        }
     }
 </style>
 

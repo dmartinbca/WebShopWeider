@@ -611,7 +611,7 @@ h1 {
     border: none;
     transition: all 0.3s ease;
     cursor: pointer;
-    background: #111111;
+    background: linear-gradient(135deg, #dc3545, #c82333);
     color: white;
 }
 
