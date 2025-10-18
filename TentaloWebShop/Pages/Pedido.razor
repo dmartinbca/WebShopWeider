@@ -2,6 +2,8 @@
 @inject OrderService OrderService
 @inject AuthService Auth
 @inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
 @using TentaloWebShop.Models
 
 <PageTitle>Pedido #@OrderId</PageTitle>
@@ -254,9 +256,19 @@
                         </div>
 
                         <div class="order-actions mt-4">
-                            <button class="btn btn-primary w-100 mb-2" @onclick="DownloadOrder">
-                                <i class="bi bi-download me-2"></i>
-                                Descargar PDF
+                            <button class="btn btn-primary w-100 mb-2"
+                                    @onclick="DownloadOrder"
+                                    disabled="@isDownloading">
+                                @if (isDownloading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Generando PDF...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-download me-2"></i>
+                                    <span>Descargar PDF</span>
+                                }
                             </button>
                             @if (order.Status?.ToLower() == "open")
                             {
@@ -266,6 +278,14 @@
                                 </button>
                             }
                         </div>
+
+                        @if (!string.IsNullOrEmpty(downloadMessage))
+                        {
+                            <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+                                <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
+                                @downloadMessage
+                            </div>
+                        }
                     </div>
                 </div>
 
@@ -306,10 +326,14 @@
 </div>
 
 @code {
+    [Inject] protected IApiService Api { get; set; } = default!;
     [Parameter] public string OrderId { get; set; } = "";
 
     private OrderNAVCabecera? order;
     private bool isLoading = true;
+    private bool isDownloading = false;
+    private string downloadMessage = "";
+    private bool downloadSuccess = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -352,8 +376,74 @@
 
     private async Task DownloadOrder()
     {
-        // Implementar descarga
-        Console.WriteLine($"Descargando pedido: {OrderId}");
+        isDownloading = true;
+        downloadMessage = "";
+
+        try
+        {
+            var payload = new { numero = OrderId };
+            var respCR = await Api.PostAsync(
+                   "customReports(1)/Microsoft.NAV.GenerateReportWithLayout",
+                   payload);
+
+            if (respCR.IsSuccessStatusCode)
+            {
+                var jsonCR = await respCR.Content.ReadAsStringAsync();
+                using var docCR = JsonDocument.Parse(jsonCR);
+                var rootCR = docCR.RootElement;
+                string? b64CR = null;
+
+                if (rootCR.TryGetProperty("data", out var dataElCR) &&
+                    dataElCR.TryGetProperty("value", out var valueElCR))
+                {
+                    b64CR = valueElCR.GetString();
+                }
+                else if (rootCR.TryGetProperty("value", out var valueEl2CR))
+                {
+                    b64CR = valueEl2CR.GetString();
+                }
+
+                if (!string.IsNullOrWhiteSpace(b64CR))
+                {
+                    // ✅ Descargar el PDF usando JavaScript Interop
+                    var fileName = $"Pedido_{OrderId}_{DateTime.Now:yyyyMMdd}.pdf";
+                    await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64",
+                        b64CR,
+                        fileName,
+                        "application/pdf");
+
+                    downloadMessage = "PDF descargado correctamente";
+                    downloadSuccess = true;
+
+                    // Limpiar mensaje después de 3 segundos
+                    _ = Task.Delay(3000).ContinueWith(_ =>
+                    {
+                        downloadMessage = "";
+                        InvokeAsync(StateHasChanged);
+                    });
+                }
+                else
+                {
+                    downloadMessage = "No se pudo generar el PDF";
+                    downloadSuccess = false;
+                }
+            }
+            else
+            {
+                downloadMessage = $"Error al generar el PDF: {respCR.StatusCode}";
+                downloadSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error downloading order: {ex.Message}");
+            downloadMessage = "Error al descargar el PDF. Inténtalo de nuevo.";
+            downloadSuccess = false;
+        }
+        finally
+        {
+            isDownloading = false;
+        }
     }
 
     private async Task CancelOrder()

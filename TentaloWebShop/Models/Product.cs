@@ -27,3 +27,10 @@ public class Product
     public string FamilySlug { get; set; } = "";      // p.ej. "better-nutrition"
     public string SubfamilySlug { get; set; } = "";   // p.ej. "proteinas"
 }
+
+public class FileItem
+{
+    public string Code { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string File { get; set; } = "";
+}
