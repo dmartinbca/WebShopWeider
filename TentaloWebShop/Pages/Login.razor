@@ -6,48 +6,117 @@
 @layout AuthLayout
 @inject BusyService Busy
 
-<h1>Acceder</h1>
+<div class="login-wrapper">
+    <div class="login-background-image"></div>
 
-<div class="card" style="max-width:480px">
-    <div class="card-body">
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input class="form-control" @bind="email" autocomplete="username" />
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Contraseña</label>
-            <input type="password" class="form-control" @bind="password" autocomplete="current-password" />
-        </div>
-
-       <button type="button"
-        class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2"
-        style="min-height: 48px;"
-        disabled="@isBusy"
-        @onclick="DoLogin">
-    @if (isBusy)
-    {
-        <span class="spinner-border spinner-border-sm align-middle"
-              role="status" aria-hidden="true"></span>
-    }
-    <span>@(isBusy ? "Accediendo…" : "Acceder")</span>
-</button>
-
-        @if (!string.IsNullOrEmpty(error))
-        {
-            <div class="alert alert-danger mt-3 mb-0" role="alert">
-                <i class="bi bi-exclamation-circle me-2"></i>
-                @error
+    <div class="login-content-wrapper">
+        <h1>Acceder</h1>
+        <div class="card" style="max-width:480px">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" @bind="email" autocomplete="username" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" @bind="password" autocomplete="current-password" />
+                </div>
+                <button type="button"
+                        class="btn btn-danger w-100 d-inline-flex align-items-center justify-content-center gap-2"
+                        style="min-height: 48px;"
+                        disabled="@isBusy"
+                        @onclick="DoLogin">
+                    @if (isBusy)
+                    {
+                        <span class="spinner-border spinner-border-sm align-middle"
+                              role="status" aria-hidden="true"></span>
+                    }
+                    <span>@(isBusy ? "Accediendo…" : "Acceder")</span>
+                </button>
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <div class="alert alert-danger mt-3 mb-0" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        @error
+                    </div>
+                }
             </div>
-        }
-
-      @*   <div class="form-text mt-3 text-center">
-            ¿No tienes cuenta? <a href="/register" class="text-decoration-none fw-semibold">Registrarse</a>
-        </div> *@
+        </div>
     </div>
 </div>
 
- 
+<style>
+    .login-wrapper {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .login-background-image {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        max-width: 600px;
+        max-height: 600px;
+        background-image: url('/images/entradaweider.png');
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.15;
+        z-index: 0;
+    }
+
+    .login-content-wrapper {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 480px;
+    }
+
+        .login-content-wrapper h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-content-wrapper .card {
+            margin: 0 auto;
+        }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .login-background-image
+
+    {
+        max-width: 400px;
+        max-height: 400px;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .login-wrapper
+
+    {
+        padding: 15px;
+    }
+
+    .login-background-image {
+        max-width: 300px;
+        max-height: 300px;
+    }
+
+    .login-content-wrapper h1 {
+        font-size: 1.75rem;
+    }
+
+    }
+</style>
 
 @code {
     string email = "";
