@@ -2,6 +2,8 @@
 @inject OrderService OrderService
 @inject AuthService Auth
 @inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
 @using TentaloWebShop.Models
 
 <PageTitle>Mis Pedidos</PageTitle>
@@ -14,7 +16,7 @@
                     <i class="bi bi-bag-check me-2"></i>
                     Mis Pedidos
                 </h1>
-                <button class="btn btn-outline-primary" @onclick="RefreshOrders">
+                <button class="btn btn-outline-primary" @onclick="RefreshOrders" disabled="@isLoading">
                     <i class="bi bi-arrow-clockwise me-2"></i>
                     Actualizar
                 </button>
@@ -50,6 +52,8 @@
         <div class="row g-4">
             @foreach (var order in orders.OrderByDescending(o => o.Order_Date))
             {
+                var isDownloadingThis = downloadingOrders.Contains(order.No);
+
                 <div class="col-12">
                     <div class="order-card" @onclick="() => ViewOrder(order.No)">
                         <div class="order-header">
@@ -95,9 +99,20 @@
                             </button>
                             @if (order.Status?.ToLower() == "open" || order.Status?.ToLower() == "released")
                             {
-                                <button class="btn btn-outline-secondary btn-sm ms-2" @onclick:stopPropagation="true" @onclick="() => DownloadOrder(order.No)">
-                                    <i class="bi bi-download me-2"></i>
-                                    Descargar
+                                <button class="btn btn-outline-secondary btn-sm ms-2"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => DownloadOrder(order.No)"
+                                        disabled="@isDownloadingThis">
+                                    @if (isDownloadingThis)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Descargando...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-download me-2"></i>
+                                        <span>Descargar</span>
+                                    }
                                 </button>
                             }
                         </div>
@@ -105,12 +120,34 @@
                 </div>
             }
         </div>
+
+        <!-- Mensajes de descarga -->
+        @if (!string.IsNullOrEmpty(downloadMessage))
+        {
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+                <div class="toast show" role="alert">
+                    <div class="toast-header @(downloadSuccess ? "bg-primary" : "bg-danger") text-white">
+                        <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
+                        <strong class="me-auto">@(downloadSuccess ? "Éxito" : "Error")</strong>
+                        <button type="button" class="btn-close btn-close-white" @onclick="ClearDownloadMessage"></button>
+                    </div>
+                    <div class="toast-body">
+                        @downloadMessage
+                    </div>
+                </div>
+            </div>
+        }
     }
 </div>
 
 @code {
+    [Inject] protected IApiService Api { get; set; } = default!;
+
     private List<OrderNAVCabecera> orders = new();
     private bool isLoading = true;
+    private HashSet<string> downloadingOrders = new();
+    private string downloadMessage = "";
+    private bool downloadSuccess = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,8 +191,79 @@
 
     private async Task DownloadOrder(string orderNo)
     {
-        // Implementar descarga de pedido
-        Console.WriteLine($"Descargando pedido: {orderNo}");
+        downloadingOrders.Add(orderNo);
+        downloadMessage = "";
+
+        try
+        {
+            var payload = new { numero = orderNo };
+            var respCR = await Api.PostAsync(
+                   "customReports(1)/Microsoft.NAV.GenerateReportWithLayout",
+                   payload);
+
+            if (respCR.IsSuccessStatusCode)
+            {
+                var jsonCR = await respCR.Content.ReadAsStringAsync();
+                using var docCR = JsonDocument.Parse(jsonCR);
+                var rootCR = docCR.RootElement;
+                string? b64CR = null;
+
+                if (rootCR.TryGetProperty("data", out var dataElCR) &&
+                    dataElCR.TryGetProperty("value", out var valueElCR))
+                {
+                    b64CR = valueElCR.GetString();
+                }
+                else if (rootCR.TryGetProperty("value", out var valueEl2CR))
+                {
+                    b64CR = valueEl2CR.GetString();
+                }
+
+                if (!string.IsNullOrWhiteSpace(b64CR))
+                {
+                    var fileName = $"Pedido_{orderNo}_{DateTime.Now:yyyyMMdd}.pdf";
+                    await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64",
+                        b64CR,
+                        fileName,
+                        "application/pdf");
+
+                    downloadMessage = $"Pedido {orderNo} descargado correctamente";
+                    downloadSuccess = true;
+
+                    // Auto-ocultar mensaje después de 4 segundos
+                    _ = Task.Delay(4000).ContinueWith(_ =>
+                    {
+                        downloadMessage = "";
+                        InvokeAsync(StateHasChanged);
+                    });
+                }
+                else
+                {
+                    downloadMessage = $"No se pudo generar el PDF del pedido {orderNo}";
+                    downloadSuccess = false;
+                }
+            }
+            else
+            {
+                downloadMessage = $"Error al generar el PDF: {respCR.StatusCode}";
+                downloadSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error downloading order {orderNo}: {ex.Message}");
+            downloadMessage = $"Error al descargar el pedido {orderNo}. Inténtalo de nuevo.";
+            downloadSuccess = false;
+        }
+        finally
+        {
+            downloadingOrders.Remove(orderNo);
+            StateHasChanged();
+        }
+    }
+
+    private void ClearDownloadMessage()
+    {
+        downloadMessage = "";
     }
 
     private string GetStatusClass(string status)
