@@ -1049,20 +1049,11 @@ namespace TentaloWebShop.Models
 
 
 
-        private bool promotion;
+    
 
         [JsonPropertyName("Promotion")]
-        public bool Promotion
-        {
-            get => promotion;
-            set
-            {
-                promotion = value;
-                NotifyPropertyChanged("Promotion");
+        public bool Promotion { get; set; }
 
-
-            }
-        }
 
 
 

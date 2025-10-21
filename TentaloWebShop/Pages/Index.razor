@@ -8,16 +8,19 @@
         {
             int index = i;
             <div class="carousel-slide @(currentSlide == index ? "active" : "")"
-                 style="position: absolute; width: 100%; height: 100%; opacity: @(currentSlide == index ? "1" : "0"); transition: opacity 1s ease-in-out;">
-                <img src="@carouselImages[index].ImageUrl" alt="@carouselImages[index].Alt"
-                     style="width: 100%; height: 100%; object-fit: cover; object-position: center;" />
-                <div class="carousel-overlay">
-                    <div class="carousel-content container">
+                 style="position: absolute; width: 100%; height: 100%; opacity: @(currentSlide == index ? "1" : "0"); transition: opacity 1s ease-in-out; pointer-events: @(currentSlide == index ? "auto" : "none");">
+                <img src="@carouselImages[index].ImageUrl"
+                     alt="@carouselImages[index].Alt"
+                     style="width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none;" />
+                <div class="carousel-overlay" style="pointer-events: none;">
+                    <div class="carousel-content container" style="pointer-events: auto;">
                         <h1 class="hero-title">@carouselImages[index].Title</h1>
                         <p class="hero-subtitle">@carouselImages[index].Subtitle</p>
                         @if (!string.IsNullOrEmpty(carouselImages[index].ButtonText))
                         {
-                            <a href="@carouselImages[index].ButtonLink" class="btn btn-hero">
+                            <a href="@carouselImages[index].ButtonLink"
+                               class="btn btn-hero"
+                               @onclick:stopPropagation="true">
                                 @carouselImages[index].ButtonText
                             </a>
                         }
@@ -28,22 +31,31 @@
     </div>
 
     <!-- Indicadores -->
-    <div class="carousel-indicators">
+    <div class="carousel-indicators" style="pointer-events: auto;">
         @for (int i = 0; i < carouselImages.Length; i++)
         {
             int index = i;
             <button class="indicator @(currentSlide == index ? "active" : "")"
                     @onclick="() => GoToSlide(index)"
+                    @onclick:stopPropagation="true"
                     aria-label="Ir a slide @(index + 1)">
             </button>
         }
     </div>
 
     <!-- Controles de navegación -->
-    <button class="carousel-control prev" @onclick="PreviousSlide" aria-label="Anterior">
+    <button class="carousel-control prev"
+            @onclick="PreviousSlide"
+            @onclick:stopPropagation="true"
+            aria-label="Anterior"
+            style="pointer-events: auto;">
         <i class="bi bi-chevron-left"></i>
     </button>
-    <button class="carousel-control next" @onclick="NextSlide" aria-label="Siguiente">
+    <button class="carousel-control next"
+            @onclick="NextSlide"
+            @onclick:stopPropagation="true"
+            aria-label="Siguiente"
+            style="pointer-events: auto;">
         <i class="bi bi-chevron-right"></i>
     </button>
 </div>

@@ -2858,3 +2858,351 @@ main {
         font-size: 0.8rem;
     }
 }
+/* ========================================
+   HERO CAROUSEL - ESTILOS COMPLETOS
+   ======================================== */
+
+.hero-carousel {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    background-color: #000;
+}
+
+/* Contenedor de slides */
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Cada slide individual */
+.carousel-slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    /* CRÍTICO: Desactivar eventos en slides inactivas */
+    pointer-events: none;
+}
+
+    .carousel-slide.active {
+        opacity: 1;
+        /* CRÍTICO: Solo la slide activa puede recibir eventos */
+        pointer-events: auto;
+    }
+
+    /* Imagen del carrusel - NO debe capturar clics */
+    .carousel-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        /* CRÍTICO: La imagen NO debe interceptar clics */
+        pointer-events: none !important;
+    }
+
+/* Overlay oscuro - NO debe capturar clics */
+.carousel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient( to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 100% );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* CRÍTICO: El overlay NO debe capturar clics */
+    pointer-events: none !important;
+}
+
+/* Contenido del carrusel - SÍ debe capturar clics */
+.carousel-content {
+    text-align: center;
+    color: white;
+    padding: 2rem;
+    max-width: 800px;
+    z-index: 2;
+    /* CRÍTICO: Solo el contenido puede ser clickeable */
+    pointer-events: auto !important;
+}
+
+/* Títulos y subtítulos */
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    font-weight: 400;
+}
+
+/* Botón del hero - DEBE ser completamente clickeable */
+.btn-hero {
+    background-color: #dc3545;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+    /* CRÍTICO: El botón debe capturar todos los eventos */
+    pointer-events: auto !important;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+}
+
+    .btn-hero:hover {
+        background-color: #c82333;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-hero:active {
+        transform: translateY(-1px);
+    }
+
+/* ========================================
+   INDICADORES
+   ======================================== */
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 20;
+    /* CRÍTICO: Los indicadores deben ser clickeables */
+    pointer-events: auto !important;
+}
+
+    .carousel-indicators .indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0;
+        /* CRÍTICO: Cada indicador debe capturar clics */
+        pointer-events: auto !important;
+    }
+
+        .carousel-indicators .indicator:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.2);
+        }
+
+        .carousel-indicators .indicator.active {
+            background-color: #dc3545;
+            border-color: white;
+            width: 14px;
+            height: 14px;
+        }
+
+/* ========================================
+   CONTROLES DE NAVEGACIÓN
+   ======================================== */
+
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 20;
+    font-size: 1.5rem;
+    /* CRÍTICO: Los controles deben ser completamente clickeables */
+    pointer-events: auto !important;
+}
+
+    .carousel-control:hover {
+        background-color: rgba(220, 53, 69, 0.9);
+        border-color: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .carousel-control:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+
+    .carousel-control.prev {
+        left: 20px;
+    }
+
+    .carousel-control.next {
+        right: 20px;
+    }
+
+    .carousel-control i {
+        /* Asegurar que el icono no intercepte clics */
+        pointer-events: none;
+    }
+
+/* ========================================
+   RESPONSIVE - MÓVIL
+   ======================================== */
+
+@media (max-width: 768px) {
+    .hero-carousel {
+        height: 400px;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-hero {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+
+    .carousel-control {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+        .carousel-control.prev {
+            left: 10px;
+        }
+
+        .carousel-control.next {
+            right: 10px;
+        }
+
+    .carousel-indicators {
+        bottom: 15px;
+    }
+
+        .carousel-indicators .indicator {
+            width: 10px;
+            height: 10px;
+        }
+
+            .carousel-indicators .indicator.active {
+                width: 12px;
+                height: 12px;
+            }
+}
+
+@media (max-width: 480px) {
+    .hero-carousel {
+        height: 350px;
+    }
+
+    .carousel-content {
+        padding: 1rem;
+    }
+
+    .hero-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-hero {
+        padding: 0.625rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .carousel-control {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Prevenir selección de texto en los controles */
+.carousel-control,
+.carousel-indicators .indicator {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+    /* ========================================
+   ACCESIBILIDAD
+   ======================================== */
+
+    .carousel-control:focus,
+    .carousel-indicators .indicator:focus {
+        outline: 2px solid white;
+        outline-offset: 4px;
+    }
+
+.btn-hero:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 3px;
+}
+
+/* Mejoras para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+    .carousel-control {
+        width: 45px;
+        height: 45px;
+    }
+
+    .carousel-indicators .indicator {
+        width: 14px;
+        height: 14px;
+    }
+
+    .btn-hero {
+        padding: 1rem 2rem;
+        min-height: 48px;
+        min-width: 120px;
+    }
+}
