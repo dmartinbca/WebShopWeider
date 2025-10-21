@@ -304,6 +304,55 @@ namespace TentaloWebShop.Services
 
             return resultado;
         }
+        public async Task<Status> BorrarPedido(string docref)
+        {
+            var result = new Status();
+
+            try
+            {
+                var requestToken = new
+                {
+                    tenant = _apiSettings.Tenant,
+
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+                var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/APiBorrarPedidos({docref})/Microsoft.NAV.BorrarPedido";
+
+                // 3. Construir URL
+ 
+
+
+                var request = new HttpRequestMessage(HttpMethod.Post, baseUrl);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                var response = await _http.SendAsync(request);
+                // 5. Evaluar resultado
+                if (!response.IsSuccessStatusCode)
+                {
+                    result.IsSuccess = false;
+                    result.Message = await response.Content.ReadAsStringAsync();
+                    return result;
+                }
+
+                result.IsSuccess = true;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new Status { IsSuccess = false, Message = ex.Message };
+            }
+        }
+
 
         public async Task<List<Estadisticas>> GetEstadisticasVentas(string cliente)
         {

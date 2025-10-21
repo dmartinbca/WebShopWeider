@@ -1,18 +1,61 @@
 <div class="input-group quantity-input">
-  <button class="btn btn-outline-secondary" type="button" @onclick="Dec">-</button>
-  <input class="form-control text-center" value="@Value" @onchange="OnChange" />
-  <button class="btn btn-outline-secondary" type="button" @onclick="Inc">+</button>
+    <button class="btn btn-outline-secondary"
+            type="button"
+            @onclick="Dec"
+            disabled="@(Disabled || Value <= 1)">
+        -
+    </button>
+    <input class="form-control text-center"
+           value="@Value"
+           @onchange="OnChange"
+           disabled="@Disabled" />
+    <button class="btn btn-outline-secondary"
+            type="button"
+            @onclick="Inc"
+            disabled="@Disabled">
+        +
+    </button>
 </div>
+
+<style>
+    /* Estilos para estado deshabilitado */
+    .quantity-input .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #e9ecef !important;
+        color: #6c757d !important;
+    }
+
+    .quantity-input .form-control:disabled {
+        background-color: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+</style>
 
 @code {
     [Parameter] public int Value { get; set; } = 1;
     [Parameter] public EventCallback<int> ValueChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; } = false;
 
-    private async Task Inc(){ await ValueChanged.InvokeAsync(Value+1); }
-    private async Task Dec(){ await ValueChanged.InvokeAsync(Math.Max(1, Value-1)); }
-    private async Task OnChange(ChangeEventArgs e){
-        if (int.TryParse(e.Value?.ToString(), out var v)){
-            await ValueChanged.InvokeAsync(Math.Max(1,v));
+    private async Task Inc()
+    {
+        if (Disabled) return;
+        await ValueChanged.InvokeAsync(Value + 1);
+    }
+
+    private async Task Dec()
+    {
+        if (Disabled || Value <= 1) return;
+        await ValueChanged.InvokeAsync(Math.Max(1, Value - 1));
+    }
+
+    private async Task OnChange(ChangeEventArgs e)
+    {
+        if (Disabled) return;
+        if (int.TryParse(e.Value?.ToString(), out var v))
+        {
+            await ValueChanged.InvokeAsync(Math.Max(1, v));
         }
     }
 }

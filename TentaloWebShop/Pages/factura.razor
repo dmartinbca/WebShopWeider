@@ -307,10 +307,10 @@
 
                             @if (invoice.Status?.ToLower() != "paid")
                             {
-                                <button class="btn btn-outline-success w-100 mb-2" @onclick="PayInvoice">
+                               @*  <button class="btn btn-outline-success w-100 mb-2" @onclick="PayInvoice">
                                     <i class="bi bi-credit-card me-2"></i>
                                     Pagar Factura
-                                </button>
+                                </button> *@
 
                                 @if (IsOverdue())
                                 {

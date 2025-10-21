@@ -276,9 +276,19 @@
                             </button>
                             @if (order.Status?.ToLower() == "open")
                             {
-                                <button class="btn btn-outline-danger w-100" @onclick="CancelOrder">
-                                    <i class="bi bi-x-circle me-2"></i>
-                                    Cancelar Pedido
+                                <button class="btn btn-outline-danger w-100"
+                                        @onclick="CancelOrder"
+                                        disabled="@isCanceling">
+                                    @if (isCanceling)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Cancelando Pedido...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle me-2"></i>
+                                        <span>Cancelar Pedido</span>
+                                    }
                                 </button>
                             }
                         </div>
@@ -288,6 +298,14 @@
                             <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
                                 <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
                                 @downloadMessage
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(cancelMessage))
+                        {
+                            <div class="alert @(cancelSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+                                <i class="bi @(cancelSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
+                                @cancelMessage
                             </div>
                         }
                     </div>
@@ -338,6 +356,9 @@
     private bool isDownloading = false;
     private string downloadMessage = "";
     private bool downloadSuccess = false;
+    private bool isCanceling = false;
+    private string cancelMessage = "";
+    private bool cancelSuccess = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -479,7 +500,45 @@
 
     private async Task CancelOrder()
     {
-        Console.WriteLine($"Cancelando pedido: {OrderId}");
+        isCanceling = true;
+        cancelMessage = "";
+
+        try
+        {
+            var res = await OrderService.BorrarPedido(order.Id);
+
+            // Si la cancelación es exitosa
+            if (res.IsSuccess) // Ajusta esta condición según lo que devuelva BorrarPedido
+            {
+                cancelMessage = "Pedido cancelado exitosamente. Redirigiendo...";
+                cancelSuccess = true;
+
+                // Limpiar caché del servicio de pedidos para forzar refresh
+                OrderService.ClearCache();
+
+                // Esperar 1.5 segundos para que el usuario vea el mensaje
+                await Task.Delay(1500);
+
+                // Redirigir a la lista de pedidos SIN forceLoad para mantener la sesión
+                Nav.NavigateTo("/pedidos");
+            }
+            else
+            {
+                cancelMessage = "No se pudo cancelar el pedido. Inténtalo de nuevo.";
+                cancelSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error canceling order: {ex.Message}");
+            cancelMessage = "Error al cancelar el pedido. Inténtalo de nuevo.";
+            cancelSuccess = false;
+        }
+        finally
+        {
+            isCanceling = false;
+            StateHasChanged();
+        }
     }
 
     private string GetStatusClass(string status)

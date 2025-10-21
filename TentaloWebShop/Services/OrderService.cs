@@ -1,4 +1,5 @@
-﻿using TentaloWebShop.Models;
+﻿using Syncfusion.Blazor.Chart3D.Internal;
+using TentaloWebShop.Models;
 
 namespace TentaloWebShop.Services
 {
@@ -67,6 +68,12 @@ namespace TentaloWebShop.Services
         public int GetOrderLineCount(OrderNAVCabecera order)
         {
             return order.Lines?.Count ?? order.LineasVenta?.Count ?? 0;
+        }
+
+        public async Task<Status> BorrarPedido(string id) 
+        {
+            var res = await _rest.BorrarPedido(id);
+            return res;
         }
     }
 }

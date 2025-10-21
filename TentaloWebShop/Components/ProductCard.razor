@@ -1,18 +1,37 @@
 @inject CartService Cart
 @inject NavigationManager Nav
- 
-<div class="card product-card h-100">
-    <div class="product-media" @onclick="Open" role="button" tabindex="0">
+
+<div class="card product-card h-100 @(Product.inventario100 <= 0 ? "out-of-stock" : "")">
+    <div class="product-media" @onclick="Open" role="button" tabindex="0"
+         @onkeypress="@(async (e) => { if (e.Key == "Enter" || e.Key == " ") await Task.Run(Open); })">
         <div class="image-container">
             <img src="@(!string.IsNullOrWhiteSpace(Product.ImageUrl) ? Product.ImageUrl : "/images/image.png")"
                  alt="@Product.Name"
                  loading="lazy"
-                 onerror="this.src='/images/image.png';" />
+                 onerror="this.src='/images/image.png'; this.classList.add('is-placeholder');"
+                 onload="if (this.src.indexOf('/images/image.png') !== -1) this.classList.add('is-placeholder');" />
             <div class="image-overlay">
                 <i class="bi bi-eye"></i>
             </div>
         </div>
 
+        <!-- Badge de disponibilidad -->
+        @if (Product.inventario100 > 0)
+        {
+            <div class="stock-badge available">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Disponible</span>
+            </div>
+        }
+        else
+        {
+            <div class="stock-badge unavailable">
+                <i class="bi bi-x-circle-fill"></i>
+                <span>No disponible temporalmente</span>
+            </div>
+        }
+
+        <!-- Badges/Tags -->
         @if (Product.Tags.Any())
         {
             <div class="product-badges">
@@ -35,46 +54,143 @@
             <span class="price-single">@Product.Presentation_Unit</span>
         </div>
 
-        <div class="mt-auto">
-            @* CONTADOR Y CARRITO AL 50% CADA UNO *@
-            <div class="product-actions-row">
-                @* Contador - 50% *@
-                <div class="counter-wrapper">
-                    <QuantityStepper Value="qty" ValueChanged="(v) => qty = v" />
-                </div>
+        <div class="mt-auto product-actions">
+            <!-- Quantity and Add to Cart - Mobile Optimized -->
+            <div class="quantity-section mb-2">
+                <QuantityStepper Value="qty" ValueChanged="(v) => qty = v" Disabled="@(Product.inventario100 <= 0)" />
+            </div>
 
-                @* Botón Carrito - 50% *@
-                <button class="btn-cart-full @(isAdding ? "adding" : "")"
-                        @onclick="AddToCart"
-                        type="button"
-                        disabled="@(Product.PriceFrom <= 0 || isAdding)"
-                        title="Añadir al carrito">
+            <div class="action-buttons">
+                <button class="btn btn-danger btn-add-cart @(isAdding ? "adding" : "")"
+                        @onclick="Add"
+                        disabled="@(isAdding || Product.inventario100 <= 0)"
+                        aria-label="Añadir @Product.Name al carrito">
                     @if (isAdding)
                     {
-                        <span class="spinner-border spinner-border-sm"></span>
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <span>Añadiendo...</span>
                     }
                     else
                     {
-                        <i class="bi bi-cart-plus"></i>
+                        <i class="bi @(Product.inventario100 > 0 ? "bi-cart-plus" : "bi-cart-x") me-1"></i>
+                        <span class="d-none d-sm-inline">@(Product.inventario100 > 0 ? "Añadir" : "Agotado")</span>
+                        <span class="d-sm-none">@(Product.inventario100 > 0 ? "+" : "X")</span>
                     }
+                </button>
+
+                <button class="btn btn-outline-secondary btn-view"
+                        @onclick="Open"
+                        aria-label="Ver detalles de @Product.Name">
+                    <i class="bi bi-eye"></i>
+                    <span class="d-none d-md-inline ms-1">Ver</span>
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    /* ========================================
+           CARD DE PRODUCTO CON INVENTARIO
+           ======================================== */
+
+    .product-card.out-of-stock {
+        opacity: 0.85;
+    }
+
+        .product-card.out-of-stock .image-container img {
+            filter: grayscale(100%) brightness(1.15);
+            opacity: 0.6;
+        }
+
+        .product-card.out-of-stock .product-title {
+            color: #6c757d;
+        }
+
+    /* ========================================
+           BADGE DE STOCK
+           ======================================== */
+
+    .stock-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+        animation: fadeInBadge 0.4s ease;
+    }
+
+    @@keyframes fadeInBadge {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .stock-badge.available {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .stock-badge.unavailable {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+    }
+
+    .stock-badge i {
+        font-size: 0.8rem;
+    }
+
+    /* ========================================
+           RESPONSIVE - MOBILE
+           ======================================== */
+
+    @@media (max-width: 767.98px) {
+        .stock-badge {
+            font-size: 0.65rem;
+            padding: 4px 8px;
+            gap: 4px;
+        }
+
+            .stock-badge i {
+                font-size: 0.7rem;
+            }
+
+            .stock-badge span {
+                display: none;
+            }
+    }
+
+    @@media (max-width: 375px) {
+        .stock-badge {
+            font-size: 0.6rem;
+            padding: 3px 6px;
+        }
+    }
+</style>
+
 @code {
-    [Parameter] public Product Product { get; set; } = null!;
+    [Parameter] public Product Product { get; set; } = default!;
     private int qty = 1;
-    private bool isAdding;
-    private System.Globalization.CultureInfo es = System.Globalization.CultureInfo.GetCultureInfo("es-ES");
+    private bool isAdding = false;
+    private readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
 
-    private void Open() => Nav.NavigateTo($"/producto/{Product.Slug}");
-
-    private async Task AddToCart()
+    private async Task Add()
     {
-        if (isAdding || Product.PriceFrom <= 0) return;
-
+        if (Product.inventario100 <= 0) return;
+        if (qty < 1) qty = 1;
         isAdding = true;
         try
         {
@@ -86,4 +202,6 @@
             isAdding = false;
         }
     }
+
+    private void Open() { Nav.NavigateTo($"/producto/{Product.Slug}"); }
 }
