@@ -41,7 +41,11 @@ public class ProductService
                         Presentation_Unit = p.Present_Unit ?? "",
                         FamilySlug = (p.FamiliaN.Replace(" ", "")) ?? "",
                         SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", ""),
-                        DescProducto = string.IsNullOrEmpty(p.descripcion_Producto) ? p.Description : p.descripcion_Producto
+                        DescProducto = string.IsNullOrEmpty(p.descripcion_Producto) ? p.Description : p.descripcion_Producto,
+                        Promotion=p.Promotion,
+                        EsPack=p.Es_Pack,
+                        EsNovedad=p.Marcar_como_Novedad,
+
                     });
                 }
                 catch(Exception ex)

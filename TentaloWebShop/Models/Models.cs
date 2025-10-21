@@ -874,6 +874,17 @@ namespace TentaloWebShop.Models
 
         [JsonPropertyName("recomendado")]
         public bool Recomendado { get; set; }
+
+
+     
+
+        [JsonPropertyName("Es_Pack")]
+        public bool Es_Pack { get; set; }
+
+        [JsonPropertyName("Marcar_como_Novedad")]
+        public bool Marcar_como_Novedad { get; set; }
+
+
         public string Category { get; set; }
         public double DiscountPrice
         {
