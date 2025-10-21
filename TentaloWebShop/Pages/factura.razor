@@ -2,6 +2,8 @@
 @inject InvoiceService InvoiceService
 @inject AuthService Auth
 @inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
 @using TentaloWebShop.Models
 
 <PageTitle>Factura #@InvoiceId</PageTitle>
@@ -261,21 +263,25 @@
                     </div>
                     <div class="card-body">
                         <div class="invoice-summary">
+                            @if (invoice.Invoice_Discount_Value > 0)
+                            {
+                                <div class="summary-row">
+                                    <span>Subtotal sin descuento:</span>
+                                    <span>@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
+                                </div>
+                                <div class="summary-row discount">
+                                    <span>Descuento en factura (@invoice.Invoice_Discount_Value.ToString("N1")%):</span>
+                                    <span>-@CalculateInvoiceDiscountAmount().ToString("N2") €</span>
+                                </div>
+                            }
                             <div class="summary-row">
-                                <span>Base Imponible:</span>
+                                <span>Base imponible:</span>
                                 <span>@invoice.Amount.ToString("N2") €</span>
                             </div>
                             <div class="summary-row">
                                 <span>IVA:</span>
                                 <span>@invoice.VAT_Amount.ToString("N2") €</span>
                             </div>
-                            @if (invoice.VAT_Base_Discount_Percent > 0)
-                            {
-                                <div class="summary-row discount">
-                                    <span>Descuento (@invoice.VAT_Base_Discount_Percent.ToString("N1")%):</span>
-                                    <span>-@((invoice.Amount * invoice.VAT_Base_Discount_Percent / 100).ToString("N2")) €</span>
-                                </div>
-                            }
                             <hr />
                             <div class="summary-row total">
                                 <span>Total a Pagar:</span>
@@ -284,9 +290,19 @@
                         </div>
 
                         <div class="invoice-actions mt-4">
-                            <button class="btn btn-success w-100 mb-2" @onclick="DownloadInvoice">
-                                <i class="bi bi-download me-2"></i>
-                                Descargar PDF
+                            <button class="btn btn-success w-100 mb-2"
+                                    @onclick="DownloadInvoice"
+                                    disabled="@isDownloading">
+                                @if (isDownloading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Generando PDF...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-download me-2"></i>
+                                    <span>Descargar PDF</span>
+                                }
                             </button>
 
                             @if (invoice.Status?.ToLower() != "paid")
@@ -314,6 +330,14 @@
                                 </div>
                             }
                         </div>
+
+                        @if (!string.IsNullOrEmpty(downloadMessage))
+                        {
+                            <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+                                <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
+                                @downloadMessage
+                            </div>
+                        }
                     </div>
                 </div>
 
@@ -354,10 +378,14 @@
 </div>
 
 @code {
+    [Inject] protected IApiService Api { get; set; } = default!;
     [Parameter] public string InvoiceId { get; set; } = "";
 
     private OrderNAVCabecera? invoice;
     private bool isLoading = true;
+    private bool isDownloading = false;
+    private string downloadMessage = "";
+    private bool downloadSuccess = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -399,10 +427,103 @@
                new List<OrderNAVLineas>();
     }
 
+    /// <summary>
+    /// Calcula el subtotal ANTES del descuento de factura.
+    /// Como Amount ya incluye el descuento aplicado, calculamos hacia atrás:
+    /// SubtotalSinDescuento = Amount / (1 - (Invoice_Discount_Value / 100))
+    /// </summary>
+    private double CalculateSubtotalBeforeDiscount()
+    {
+        if (invoice == null) return 0;
+
+        if (invoice.Invoice_Discount_Value > 0)
+        {
+            // Calculamos el subtotal original antes del descuento
+            return invoice.Amount / (1 - (invoice.Invoice_Discount_Value / 100));
+        }
+
+        return invoice.Amount;
+    }
+
+    /// <summary>
+    /// Calcula el importe del descuento de factura.
+    /// ImporteDescuento = SubtotalSinDescuento - Amount
+    /// </summary>
+    private double CalculateInvoiceDiscountAmount()
+    {
+        if (invoice == null) return 0;
+
+        return CalculateSubtotalBeforeDiscount() - invoice.Amount;
+    }
+
     private async Task DownloadInvoice()
     {
-        Console.WriteLine($"Descargando factura PDF: {InvoiceId}");
-        // Implementar descarga de PDF
+        isDownloading = true;
+        downloadMessage = "";
+
+        try
+        {
+            var payload = new { numero = InvoiceId };
+            var respCR = await Api.PostAsync(
+                   "customReports(1)/Microsoft.NAV.GenerateInvoiceWithLayout",
+                   payload);
+
+            if (respCR.IsSuccessStatusCode)
+            {
+                var jsonCR = await respCR.Content.ReadAsStringAsync();
+                using var docCR = JsonDocument.Parse(jsonCR);
+                var rootCR = docCR.RootElement;
+                string? b64CR = null;
+
+                if (rootCR.TryGetProperty("data", out var dataElCR) &&
+                    dataElCR.TryGetProperty("value", out var valueElCR))
+                {
+                    b64CR = valueElCR.GetString();
+                }
+                else if (rootCR.TryGetProperty("value", out var valueEl2CR))
+                {
+                    b64CR = valueEl2CR.GetString();
+                }
+
+                if (!string.IsNullOrWhiteSpace(b64CR))
+                {
+                    var fileName = $"Factura_{InvoiceId}_{DateTime.Now:yyyyMMdd}.pdf";
+                    await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64",
+                        b64CR,
+                        fileName,
+                        "application/pdf");
+
+                    downloadMessage = "PDF descargado correctamente";
+                    downloadSuccess = true;
+
+                    _ = Task.Delay(3000).ContinueWith(_ =>
+                    {
+                        downloadMessage = "";
+                        InvokeAsync(StateHasChanged);
+                    });
+                }
+                else
+                {
+                    downloadMessage = "No se pudo generar el PDF";
+                    downloadSuccess = false;
+                }
+            }
+            else
+            {
+                downloadMessage = $"Error al generar el PDF: {respCR.StatusCode}";
+                downloadSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error downloading invoice: {ex.Message}");
+            downloadMessage = "Error al descargar el PDF. Inténtalo de nuevo.";
+            downloadSuccess = false;
+        }
+        finally
+        {
+            isDownloading = false;
+        }
     }
 
     private async Task PayInvoice()

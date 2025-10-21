@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @inject AuthService Auth
 @using TentaloWebShop.Models
+@using System.Globalization
 
 <h1>Carrito de Compra</h1>
 
@@ -206,32 +207,56 @@ else
         <div class="col-12 col-lg-4">
             <div class="card">
                 <div class="card-body">
-                    <h5>Resumen</h5>
+                    <h5 class="mb-3">Resumen del Pedido</h5>
+
                     <div class="d-flex justify-content-between mb-2">
                         <span>Artículos</span>
                         <strong>@Cart.TotalQuantity</strong>
                     </div>
-                    <hr>
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="h6">Base Imponible</span>
-                        <strong class="h5">@Cart.TotalAmount.ToString("0.00") €</strong>
+
+                    <hr class="my-2">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Base Imponible</span>
+                        <span>@Cart.BaseImponible.ToString("0.00") €</span>
                     </div>
+
+                    @if (Cart.DescuentoFactura > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>
+                                <i class="bi bi-tag-fill me-1"></i>
+                                Descuento (@Auth.CurrentUser.DescuentoFactura.ToString("0.##")%)
+                            </span>
+                            <span>-@Cart.DescuentoFactura.ToString("0.00") €</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-semibold">Subtotal</span>
+                            <span class="fw-semibold">@Cart.BaseImponibleConDescuento.ToString("0.00") €</span>
+                        </div>
+                    }
+
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="h6">IVA</span>
-                        <strong class="h5">@Cart.TotalVat.ToString("0.00") €</strong>
+                        <span>IVA</span>
+                        <span>@Cart.TotalVat.ToString("0.00") €</span>
                     </div>
+
+                    <hr class="my-3">
+
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="h6">Importe Total</span>
-                        <strong class="h5">@Cart.ImporteTotal.ToString("0.00") €</strong>
+                        <span class="h5 mb-0">Total</span>
+                        <strong class="h4 text-danger mb-0">@Cart.ImporteTotal.ToString("0.00") €</strong>
                     </div>
 
                     <button class="btn btn-danger w-100 mt-3"
                             @onclick="Checkout"
                             disabled="@(!CanProceedToCheckout)">
+                        <i class="bi bi-cart-check me-2"></i>
                         Tramitar pedido
                     </button>
 
-                    <div class="form-text mt-2">
+                    <div class="form-text mt-2 text-center">
                         @if (!CanProceedToCheckout && Auth.CurrentUser?.CustomerAddres?.Any() == true)
                         {
                             <span class="text-warning">
@@ -242,6 +267,24 @@ else
                     </div>
                 </div>
             </div>
+
+            <!-- Info adicional del descuento -->
+            @if (Auth.CurrentUser?.DescuentoFactura > 0)
+            {
+                <div class="card mt-3 border-success">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-percent text-success fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Descuento Aplicado</h6>
+                                <small class="text-muted">
+                                    Tienes un @Auth.CurrentUser.DescuentoFactura.ToString("0.##")% de descuento en todos tus pedidos
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
@@ -268,7 +311,6 @@ else
 
         try
         {
-            // Simular llamada a API externa
             var success = await Cart.ProcessOrder(Cart.Items, selectedAddressId, Auth.CurrentUser.Email, Auth.CurrentUser.CustomerNo);
 
             orderSuccess = success.IsSuccess;

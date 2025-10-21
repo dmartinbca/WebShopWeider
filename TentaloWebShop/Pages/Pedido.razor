@@ -233,21 +233,25 @@
                     </div>
                     <div class="card-body">
                         <div class="order-summary">
+                            @if (order.Invoice_Discount_Value > 0)
+                            {
+                                <div class="summary-row">
+                                    <span>Subtotal sin descuento:</span>
+                                    <span>@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
+                                </div>
+                                <div class="summary-row discount">
+                                    <span>Descuento en factura (@order.Invoice_Discount_Value.ToString("N1")%):</span>
+                                    <span>-@CalculateInvoiceDiscountAmount().ToString("N2") €</span>
+                                </div>
+                            }
                             <div class="summary-row">
-                                <span>Subtotal:</span>
+                                <span>Base imponible:</span>
                                 <span>@order.Amount.ToString("N2") €</span>
                             </div>
                             <div class="summary-row">
                                 <span>IVA:</span>
                                 <span>@order.VAT_Amount.ToString("N2") €</span>
                             </div>
-                            @if (order.VAT_Base_Discount_Percent > 0)
-                            {
-                                <div class="summary-row discount">
-                                    <span>Descuento (@order.VAT_Base_Discount_Percent.ToString("N1")%):</span>
-                                    <span>-@((order.Amount * order.VAT_Base_Discount_Percent / 100).ToString("N2")) €</span>
-                                </div>
-                            }
                             <hr />
                             <div class="summary-row total">
                                 <span>Total:</span>
@@ -374,6 +378,35 @@
                new List<OrderNAVLineas>();
     }
 
+    /// <summary>
+    /// Calcula el subtotal ANTES del descuento de factura.
+    /// Como Amount ya incluye el descuento aplicado, calculamos hacia atrás:
+    /// SubtotalSinDescuento = Amount / (1 - (Invoice_Discount_Value / 100))
+    /// </summary>
+    private double CalculateSubtotalBeforeDiscount()
+    {
+        if (order == null) return 0;
+
+        if (order.Invoice_Discount_Value > 0)
+        {
+            // Calculamos el subtotal original antes del descuento
+            return order.Amount / (1 - (order.Invoice_Discount_Value / 100));
+        }
+
+        return order.Amount;
+    }
+
+    /// <summary>
+    /// Calcula el importe del descuento de factura.
+    /// ImporteDescuento = SubtotalSinDescuento - Amount
+    /// </summary>
+    private double CalculateInvoiceDiscountAmount()
+    {
+        if (order == null) return 0;
+
+        return CalculateSubtotalBeforeDiscount() - order.Amount;
+    }
+
     private async Task DownloadOrder()
     {
         isDownloading = true;
@@ -405,7 +438,6 @@
 
                 if (!string.IsNullOrWhiteSpace(b64CR))
                 {
-                    // ✅ Descargar el PDF usando JavaScript Interop
                     var fileName = $"Pedido_{OrderId}_{DateTime.Now:yyyyMMdd}.pdf";
                     await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64",
                         b64CR,
@@ -415,7 +447,6 @@
                     downloadMessage = "PDF descargado correctamente";
                     downloadSuccess = true;
 
-                    // Limpiar mensaje después de 3 segundos
                     _ = Task.Delay(3000).ContinueWith(_ =>
                     {
                         downloadMessage = "";
@@ -448,7 +479,6 @@
 
     private async Task CancelOrder()
     {
-        // Implementar cancelación
         Console.WriteLine($"Cancelando pedido: {OrderId}");
     }
 

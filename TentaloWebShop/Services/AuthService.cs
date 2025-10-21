@@ -89,7 +89,7 @@ public class AuthService
                 eAddress = new List<CustomerAddres>();
             }
                
-            var newUser = new User { Email = euser.Usuario,   FullName=euser.CustomerName, CustomerNo=euser.CustomerNo, EsMaster=euser.EsMaster, CustomerAddres=eAddress};
+            var newUser = new User { Email = euser.Usuario,   FullName=euser.CustomerName, CustomerNo=euser.CustomerNo, EsMaster=euser.EsMaster, CustomerAddres=eAddress, DescuentoFactura=euser.Descuento_en_factura};
             _users.Add((newUser, password));
             await PersistUsers();
 

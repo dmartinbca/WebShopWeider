@@ -19,6 +19,9 @@ public class User
 
     public string VatBusPostingGroup { get; set; } = "";
 
+    public decimal DescuentoFactura { get; set; } = 0;
+    public decimal DescuentoPP {  get; set; } = 0;
+
     public List<CustomerAddres> CustomerAddres { get; set; }
 
 }

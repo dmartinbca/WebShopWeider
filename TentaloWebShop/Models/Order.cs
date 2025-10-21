@@ -76,6 +76,10 @@ public class OrderNAVCabecera : INotifyPropertyChanged
     public bool Web_Order { get; set; }
 
 
+    [JsonPropertyName("Invoice_Discount_Value")]
+    public double Invoice_Discount_Value { get; set; }
+
+
     double amount;
     [JsonPropertyName("Amount")]
     public double Amount

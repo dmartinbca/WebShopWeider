@@ -419,18 +419,44 @@ namespace TentaloWebShop.Services
         }
 
 
-        public async Task<Status> PedidoVenta(List<CartItem> carro, string Observaciones, string direnvio, string usuario, string cliente)
+        // Método actualizado en RestDataService.cs
+        // Reemplazar el método PedidoVenta existente con este
+        // ============================================================================
+        // MÉTODO A REEMPLAZAR EN RestDataService.cs
+        // ============================================================================
+        // Cambiar la firma del método PedidoVenta de:
+        //   public async Task<Status> PedidoVenta(List<CartItem> carro, string Observaciones, string direnvio, string usuario, string cliente)
+        // A:
+        //   public async Task<Status> PedidoVenta(List<CartItem> carro, string cliente, double descuentoCabecera, string Observaciones, string direnvio, string usuario)
+        // ============================================================================
+        // ============================================================================
+        // MÉTODO A ACTUALIZAR EN RestDataService.cs
+        // ============================================================================
+        // Buscar este método:
+        //   public async Task<Status> PedidoVenta(List<CartItem> carro, string Observaciones, string direnvio, string usuario, string cliente)
+        //
+        // Y cambiar SOLO la firma y una línea:
+        // ============================================================================
+
+        public async Task<Status> PedidoVenta(
+            List<CartItem> carro,
+            string cliente,            // ← Nuevo orden de parámetros
+            double descuentoCabecera,  // ← NUEVO PARÁMETRO
+            string Observaciones,
+            string direnvio,
+            string usuario)
         {
             var result = new Status();
             direnvio ??= string.Empty;
             var fecha = DateTime.Now.ToString("yyyy-MM-dd");
             int nuevoNumeroPedido = 0;
+
             try
             {
+                // 1. Obtener token de autenticación
                 var request1 = new
                 {
                     tenant = _apiSettings.Tenant,
-                    
                 };
 
                 string token = string.Empty;
@@ -460,7 +486,7 @@ namespace TentaloWebShop.Services
                     nuevoNumeroPedido = data.maxId + 1;
                 }
 
-                // 3. Construir líneas
+                // 3. Construir líneas del pedido a partir del carrito
                 var lineas = carro.Select((p, i) => new BufferPedidos
                 {
                     Id = nuevoNumeroPedido + i,
@@ -492,13 +518,13 @@ namespace TentaloWebShop.Services
                     Descuento_Linea = 0
                 }).ToList();
 
-                // 4. Crear cabecera
+                // 4. Crear cabecera con el descuento en factura
                 var cabecera = new cabPedidosVenta
                 {
                     Pedido = nuevoNumeroPedido,
                     Cod_Cliente = cliente,
                     Fecha = fecha,
-                    Descuento_Cabecera = 0,
+                    Descuento_Cabecera = descuentoCabecera, // ← ÚNICO CAMBIO EN EL CUERPO DEL MÉTODO
                     Observaciones = Observaciones,
                     Estado = "Pendiente",
                     Direnvio = direnvio,
@@ -508,23 +534,22 @@ namespace TentaloWebShop.Services
                     detPedidos = lineas
                 };
 
-                // 5. Enviar pedido - ERRORES CORREGIDOS AQUÍ
+                // 5. Enviar pedido a Business Central
                 var urlPedido = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/cabPedidos?$expand=detPedidos";
 
-                // Debug: verificar serialización
                 var json = System.Text.Json.JsonSerializer.Serialize(cabecera);
-                Console.WriteLine($"JSON generado: {json}"); // Para debug - eliminar en producción
+                Console.WriteLine($"JSON generado: {json}"); // Para debug
 
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var requestP = new HttpRequestMessage(HttpMethod.Post, urlPedido); // CORREGIDO: era urlBuffer
+                var requestP = new HttpRequestMessage(HttpMethod.Post, urlPedido);
                 requestP.Content = content;
                 requestP.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 requestP.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 requestP.Headers.Remove("Isolation");
                 requestP.Headers.Add("Isolation", "snapshot");
 
-                var responsep = await _http.SendAsync(requestP); // CORREGIDO: era request
+                var responsep = await _http.SendAsync(requestP);
 
                 if (responsep.StatusCode != HttpStatusCode.Created)
                 {
@@ -536,7 +561,7 @@ namespace TentaloWebShop.Services
                     };
                 }
 
-                // 6. Procesar pedido
+                // 6. Procesar pedido (enviar notificaciones, etc.)
                 var procesar = await ProcesarPedido(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
                 return procesar ?? new Status { IsSuccess = false, Message = "Error procesando el pedido" };
             }
@@ -546,6 +571,12 @@ namespace TentaloWebShop.Services
             }
         }
 
+        // ============================================================================
+        // RESUMEN DE CAMBIOS:
+        // ============================================================================
+        // 1. Agregar parámetro: double descuentoCabecera
+        // 2. Cambiar línea: Descuento_Cabecera = descuentoCabecera (antes era = 0)
+        // ============================================================================
         public async Task<Status> ProcesarPedido(string docref, string email, string emailcc, string emailcco, string asunto, string body)
         {
             try

@@ -133,7 +133,9 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("vatBusPostingGroup")]
         public string VatBusPostingGroup { get; set; }
 
-
+        
+        [JsonPropertyName("descuentoenfactura")]
+        public decimal Descuento_en_factura { get; set; }
 
         [JsonPropertyName("globalDimension2")]
         public string GlobalDimension2 { get; set; }
