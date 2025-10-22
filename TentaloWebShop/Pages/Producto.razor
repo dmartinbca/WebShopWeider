@@ -18,11 +18,11 @@ else
     var hasStock = product.inventario100 > 0;
 
     <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
-                              {
-                                  ("Catálogo","/catalogo",false),
-                                  (fam?.Name ?? "Familia",$"/categoria/{fam?.Slug}", false),
-                                  (sub?.Name ?? "Subfamilia",$"/categoria/{fam?.Slug}/{sub?.Slug}", true)
-                              })" />
+                                           {
+                                               ("Catálogo","/catalogo",false),
+                                               (fam?.Name ?? "Familia",$"/categoria/{fam?.Slug}", false),
+                                               (sub?.Name ?? "Subfamilia",$"/categoria/{fam?.Slug}/{sub?.Slug}", true)
+                                           })" />
 
 <div class="row g-4">
     <!-- Imagen del Producto -->
@@ -68,11 +68,12 @@ else
                 </div>
             }
 
-            <div class="d-flex align-items-center gap-2 my-3">
+            @* ⬇️⬇️⬇️ CAMBIO CRÍTICO AQUÍ - Cambiado de d-flex a product-actions-container ⬇️⬇️⬇️ *@
+            <div class="product-actions-container my-3">
                 <QuantityStepper Value="qty"
                                  ValueChanged="v => qty = v"
                                  Disabled="@(!hasStock)" />
-                <button class="btn btn-danger btn-lg"
+                <button class="btn btn-danger btn-add-cart"
                         @onclick="Add"
                         disabled="@(!hasStock)">
                     <i class="bi @(hasStock ? "bi-cart-plus" : "bi-cart-x") me-2"></i>
@@ -200,8 +201,8 @@ else
 
 <style>
     /* ========================================
-           IMAGEN DEL PRODUCTO CON INVENTARIO
-           ======================================== */
+               IMAGEN DEL PRODUCTO CON INVENTARIO
+               ======================================== */
 
     .product-image-wrapper {
         position: relative;
@@ -218,8 +219,8 @@ else
     }
 
     /* ========================================
-           BADGE DE DISPONIBILIDAD EN DETALLE
-           ======================================== */
+               BADGE DE DISPONIBILIDAD EN DETALLE
+               ======================================== */
 
     .stock-badge-detail {
         position: absolute;
@@ -262,8 +263,8 @@ else
     }
 
     /* ========================================
-           CARACTERÍSTICAS DESTACADAS
-           ======================================== */
+               CARACTERÍSTICAS DESTACADAS
+               ======================================== */
 
     .product-features {
         display: flex;
@@ -290,8 +291,8 @@ else
         }
 
     /* ========================================
-           TABS DE PRODUCTO
-           ======================================== */
+               TABS DE PRODUCTO
+               ======================================== */
 
     .product-tabs {
         border-bottom: 2px solid #e9ecef;
@@ -343,8 +344,8 @@ else
     }
 
     /* ========================================
-           CONTENIDO DE TABS
-           ======================================== */
+               CONTENIDO DE TABS
+               ======================================== */
 
     .content-card {
         background: white;
@@ -395,8 +396,8 @@ else
     }
 
     /* ========================================
-           RESPONSIVE - TABLET
-           ======================================== */
+               RESPONSIVE - TABLET
+               ======================================== */
 
     @@media (max-width: 991.98px) {
         .stock-badge-detail {
@@ -435,8 +436,8 @@ else
     }
 
     /* ========================================
-           RESPONSIVE - MOBILE
-           ======================================== */
+               RESPONSIVE - MOBILE
+               ======================================== */
 
     @@media (max-width: 767.98px) {
         .stock-badge-detail {

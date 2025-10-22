@@ -744,48 +744,225 @@ h1 {
     }
 }
 
-.card-body {
-    padding: 0.875rem;
+/* ========================================
+   PÁGINA DE PRODUCTO - MEJORAS RESPONSIVAS
+   ======================================== */
+
+/* Contenedor de acciones del producto */
+.product-actions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    max-width: 280px;
 }
 
-.product-title {
-    font-size: 0.95rem;
-    height: 2.4rem;
+/* Botón añadir al carrito */
+.btn-add-cart {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
-.btn-cart-full {
-    height: 42px;
+    .btn-add-cart:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-add-cart:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+/* QuantityStepper dentro del producto */
+.product-actions-container .quantity-input {
+    width: 100%;
+    max-width: 280px;
+}
+
+/* Desktop (≥768px) */
+@media (min-width: 768px) {
+    .product-actions-container {
+        max-width: 280px;
+    }
+
+        .product-actions-container .quantity-input {
+            width: 100%;
+        }
+
+    .btn-add-cart {
+        width: 100%;
+    }
+}
+
+/* Tablet (entre 576px y 767px) */
+@media (min-width: 576px) and (max-width: 767px) {
+    .product-actions-container {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+}
+
+/* Móvil (< 576px) */
+@media (max-width: 575px) {
+    .product-actions-container {
+        max-width: 100%;
+        width: 100%;
+        align-items: stretch;
+        padding: 0 1rem;
+    }
+
+        .product-actions-container .quantity-input {
+            width: 100%;
+            max-width: 100%;
+            justify-content: center;
+        }
+
+    .btn-add-cart {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        font-size: 1.05rem;
+    }
+}
+
+/* ===== ESTILOS PARA EL QUANTITY STEPPER ESPECÍFICO DE PRODUCTO ===== */
+
+/* Aseguramos que el stepper siempre tenga el mismo ancho que el botón */
+.product-actions-container .quantity-input {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0 !important;
+    justify-content: center;
+}
+
+    .product-actions-container .quantity-input .btn {
+        width: 44px !important;
+        height: 44px !important;
+        background-color: #000 !important;
+        color: white !important;
+        border: 2px solid #dee2e6 !important;
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        font-size: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        transition: all 0.2s ease;
+    }
+
+        .product-actions-container .quantity-input .btn:hover {
+            background-color: #333 !important;
+            border-color: #adb5bd !important;
+        }
+
+    .product-actions-container .quantity-input .form-control {
+        width: 80px !important;
+        height: 44px !important;
+        border: 2px solid #dee2e6 !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-radius: 0 !important;
+        text-align: center !important;
+        background-color: white !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+        .product-actions-container .quantity-input .form-control:focus {
+            border-color: #dee2e6 !important;
+            border-left: none !important;
+            border-right: none !important;
+            box-shadow: none !important;
+        }
+
+/* Ajustes para border-radius en los botones laterales */
+.product-actions-container .input-group.quantity-input > .btn:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.product-actions-container .input-group.quantity-input > .btn:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+/* Prevenir wrap en el input-group */
+.product-actions-container .input-group.quantity-input {
+    flex-wrap: nowrap !important;
+}
+
+/* ===== INGREDIENTES COMPACTOS ===== */
+.ingredients-compact {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+}
+
+.ingredients-header {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #212529;
     font-size: 1.1rem;
 }
 
-.quantity-input .btn {
-    width: 38px !important;
-    height: 42px !important;
+.ingredients-text {
+    color: #495057;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0;
 }
 
-.quantity-input .form-control {
-    height: 42px !important;
-}
-
-}
-
-@media (max-width: 576px) {
-    .product-media {
-        height: 180px;
+/* Móvil - ajustes adicionales para página de producto */
+@media (max-width: 575px) {
+    .ingredients-compact {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        border-radius: 0;
     }
 
-    .btn-cart-full {
-        height: 40px;
-        font-size: 1rem;
+    .col-12.col-md-7 h1 {
+        font-size: 1.5rem;
+        padding: 0 1rem;
     }
 
-    .quantity-input .btn {
-        width: 36px !important;
+    .mb-2 {
+        padding: 0 1rem;
+    }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 375px) {
+    .product-actions-container .quantity-input .btn {
+        width: 40px !important;
         height: 40px !important;
+        font-size: 16px !important;
     }
 
-    .quantity-input .form-control {
+    .product-actions-container .quantity-input .form-control {
+        width: 70px !important;
         height: 40px !important;
+        font-size: 15px !important;
+    }
+
+    .btn-add-cart {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
     }
 }
 
@@ -1786,415 +1963,6 @@ h1 {
     }
 
 /* ========================================
-   PEDIDOS
-   ======================================== */
-.order-card {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    padding: 24px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-    .order-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-/* ========================================
-   FACTURAS
-   ======================================== */
-.invoice-card {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    padding: 24px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-    .invoice-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
-        border-color: #28a745;
-    }
-
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 16px;
-}
-
-.order-number {
-    font-size: 18px;
-    font-weight: 600;
-    color: #2d3748;
-}
-
-.status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.875rem;
-}
-
-.status-pending {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.status-completed {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-shipped {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-
-/* Detalle de Pedido */
-.order-details {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.order-info {
-    flex: 1;
-}
-
-.order-amount {
-    text-align: right;
-}
-
-.amount-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #dc3545;
-}
-
-.order-lines-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
-
-    .order-lines-table thead {
-        background-color: #f8f9fa;
-    }
-
-    .order-lines-table th,
-    .order-lines-table td {
-        padding: 16px;
-        text-align: left;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-.order-summary {
-    margin-top: 20px;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-}
-
-    .summary-row.total {
-        font-size: 18px;
-        font-weight: 700;
-        padding-top: 16px;
-        border-top: 2px solid #dee2e6;
-    }
-
-/* ========================================
-   FACTURAS
-   ======================================== */
-.invoice-card {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    padding: 24px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-    .invoice-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
-        border-color: #28a745;
-    }
-
-.invoice-number {
-    font-size: 18px;
-    font-weight: 600;
-    color: #2d3748;
-}
-
-    .invoice-number i {
-        color: #28a745;
-    }
-
-/* ========================================
-   LOGIN Y REGISTER
-   ======================================== */
-.login-card {
-    max-width: 480px;
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-}
-
-.login-title {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    margin-bottom: 2rem;
-    color: #2c3e50;
-    font-weight: 700;
-    text-align: center;
-}
-
-.login-card .form-control {
-    border-radius: 8px;
-    border: 2px solid #e9ecef;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-}
-
-    .login-card .form-control:focus {
-        border-color: #111111;
-        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.15);
-    }
-
-.login-btn {
-    background: linear-gradient(135deg, #111111, #000000);
-    border: none;
-    border-radius: 10px;
-    padding: 0.875rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-    .login-btn:hover:not(:disabled) {
-        background: linear-gradient(135deg, #000000, #1a1a1a);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-/* ========================================
-   BREADCRUMBS
-   ======================================== */
-.breadcrumb {
-    background: #f8f9fa;
-    padding: 0.75rem 1rem;
-    border-radius: var(--border-radius-sm);
-    margin-bottom: 1.5rem;
-}
-
-.breadcrumb-item + .breadcrumb-item::before {
-    content: "›";
-    color: #6c757d;
-}
-
-/* ========================================
-   FOOTER
-   ======================================== */
-.footer {
-    background-color: white;
-    border-top: 1px solid #dee2e6;
-    margin-top: auto;
-    width: 100%;
-    padding: 1rem 0;
-}
-
-.footer-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding: 0 1rem;
-}
-
-.footer-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-}
-
-.footer-logo {
-    height: 24px;
-    width: auto;
-    object-fit: contain;
-    display: block;
-}
-
-.footer-copyright {
-    color: #6c757d;
-    font-size: 0.875rem;
-    white-space: nowrap;
-    margin: 0;
-    line-height: 1;
-}
-
-.footer-nav {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-}
-
-.footer-link {
-    color: #6c757d;
-    text-decoration: none;
-    font-size: 0.875rem;
-    transition: color 0.2s ease;
-    white-space: nowrap;
-}
-
-    .footer-link:hover {
-        color: #495057;
-    }
-
-@media (min-width: 992px) {
-    .footer-container {
-        flex-wrap: nowrap;
-        padding: 0 1.5rem;
-    }
-
-    .footer-logo {
-        height: 28px;
-    }
-}
-
-@media (max-width: 767px) {
-    .footer-container {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 0 0.75rem;
-    }
-
-    .footer-logo {
-        height: 22px;
-    }
-
-    .footer-copyright {
-        font-size: 0.75rem;
-    }
-
-    .footer-link {
-        font-size: 0.75rem;
-    }
-}
-
-/* ========================================
-   ANIMATIONS
-   ======================================== */
-.fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ========================================
-   SCROLLBAR PERSONALIZADA
-   ======================================== */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-
-/* ========================================
-   UTILIDADES
-   ======================================== */
-.page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-main {
-    flex: 1;
-}
-
-/* ========================================
-   RESPONSIVE - MÓVIL FIXES
-   ======================================== */
-@media (max-width: 767px) {
-    .catalog-header,
-    .products-section {
-        background: white !important;
-        padding: 0.5rem !important;
-        margin: 0 !important;
-    }
-
-    .col-6,
-    .col-sm-6 {
-        padding: 0.25rem !important;
-    }
-
-    * {
-        max-width: 100% !important;
-    }
-}
-
-/* ========================================
-   ACCESIBILIDAD
-   ======================================== */
-.product-media:focus,
-.product-title:focus {
-    outline: 2px solid #111111;
-    outline-offset: 2px;
-}
-
-@media (hover: none) {
-    .product-card:active {
-        transform: scale(0.98);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* ========================================
    PEDIDOS Y FACTURAS - CSS CORREGIDO
    ======================================== */
 
@@ -2858,6 +2626,161 @@ main {
         font-size: 0.8rem;
     }
 }
+
+/* ========================================
+   LOGIN Y REGISTER
+   ======================================== */
+.login-card {
+    max-width: 480px;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+.login-title {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    font-weight: 700;
+    text-align: center;
+}
+
+.login-card .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+    .login-card .form-control:focus {
+        border-color: #111111;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.15);
+    }
+
+.login-btn {
+    background: linear-gradient(135deg, #111111, #000000);
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+    .login-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #000000, #1a1a1a);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+/* ========================================
+   BREADCRUMBS
+   ======================================== */
+.breadcrumb {
+    background: #f8f9fa;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #6c757d;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+.footer {
+    background-color: white;
+    border-top: 1px solid #dee2e6;
+    margin-top: auto;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0 1rem;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.footer-logo {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.footer-copyright {
+    color: #6c757d;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    margin: 0;
+    line-height: 1;
+}
+
+.footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.footer-link {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+
+    .footer-link:hover {
+        color: #495057;
+    }
+
+@media (min-width: 992px) {
+    .footer-container {
+        flex-wrap: nowrap;
+        padding: 0 1.5rem;
+    }
+
+    .footer-logo {
+        height: 28px;
+    }
+}
+
+@media (max-width: 767px) {
+    .footer-container {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0 0.75rem;
+    }
+
+    .footer-logo {
+        height: 22px;
+    }
+
+    .footer-copyright {
+        font-size: 0.75rem;
+    }
+
+    .footer-link {
+        font-size: 0.75rem;
+    }
+}
+
 /* ========================================
    HERO CAROUSEL - ESTILOS COMPLETOS
    ======================================== */
@@ -2884,27 +2807,22 @@ main {
     height: 100%;
     opacity: 0;
     transition: opacity 1s ease-in-out;
-    /* CRÍTICO: Desactivar eventos en slides inactivas */
     pointer-events: none;
 }
 
     .carousel-slide.active {
         opacity: 1;
-        /* CRÍTICO: Solo la slide activa puede recibir eventos */
         pointer-events: auto;
     }
 
-    /* Imagen del carrusel - NO debe capturar clics */
     .carousel-slide img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         object-position: center;
-        /* CRÍTICO: La imagen NO debe interceptar clics */
         pointer-events: none !important;
     }
 
-/* Overlay oscuro - NO debe capturar clics */
 .carousel-overlay {
     position: absolute;
     top: 0;
@@ -2915,22 +2833,18 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* CRÍTICO: El overlay NO debe capturar clics */
     pointer-events: none !important;
 }
 
-/* Contenido del carrusel - SÍ debe capturar clics */
 .carousel-content {
     text-align: center;
     color: white;
     padding: 2rem;
     max-width: 800px;
     z-index: 2;
-    /* CRÍTICO: Solo el contenido puede ser clickeable */
     pointer-events: auto !important;
 }
 
-/* Títulos y subtítulos */
 .hero-title {
     font-size: 3rem;
     font-weight: 700;
@@ -2946,7 +2860,6 @@ main {
     font-weight: 400;
 }
 
-/* Botón del hero - DEBE ser completamente clickeable */
 .btn-hero {
     background-color: #dc3545;
     color: white;
@@ -2959,7 +2872,6 @@ main {
     display: inline-block;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
-    /* CRÍTICO: El botón debe capturar todos los eventos */
     pointer-events: auto !important;
     cursor: pointer;
     position: relative;
@@ -2978,10 +2890,6 @@ main {
         transform: translateY(-1px);
     }
 
-/* ========================================
-   INDICADORES
-   ======================================== */
-
 .carousel-indicators {
     position: absolute;
     bottom: 20px;
@@ -2990,7 +2898,6 @@ main {
     display: flex;
     gap: 10px;
     z-index: 20;
-    /* CRÍTICO: Los indicadores deben ser clickeables */
     pointer-events: auto !important;
 }
 
@@ -3003,7 +2910,6 @@ main {
         cursor: pointer;
         transition: all 0.3s ease;
         padding: 0;
-        /* CRÍTICO: Cada indicador debe capturar clics */
         pointer-events: auto !important;
     }
 
@@ -3018,10 +2924,6 @@ main {
             width: 14px;
             height: 14px;
         }
-
-/* ========================================
-   CONTROLES DE NAVEGACIÓN
-   ======================================== */
 
 .carousel-control {
     position: absolute;
@@ -3040,7 +2942,6 @@ main {
     transition: all 0.3s ease;
     z-index: 20;
     font-size: 1.5rem;
-    /* CRÍTICO: Los controles deben ser completamente clickeables */
     pointer-events: auto !important;
 }
 
@@ -3063,13 +2964,8 @@ main {
     }
 
     .carousel-control i {
-        /* Asegurar que el icono no intercepte clics */
         pointer-events: none;
     }
-
-/* ========================================
-   RESPONSIVE - MÓVIL
-   ======================================== */
 
 @media (max-width: 768px) {
     .hero-carousel {
@@ -3151,44 +3047,93 @@ main {
 }
 
 /* ========================================
-   ANIMACIONES
+   ANIMATIONS
    ======================================== */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
 
 @keyframes fadeIn {
     from {
         opacity: 0;
+        transform: translateY(20px);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Prevenir selección de texto en los controles */
-.carousel-control,
-.carousel-indicators .indicator {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+/* ========================================
+   SCROLLBAR PERSONALIZADA
+   ======================================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-    /* ========================================
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ========================================
+   RESPONSIVE - MÓVIL FIXES
+   ======================================== */
+@media (max-width: 767px) {
+    * {
+        max-width: 100% !important;
+    }
+}
+
+/* ========================================
    ACCESIBILIDAD
    ======================================== */
+.product-media:focus,
+.product-title:focus {
+    outline: 2px solid #111111;
+    outline-offset: 2px;
+}
 
-    .carousel-control:focus,
-    .carousel-indicators .indicator:focus {
-        outline: 2px solid white;
-        outline-offset: 4px;
-    }
+.carousel-control:focus,
+.carousel-indicators .indicator:focus {
+    outline: 2px solid white;
+    outline-offset: 4px;
+}
 
 .btn-hero:focus {
     outline: 3px solid rgba(255, 255, 255, 0.8);
     outline-offset: 3px;
 }
 
-/* Mejoras para pantallas táctiles */
+@media (hover: none) {
+    .product-card:active {
+        transform: scale(0.98);
+    }
+}
+
 @media (hover: none) and (pointer: coarse) {
     .carousel-control {
         width: 45px;
@@ -3206,3 +3151,692 @@ main {
         min-width: 120px;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+.carousel-control,
+.carousel-indicators .indicator {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+/* ========================================
+   PEDIDO DETALLE - LAYOUT RESPONSIVE CON COLUMN-REVERSE
+   ======================================== */
+
+/* Container principal del pedido */
+.pedido-container {
+    padding: 0 0.75rem;
+    max-width: 100%;
+}
+
+/* Header Section */
+.order-header-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.order-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+}
+
+.order-number {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .order-number i {
+        font-size: 1.25rem;
+    }
+
+/* Info Grid en el header */
+.order-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.info-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+    .info-box.highlight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .info-box i {
+        font-size: 1.5rem;
+        color: #6c757d;
+        flex-shrink: 0;
+    }
+
+    .info-box.highlight i {
+        color: white;
+    }
+
+    .info-box div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 0;
+    }
+
+    .info-box small {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.8;
+        font-weight: 600;
+    }
+
+    .info-box strong {
+        font-size: 0.95rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+/* Desktop: cambiar de column-reverse a row normal */
+@media (min-width: 992px) {
+    .pedido-content-row {
+        flex-direction: row !important;
+    }
+
+    .pedido-info-col {
+        flex: 0 0 66.666667%;
+        max-width: 66.666667%;
+        padding: 0 0.75rem !important;
+    }
+
+    .pedido-summary-col {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+        padding: 0 0.75rem !important;
+    }
+
+    .order-info-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Móvil: column-reverse (ya aplicado con inline style) */
+@media (max-width: 991.98px) {
+    .pedido-info-col,
+    .pedido-summary-col {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .order-detail-card {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* Móvil pequeño */
+@media (max-width: 767.98px) {
+    .pedido-container {
+        padding: 0 0.5rem;
+    }
+
+    .order-header-section {
+        padding: 0.875rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+    }
+
+    .order-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .order-number {
+        font-size: 1.125rem;
+    }
+
+        .order-number i {
+            font-size: 1rem;
+        }
+
+    .status-badge {
+        padding: 0.375rem 0.875rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .order-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .info-box {
+        padding: 0.625rem;
+        gap: 0.5rem;
+    }
+
+        .info-box i {
+            font-size: 1.25rem;
+        }
+
+        .info-box small {
+            font-size: 0.65rem;
+        }
+
+        .info-box strong {
+            font-size: 0.85rem;
+        }
+
+    .order-detail-card {
+        margin-bottom: 1rem;
+        border-radius: 10px;
+    }
+
+    .breadcrumb {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 374.98px) {
+    .order-number {
+        font-size: 1rem;
+    }
+
+    .info-box small {
+        font-size: 0.6rem;
+    }
+
+    .info-box strong {
+        font-size: 0.8rem;
+    }
+
+    .info-box i {
+        font-size: 1.1rem;
+    }
+}
+/* ========================================
+   PEDIDO DETALLE - LAYOUT RESPONSIVE
+   ======================================== */
+
+/* Container principal del pedido */
+.pedido-container {
+    padding: 0 0.75rem;
+    max-width: 100%;
+}
+
+/* Header Section */
+.order-header-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.order-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+}
+
+.order-number {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .order-number i {
+        font-size: 1.25rem;
+    }
+
+/* Info Grid en el header */
+.order-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.info-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+    .info-box.highlight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .info-box i {
+        font-size: 1.5rem;
+        color: #6c757d;
+        flex-shrink: 0;
+    }
+
+    .info-box.highlight i {
+        color: white;
+    }
+
+    .info-box div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 0;
+    }
+
+    .info-box small {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.8;
+        font-weight: 600;
+    }
+
+    .info-box strong {
+        font-size: 0.95rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+/* Desktop: layout en 2 columnas normal */
+@media (min-width: 992px) {
+    .pedido-content-row {
+        display: flex !important;
+        flex-wrap: wrap;
+    }
+
+    .pedido-summary-col {
+        order: 2 !important;
+    }
+
+    .pedido-info-col {
+        order: 1 !important;
+    }
+
+    .order-info-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Móvil: Resumen arriba, Info abajo */
+@media (max-width: 991.98px) {
+    .pedido-content-row {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* IMPORTANTE: Resumen primero */
+    .pedido-summary-col {
+        order: 1 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Info después */
+    .pedido-info-col {
+        order: 2 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+    }
+
+    .order-detail-card {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* Móvil pequeño */
+@media (max-width: 767.98px) {
+    .pedido-container {
+        padding: 0 0.5rem;
+    }
+
+    .order-header-section {
+        padding: 0.875rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+    }
+
+    .order-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .order-number {
+        font-size: 1.125rem;
+    }
+
+        .order-number i {
+            font-size: 1rem;
+        }
+
+    .status-badge {
+        padding: 0.375rem 0.875rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .order-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .info-box {
+        padding: 0.625rem;
+        gap: 0.5rem;
+    }
+
+        .info-box i {
+            font-size: 1.25rem;
+        }
+
+        .info-box small {
+            font-size: 0.65rem;
+        }
+
+        .info-box strong {
+            font-size: 0.85rem;
+        }
+
+    .order-detail-card {
+        margin-bottom: 1rem;
+        border-radius: 10px;
+    }
+
+    .breadcrumb {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 374.98px) {
+    .order-number {
+        font-size: 1rem;
+    }
+
+    .info-box small {
+        font-size: 0.6rem;
+    }
+
+    .info-box strong {
+        font-size: 0.8rem;
+    }
+
+    .info-box i {
+        font-size: 1.1rem;
+    }
+}
+/* ========================================
+   LAYOUT RESPONSIVE - REORDENAMIENTO MÓVIL
+   ======================================== */
+
+/* Container principal del pedido */
+.pedido-container {
+    padding: 0 0.75rem;
+    max-width: 100%;
+}
+
+/* Header Section */
+.order-header-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.order-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+}
+
+.order-number {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .order-number i {
+        font-size: 1.25rem;
+    }
+
+/* Info Grid en el header */
+.order-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.info-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+    .info-box.highlight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .info-box i {
+        font-size: 1.5rem;
+        color: #6c757d;
+        flex-shrink: 0;
+    }
+
+    .info-box.highlight i {
+        color: white;
+    }
+
+    .info-box div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 0;
+    }
+
+    .info-box small {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.8;
+        font-weight: 600;
+    }
+
+    .info-box strong {
+        font-size: 0.95rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+/* Desktop: layout en 2 columnas normal */
+@media (min-width: 992px) {
+    .pedido-content-row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .pedido-summary-col {
+        order: 2;
+    }
+
+    .pedido-info-col {
+        order: 1;
+    }
+
+    .order-info-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Móvil: Resumen arriba, Info abajo */
+@media (max-width: 991.98px) {
+    .pedido-content-row {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* IMPORTANTE: Resumen primero */
+    .pedido-summary-col {
+        order: 1;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Info después */
+    .pedido-info-col {
+        order: 2;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .order-detail-card {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* Móvil pequeño */
+@media (max-width: 767.98px) {
+    .pedido-container {
+        padding: 0 0.5rem;
+    }
+
+    .order-header-section {
+        padding: 0.875rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+    }
+
+    .order-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .order-number {
+        font-size: 1.125rem;
+    }
+
+        .order-number i {
+            font-size: 1rem;
+        }
+
+    .status-badge {
+        padding: 0.375rem 0.875rem;
+        font-size: 0.8rem;
+    }
+
+    .order-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .info-box {
+        padding: 0.625rem;
+        gap: 0.5rem;
+    }
+
+        .info-box i {
+            font-size: 1.25rem;
+        }
+
+        .info-box small {
+            font-size: 0.65rem;
+        }
+
+        .info-box strong {
+            font-size: 0.85rem;
+        }
+
+    .order-detail-card {
+        margin-bottom: 1rem;
+        border-radius: 10px;
+    }
+
+    .breadcrumb {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 374.98px) {
+    .order-number {
+        font-size: 1rem;
+    }
+
+    .info-box small {
+        font-size: 0.6rem;
+    }
+
+    .info-box strong {
+        font-size: 0.8rem;
+    }
+
+    .info-box i {
+        font-size: 1.1rem;
+    }
+} 

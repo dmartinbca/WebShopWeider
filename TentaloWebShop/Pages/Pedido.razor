@@ -58,8 +58,130 @@
         </div>
 
         <div class="row g-4">
-            <!-- Información del pedido -->
-            <div class="col-12 col-lg-8">
+            <!-- Resumen y totales - PRIMERO en móvil con order-1 -->
+            <div class="col-12 col-lg-4 order-1 order-lg-2">
+                <div class="card order-detail-card">
+                    <div class="card-header order-detail-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-calculator me-2"></i>
+                            Resumen del Pedido
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="order-summary">
+                            @if (order.Invoice_Discount_Value > 0)
+                            {
+                                <div class="summary-row">
+                                    <span>Subtotal sin descuento:</span>
+                                    <span>@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
+                                </div>
+                                <div class="summary-row discount">
+                                    <span>Descuento en factura (@order.Invoice_Discount_Value.ToString("N1")%):</span>
+                                    <span>-@CalculateInvoiceDiscountAmount().ToString("N2") €</span>
+                                </div>
+                            }
+                            <div class="summary-row">
+                                <span>Base imponible:</span>
+                                <span>@order.Amount.ToString("N2") €</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>IVA:</span>
+                                <span>@order.VAT_Amount.ToString("N2") €</span>
+                            </div>
+                            <hr />
+                            <div class="summary-row total">
+                                <span>Total:</span>
+                                <span>@order.Amount_Including_VAT.ToString("N2") €</span>
+                            </div>
+                        </div>
+
+                        <div class="order-actions mt-4">
+                            <button class="btn btn-primary w-100 mb-2"
+                                    @onclick="DownloadOrder"
+                                    disabled="@isDownloading">
+                                @if (isDownloading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Generando PDF...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-download me-2"></i>
+                                    <span>Descargar PDF</span>
+                                }
+                            </button>
+                            @if (order.Status?.ToLower() == "open")
+                            {
+                                <button class="btn btn-outline-danger w-100"
+                                        @onclick="CancelOrder"
+                                        disabled="@isCanceling">
+                                    @if (isCanceling)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Cancelando Pedido...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle me-2"></i>
+                                        <span>Cancelar Pedido</span>
+                                    }
+                                </button>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(downloadMessage))
+                        {
+                            <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+                                <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
+                                @downloadMessage
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(cancelMessage))
+                        {
+                            <div class="alert @(cancelSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+                                <i class="bi @(cancelSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
+                                @cancelMessage
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Información adicional -->
+                @if (!string.IsNullOrEmpty(order.Usuario_App))
+                {
+                    <div class="card order-detail-card mt-4">
+                        <div class="card-header order-detail-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-person me-2"></i>
+                                Información Adicional
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="bi bi-person-circle"></i>
+                                    <span>Usuario</span>
+                                </div>
+                                <div class="info-value">@order.Usuario_App</div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(order.Location_Code))
+                            {
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="bi bi-building"></i>
+                                        <span>Almacén</span>
+                                    </div>
+                                    <div class="info-value">@order.Location_Code</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Información del pedido - SEGUNDO en móvil con order-2 -->
+            <div class="col-12 col-lg-8 order-2 order-lg-1">
                 <!-- Cabecera del pedido -->
                 <div class="card order-detail-card mb-4">
                     <div class="card-header order-detail-header">
@@ -221,128 +343,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Resumen y totales -->
-            <div class="col-12 col-lg-4">
-                <div class="card order-detail-card">
-                    <div class="card-header order-detail-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-calculator me-2"></i>
-                            Resumen del Pedido
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="order-summary">
-                            @if (order.Invoice_Discount_Value > 0)
-                            {
-                                <div class="summary-row">
-                                    <span>Subtotal sin descuento:</span>
-                                    <span>@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
-                                </div>
-                                <div class="summary-row discount">
-                                    <span>Descuento en factura (@order.Invoice_Discount_Value.ToString("N1")%):</span>
-                                    <span>-@CalculateInvoiceDiscountAmount().ToString("N2") €</span>
-                                </div>
-                            }
-                            <div class="summary-row">
-                                <span>Base imponible:</span>
-                                <span>@order.Amount.ToString("N2") €</span>
-                            </div>
-                            <div class="summary-row">
-                                <span>IVA:</span>
-                                <span>@order.VAT_Amount.ToString("N2") €</span>
-                            </div>
-                            <hr />
-                            <div class="summary-row total">
-                                <span>Total:</span>
-                                <span>@order.Amount_Including_VAT.ToString("N2") €</span>
-                            </div>
-                        </div>
-
-                        <div class="order-actions mt-4">
-                            <button class="btn btn-primary w-100 mb-2"
-                                    @onclick="DownloadOrder"
-                                    disabled="@isDownloading">
-                                @if (isDownloading)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    <span>Generando PDF...</span>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-download me-2"></i>
-                                    <span>Descargar PDF</span>
-                                }
-                            </button>
-                            @if (order.Status?.ToLower() == "open")
-                            {
-                                <button class="btn btn-outline-danger w-100"
-                                        @onclick="CancelOrder"
-                                        disabled="@isCanceling">
-                                    @if (isCanceling)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                        <span>Cancelando Pedido...</span>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-x-circle me-2"></i>
-                                        <span>Cancelar Pedido</span>
-                                    }
-                                </button>
-                            }
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(downloadMessage))
-                        {
-                            <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
-                                <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
-                                @downloadMessage
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(cancelMessage))
-                        {
-                            <div class="alert @(cancelSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
-                                <i class="bi @(cancelSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
-                                @cancelMessage
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Información adicional -->
-                @if (!string.IsNullOrEmpty(order.Usuario_App))
-                {
-                    <div class="card order-detail-card mt-4">
-                        <div class="card-header order-detail-header">
-                            <h6 class="card-title mb-0">
-                                <i class="bi bi-person me-2"></i>
-                                Información Adicional
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="info-item">
-                                <div class="info-label">
-                                    <i class="bi bi-person-circle"></i>
-                                    <span>Usuario</span>
-                                </div>
-                                <div class="info-value">@order.Usuario_App</div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(order.Location_Code))
-                            {
-                                <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-building"></i>
-                                        <span>Almacén</span>
-                                    </div>
-                                    <div class="info-value">@order.Location_Code</div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
         </div>
     }
 </div>
@@ -399,28 +399,18 @@
                new List<OrderNAVLineas>();
     }
 
-    /// <summary>
-    /// Calcula el subtotal ANTES del descuento de factura.
-    /// Como Amount ya incluye el descuento aplicado, calculamos hacia atrás:
-    /// SubtotalSinDescuento = Amount / (1 - (Invoice_Discount_Value / 100))
-    /// </summary>
     private double CalculateSubtotalBeforeDiscount()
     {
         if (order == null) return 0;
 
         if (order.Invoice_Discount_Value > 0)
         {
-            // Calculamos el subtotal original antes del descuento
             return order.Amount / (1 - (order.Invoice_Discount_Value / 100));
         }
 
         return order.Amount;
     }
 
-    /// <summary>
-    /// Calcula el importe del descuento de factura.
-    /// ImporteDescuento = SubtotalSinDescuento - Amount
-    /// </summary>
     private double CalculateInvoiceDiscountAmount()
     {
         if (order == null) return 0;
@@ -507,19 +497,13 @@
         {
             var res = await OrderService.BorrarPedido(order.Id);
 
-            // Si la cancelación es exitosa
-            if (res.IsSuccess) // Ajusta esta condición según lo que devuelva BorrarPedido
+            if (res.IsSuccess)
             {
                 cancelMessage = "Pedido cancelado exitosamente. Redirigiendo...";
                 cancelSuccess = true;
 
-                // Limpiar caché del servicio de pedidos para forzar refresh
                 OrderService.ClearCache();
-
-                // Esperar 1.5 segundos para que el usuario vea el mensaje
                 await Task.Delay(1500);
-
-                // Redirigir a la lista de pedidos SIN forceLoad para mantener la sesión
                 Nav.NavigateTo("/pedidos");
             }
             else
