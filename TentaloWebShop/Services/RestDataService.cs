@@ -163,6 +163,69 @@ namespace TentaloWebShop.Services
 
             return resultado;
         }
+
+        public async Task<List<Customer>> GetCustomersAPI(string vendedor, string fecha)
+        {
+            var resultado = new List<Customer>();
+            try
+            {
+                // 1. Obtener token OAuth2
+                var request1 = new
+                {
+                    tenant = _apiSettings.Tenant,
+
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+
+                }
+                // 2. Construir URL con filtro por cliente
+             
+                string baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppCustomers";
+                //string filter = App.IdiomaPais == "ITA"
+                //     ? $"?$filter=countryRegionCode eq 'IT' and orderDateFilterOnly le {fecha}"
+                //     : App.EsMaster
+                //         ? $"?$filter=orderDateFilterOnly le {fecha}"
+                //         : $"?$filter=salespersonCode eq '{vendedor}' and orderDateFilterOnly le {fecha}";
+                string filter = $"?$filter=salespersonCode eq '{vendedor}' and orderDateFilterOnly le {fecha}";
+                string fullUrl = baseUrl + filter;
+
+                // 3. Crear petición
+                var request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Add("Isolation", "snapshot");
+
+                // 4. Ejecutar petición
+                var response = await _http.SendAsync(request);
+
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var data = System.Text.Json.JsonSerializer.Deserialize<CustomerJson>(content, options);
+
+                    if (data?.Value != null)
+                    {
+                        resultado.AddRange(data.Value
+                            .Where(c => !string.IsNullOrEmpty(c.Name))
+                            .OrderBy(c => c.Name));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR GetCustomersAPI(cliente)] {ex.Message}");
+            }
+
+            return resultado;
+        }
         public async Task<List<FamliasCloud>> GetFamiliasAPICloud()
         {
             var resultado = new List<FamliasCloud>();
@@ -749,7 +812,7 @@ namespace TentaloWebShop.Services
             return resultado;
         }
  
-            public async Task<List<OrderNAVCabecera>> ListaFacturaCabeceraVenta(string cliente)
+        public async Task<List<OrderNAVCabecera>> ListaFacturaCabeceraVenta(string cliente)
         {
             var resultado = new List<OrderNAVCabecera>();
 
@@ -802,6 +865,88 @@ namespace TentaloWebShop.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR ListaPedidosCabeceraVenta] {ex.Message}");
+            }
+
+            return resultado;
+        }
+        // MODIFICAR EL MÉTODO GetProductosAPICloud en RestDataService.cs
+        // Cambiar la firma del método de:
+        // public async Task<List<ProductosApiCloud>> GetProductosAPICloud(string familia, string subfamilia)
+        // A:
+        // public async Task<List<ProductosApiCloud>> GetProductosAPICloud(string familia, string subfamilia, string customerNo = "")
+
+        // Y modificar la lógica para usar el customerNo recibido:
+
+        public async Task<List<ProductCloud>> GetProductosAPICloud(string familia, string subfamilia, string customerNo = "")
+        {
+            var resultado = new List<ProductCloud>();
+
+            try
+            {
+                // 1. Obtener token OAuth2
+                var request1 = new
+                {
+                    tenant = _apiSettings.Tenant,
+                };
+
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+
+                // 2. Determinar qué customerNo usar
+                string efectiveCustomerNo = customerNo;
+                if (string.IsNullOrWhiteSpace(efectiveCustomerNo))
+                {
+                    var saved = await _store.GetAsync<User>(KEY_USER);
+                    efectiveCustomerNo = saved?.CustomerNo ?? "";
+                }
+
+                // 3. Construir la URL dinámica según los parámetros recibidos
+                var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})";
+                string endpoint;
+
+                // Lógica igual que tu versión MAUI
+                if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                {
+                    endpoint = $"/ApiListaProductosIV?$filter=no eq '{efectiveCustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
+                }
+                else
+                {
+                    endpoint = $"/ApiListaProductosIV?$filter=no eq '{efectiveCustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                }
+
+                var url = baseUrl + endpoint;
+
+                // 4. Crear petición con HttpClient y cabeceras OAuth2 y Isolation
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                // 5. Llamada
+                var response = await _http.SendAsync(request);
+
+                // 6. Deserializar
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var data = System.Text.Json.JsonSerializer.Deserialize<ProductoCloudJson>(content, options);
+
+                    if (data?.Value != null)
+                    {
+                        resultado.AddRange(data.Value);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR GetProductosAPICloud] {ex.Message}");
             }
 
             return resultado;

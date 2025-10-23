@@ -1,7 +1,7 @@
 @inject AuthService Auth
 @inject NavigationManager Nav
 @inject CartService Cart
-
+@inject IJSRuntime JS
 <!-- Nuevo menú móvil tipo drawer - Solo accesible en móvil (< 992px) -->
 <!-- El componente se renderiza pero el botón para abrirlo solo aparece en móvil -->
 <MobileMenu IsOpen="@mobileMenuOpen" IsOpenChanged="@((value) => mobileMenuOpen = value)" />
@@ -81,7 +81,15 @@
                 <li class="nav-item"><a class="nav-link" href="/ofertas">Ofertas</a></li>
                 <li class="nav-item"><a class="nav-link" href="/novedades">Novedades</a></li>
             </ul>
-
+            @if (Auth.CurrentUser?.Tipo == "Sales Team")
+            {
+                <li class="nav-item">
+                    <button class="nav-link btn btn-link" @onclick="OpenClientSelector">
+                        <i class="bi bi-people me-1"></i>
+                        Clientes
+                    </button>
+                </li>
+            }
             <!-- Desktop: Sección del carrito y usuario -->
             <div class="desktop-actions d-flex align-items-center gap-3">
                 <!-- Carrito -->
@@ -150,6 +158,10 @@
     {
         await Auth.Logout();
         Nav.NavigateTo("/");
+    }
+    private async Task OpenClientSelector()
+    {
+        await JS.InvokeVoidAsync("eval", "$('#clientSelectorModal').modal('show')");
     }
 
     private string GetShortName()

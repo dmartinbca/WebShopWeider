@@ -95,12 +95,15 @@ public class AuthService
 
             CurrentUser = newUser;
             await PersistCurrent(CurrentUser);
-
-            var cust = await _rest.GetCustomersAPI(euser.CustomerNo);
-            _u_custsers.Add((cust.FirstOrDefault(),cust.FirstOrDefault().CustNo ));
-            await PersistCustomers();
-            CurrentCustomer= cust.FirstOrDefault();
-            await PersistCurrentCust(CurrentCustomer);
+            if(euser.Tipo=="Customer")
+            {
+                var cust = await _rest.GetCustomersAPI(euser.CustomerNo);
+                _u_custsers.Add((cust.FirstOrDefault(), cust.FirstOrDefault().CustNo));
+                await PersistCustomers();
+                CurrentCustomer = cust.FirstOrDefault();
+                await PersistCurrentCust(CurrentCustomer);
+            }
+          
             return true;
         }
          

@@ -1,8 +1,17 @@
 @using WeiderShop.Services
 @inherits LayoutComponentBase
 @inject BusyService Busy
+@inject AuthService Auth
 @implements IDisposable
+
 <TopNav />
+
+<!-- Banner de selección de cliente (solo visible para Sales Team) -->
+@if (Auth.CurrentUser?.Tipo == "Sales Team")
+{
+    <ClientSelector />
+}
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-2 pt-3 sidebar-cats d-none d-lg-block">
@@ -13,10 +22,12 @@
         </div>
     </div>
 </div>
+
 @if (Busy.IsBusy)
 {
     <LoadingOverlay Message="@Busy.Message" />
 }
+
 <Footer />
 
 @code {

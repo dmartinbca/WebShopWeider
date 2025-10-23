@@ -8,15 +8,34 @@ public class ProductService
     private readonly HttpClient _http;
     private List<Product>? _cache;
     private readonly RestDataService _rest;
+    private readonly AuthService _auth;
+    private readonly ClientSelectionService _clientSelection;
+    private string? _lastCustomerNo; // Para detectar cambios de cliente
 
-    public ProductService(RestDataService rest) => _rest = rest;
+    public ProductService(RestDataService rest, AuthService auth, ClientSelectionService clientSelection)
+    {
+        _rest = rest;
+        _auth = auth;
+        _clientSelection = clientSelection;
+    }
 
     public async Task<List<Product>> GetAllAsync()
     {
-        if (_cache is not null) return _cache;
-        var list = new List<Product>();
+        // Determinar qué número de cliente usar
+        string customerNo = GetEffectiveCustomerNo();
 
-        var eprods = await _rest.GetProductosAPICloud("", "");
+        // Si cambió el cliente, invalidar caché
+        if (_lastCustomerNo != customerNo)
+        {
+            _cache = null;
+            _lastCustomerNo = customerNo;
+        }
+
+        if (_cache is not null) return _cache;
+
+        var list = new List<Product>();
+        var eprods = await _rest.GetProductosAPICloud("", "", customerNo);
+
         if (eprods != null)
         {
             foreach (var p in eprods)
@@ -41,7 +60,8 @@ public class ProductService
                         Presentation_Unit = p.Present_Unit ?? "",
                         FamilySlug = (p.FamiliaN.Replace(" ", "")) ?? "",
                         SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", ""),
-                        DescProducto=p.descripcion_Producto,
+
+                        DescProducto = p.descripcion_Producto,
                         // NUEVOS CAMPOS MAPEADOS
                         Promotion = p.Promotion,
                         EsPack = p.Es_Pack,
@@ -71,6 +91,26 @@ public class ProductService
         return all.Where(p =>
             p.FamilySlug == familySlug &&
             p.SubfamilySlug == subSlug).ToList();
+    }
+
+    // Método auxiliar para determinar el número de cliente efectivo
+    private string GetEffectiveCustomerNo()
+    {
+        // Si es Sales Team y hay un cliente seleccionado, usar ese
+        if (_auth.CurrentUser?.Tipo == "Sales Team" && _clientSelection.SelectedClient != null)
+        {
+            return _clientSelection.SelectedClient.CustNo;
+        }
+
+        // Si es Customer o no hay selección, usar el propio usuario
+        return _auth.CurrentUser?.CustomerNo ?? "";
+    }
+
+    // Método público para forzar la recarga del catálogo
+    public void ClearCache()
+    {
+        _cache = null;
+        _lastCustomerNo = null;
     }
 
     // NUEVOS MÉTODOS PARA FILTROS ESPECÍFICOS
