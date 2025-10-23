@@ -2,6 +2,8 @@
 @inject AuthService Auth
 @using System.Globalization
 @inject EstadisticasService EstadisticasService
+@implements IDisposable
+
 @if (!Auth.IsAuthenticated)
 {
     <div class="alert alert-warning d-flex align-items-center">
@@ -15,249 +17,243 @@
 else
 {
     <div class="profile-container">
-        <!-- Header del perfil -->
-      @*   <div class="profile-header">
-            <div class="profile-avatar">
-                <div class="avatar-circle">
-                    <i class="bi bi-person-fill"></i>
-                </div>
-            </div>
-            <div class="profile-info">
-                <h1 class="profile-name">@Auth.CurrentUser?.Email</h1>
-                
-                
-            </div>
-        </div> *@
         <div class="row equal-height">
-        <div class="row g-4">
-            <!-- Información del Cliente -->
-            <div class="col-12 col-xl-8">
-                <div class="card profile-card client-info-card equal-height-card">
-                    <div class="card-header client-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-person-lines-fill me-2"></i>
-                            Información del Cliente
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="row g-0">
-                            <div class="col-12 col-md-6">
-                                <div class="client-item">
-                                    <div class="client-label">
-                                        <div class="client-icon icon-person">
-                                            <i class="bi bi-person-fill"></i>
+            <div class="row g-4">
+                <!-- Información del Cliente -->
+                <div class="col-12 col-xl-8">
+                    <div class="card profile-card client-info-card equal-height-card">
+                        <div class="card-header client-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-person-lines-fill me-2"></i>
+                                Información del Cliente
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="row g-0">
+                                <div class="col-12 col-md-6">
+                                    <div class="client-item">
+                                        <div class="client-label">
+                                            <div class="client-icon icon-person">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                            <span>Cliente</span>
                                         </div>
-                                        <span>Cliente</span>
-                                    </div>
-                                    <div class="client-value">@Auth.CurrentCustomer?.Name</div>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <div class="client-item">
-                                    <div class="client-label">
-                                        <div class="client-icon icon-document">
-                                            <i class="bi bi-card-text"></i>
-                                        </div>
-                                        <span>CIF/NIF</span>
-                                    </div>
-                                    <div class="client-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="client-item client-item-full">
-                                    <div class="client-label">
-                                        <div class="client-icon icon-location">
-                                            <i class="bi bi-geo-alt-fill"></i>
-                                        </div>
-                                        <span>Dirección</span>
-                                    </div>
-                                    <div class="client-value client-address">
-                                        @Auth.CurrentCustomer?.Address<br />
-                                        @Auth.CurrentCustomer?.County<br />
-                                        @Auth.CurrentCustomer?.City, @Auth.CurrentCustomer?.PostCode
+                                        <div class="client-value">@Auth.CurrentCustomer?.Name</div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-12 col-md-6">
-                                <div class="client-item no-border-mobile">
-                                    <div class="client-label">
-                                        <div class="client-icon icon-phone">
-                                            <i class="bi bi-telephone-fill"></i>
+                                <div class="col-12 col-md-6">
+                                    <div class="client-item">
+                                        <div class="client-label">
+                                            <div class="client-icon icon-code">
+                                                <i class="bi bi-upc"></i>
+                                            </div>
+                                            <span>Código</span>
                                         </div>
-                                        <span>Teléfono</span>
-                                    </div>
-                                    <div class="client-value">
-                                        @if (!string.IsNullOrEmpty(Auth.CurrentCustomer?.PhoneNo))
-                                        {
-                                            @Auth.CurrentCustomer?.PhoneNo
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted-custom">No especificado</span>
-                                        }
+                                        <div class="client-value">@Auth.CurrentCustomer?.CustNo</div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-12 col-md-6">
-                                <div class="client-item no-border">
-                                    <div class="client-label">
-                                        <div class="client-icon icon-email">
-                                            <i class="bi bi-envelope-fill"></i>
+                                <div class="col-12 col-md-6">
+                                    <div class="client-item">
+                                        <div class="client-label">
+                                            <div class="client-icon icon-phone">
+                                                <i class="bi bi-telephone-fill"></i>
+                                            </div>
+                                            <span>Teléfono</span>
                                         </div>
-                                        <span>Email</span>
+                                        <div class="client-value">@Auth.CurrentCustomer?.PhoneNo</div>
                                     </div>
-                                    <div class="client-value">@Auth.CurrentUser?.Email</div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="client-item">
+                                        <div class="client-label">
+                                            <div class="client-icon icon-email">
+                                                <i class="bi bi-envelope-fill"></i>
+                                            </div>
+                                            <span>Email</span>
+                                        </div>
+                                        <div class="client-value">@Auth.CurrentUser?.Email</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="client-item">
+                                        <div class="client-label">
+                                            <div class="client-icon icon-document">
+                                                <i class="bi bi-card-text"></i>
+                                            </div>
+                                            <span>CIF/NIF</span>
+                                        </div>
+                                        <div class="client-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="client-item client-item-full">
+                                        <div class="client-label">
+                                            <div class="client-icon icon-location">
+                                                <i class="bi bi-geo-alt-fill"></i>
+                                            </div>
+                                            <span>Dirección</span>
+                                        </div>
+                                        <div class="client-value client-address">
+                                            @Auth.CurrentCustomer?.Address<br />
+                                            @Auth.CurrentCustomer?.County<br />
+                                            @Auth.CurrentCustomer?.City, @Auth.CurrentCustomer?.PostCode
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Información Financiera -->
-            <div class="col-12 col-xl-4">
+                <!-- Información Financiera -->
+                <div class="col-12 col-xl-4">
                     <div class="card profile-card financial-summary-card equal-height-card">
-                    <div class="card-header financial-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-wallet2 me-2"></i>
-                            Resumen Financiero
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="financial-item">
-                            <div class="financial-label">
-                                <div class="financial-icon icon-balance">
-                                    <i class="bi bi-currency-euro"></i>
-                                </div>
-                                <span>Saldo</span>
-                            </div>
-                            <div class="financial-value positive">@Eur(Auth.CurrentCustomer?.netChange)</div>
+                        <div class="card-header financial-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-wallet2 me-2"></i>
+                                Resumen Financiero
+                            </h5>
                         </div>
-
-                        <div class="financial-item">
-                            <div class="financial-label">
-                                <div class="financial-icon icon-overdue">
-                                    <i class="bi bi-exclamation-triangle"></i>
+                        <div class="card-body p-0">
+                            <div class="financial-item">
+                                <div class="financial-label">
+                                    <div class="financial-icon icon-balance">
+                                        <i class="bi bi-currency-euro"></i>
+                                    </div>
+                                    <span>Saldo</span>
                                 </div>
-                                <span>Saldo vencido</span>
+                                <div class="financial-value positive">@Eur(Auth.CurrentCustomer?.netChange)</div>
                             </div>
-                            <div class="financial-value @(Auth.CurrentCustomer?.balanceDue > 0 ? "negative" : "neutral")">
-                                @Eur(Auth.CurrentCustomer?.balanceDue)
-                            </div>
-                        </div>
 
-                        <div class="financial-item">
-                            <div class="financial-label">
-                                <div class="financial-icon icon-credit">
-                                    <i class="bi bi-credit-card"></i>
+                            <div class="financial-item">
+                                <div class="financial-label">
+                                    <div class="financial-icon icon-overdue">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                    </div>
+                                    <span>Saldo vencido</span>
                                 </div>
-                                <span>Límite de crédito</span>
+                                <div class="financial-value @(Auth.CurrentCustomer?.balanceDue > 0 ? "negative" : "neutral")">
+                                    @Eur(Auth.CurrentCustomer?.balanceDue)
+                                </div>
                             </div>
-                            <div class="financial-value neutral">@Eur(Auth.CurrentCustomer?.creditLimitLCY)</div>
-                        </div>
 
-                        <div class="financial-item">
-                            <div class="financial-label">
-                                <div class="financial-icon icon-discount">
-                                    <i class="bi bi-percent"></i>
+                            <div class="financial-item">
+                                <div class="financial-label">
+                                    <div class="financial-icon icon-credit">
+                                        <i class="bi bi-credit-card"></i>
+                                    </div>
+                                    <span>Límite de crédito</span>
                                 </div>
-                                <span>Descuento general</span>
+                                <div class="financial-value neutral">@Eur(Auth.CurrentCustomer?.creditLimitLCY)</div>
                             </div>
-                            <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.Desgeneral)</div>
-                        </div>
 
-                        <div class="financial-item no-border">
-                            <div class="financial-label">
-                                <div class="financial-icon icon-tag">
-                                    <i class="bi bi-tag"></i>
+                            <div class="financial-item">
+                                <div class="financial-label">
+                                    <div class="financial-icon icon-discount">
+                                        <i class="bi bi-percent"></i>
+                                    </div>
+                                    <span>Descuento general</span>
                                 </div>
-                                <span>Descuento PP</span>
+                                <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.Desgeneral)</div>
                             </div>
-                            <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.DescPP)</div>
+
+                            <div class="financial-item no-border">
+                                <div class="financial-label">
+                                    <div class="financial-icon icon-tag">
+                                        <i class="bi bi-tag"></i>
+                                    </div>
+                                    <span>Descuento PP</span>
+                                </div>
+                                <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.DescPP)</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
 
         <!-- Gráfico de Ventas -->
-        <div class="row g-4 mt-2">
-            <div class="col-12">
-                <div class="card profile-card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-bar-chart me-2"></i>
-                            Evolución de Ventas
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <SfChart3D>
-                                <Chart3DPrimaryXAxis ValueType="Syncfusion.Blazor.Chart3D.ValueType.Category"></Chart3DPrimaryXAxis>
-
-                                <Chart3DSeriesCollection>
-                                    <Chart3DSeries DataSource="@Sales"
-                                                   XName="Nombre"
-                                                   YName="VentasAA"
-                                                   Type="Chart3DSeriesType.Column"
-                                                   Name="Ventas Año Anterior"
-                                                   EnableTooltip="true">
-                                    </Chart3DSeries>
-
-                                    <Chart3DSeries DataSource="@Sales"
-                                                   XName="Nombre"
-                                                   YName="Ventas"
-                                                   Type="Chart3DSeriesType.Column"
-                                                   Name="Ventas Año Actual"
-                                                   EnableTooltip="true">
-                                    </Chart3DSeries>
-                                </Chart3DSeriesCollection>
-
-                                <!-- Leyenda más simple -->
-                                <Chart3DLegendSettings Visible="true" Position="LegendPosition.Bottom"></Chart3DLegendSettings>
-                            </SfChart3D>
+        @if (Sales?.Count > 0)
+        {
+            <div class="row g-4 mt-2">
+                <div class="col-12">
+                    <div class="card profile-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-bar-chart me-2"></i>
+                                Evolución de Ventas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <SfChart3D>
+                                    <Chart3DPrimaryXAxis ValueType="Syncfusion.Blazor.Chart3D.ValueType.Category"></Chart3DPrimaryXAxis>
+                                    <Chart3DSeriesCollection>
+                                        <Chart3DSeries DataSource="@Sales"
+                                                       XName="Nombre"
+                                                       YName="Numero"
+                                                       Type="Syncfusion.Blazor.Chart3D.Chart3DSeriesType.Column">
+                                        </Chart3DSeries>
+                                    </Chart3DSeriesCollection>
+                                </SfChart3D>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
-
 }
 
 @code {
-    private static readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
-
-    // € — decimal?
-    private string Eur(decimal? v) => (v ?? 0m).ToString("C", es);
-    // € — double?
-    private string Eur(double? v) => Eur(v.HasValue ? (decimal?)v.Value : null);
-
-    // % — decimal?
-    private string Pct(decimal? v)
-    {
-        var d = v ?? 0m;
-        if (d > 1m) d /= 100m;      // 10 => 10%
-        return d.ToString("P2", es);
-    }
-    // % — double?
-    private string Pct(double? v) => Pct(v.HasValue ? (decimal?)v.Value : null);
-
-    
-    public List<Estadisticas> Sales = new List<Estadisticas>();
+    private List<Estadisticas>? Sales;
 
     protected override async Task OnInitializedAsync()
     {
-        if (Auth.IsAuthenticated)
+        // Suscribirse al evento de cambio de cliente
+        Auth.OnCustomerChanged += OnCustomerChanged;
+        
+        await LoadData();
+    }
+
+    private async void OnCustomerChanged()
+    {
+        Console.WriteLine("[Perfil.razor] Cliente cambiado, refrescando datos...");
+        await LoadData();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadData()
+    {
+        if (Auth.CurrentCustomer?.CustNo != null)
         {
-            Sales = await EstadisticasService.GetEstadisticas(Auth.CurrentCustomer?.CustNo);
+            try
+            {
+                Sales = await EstadisticasService.GetEstadisticas(Auth.CurrentCustomer.CustNo);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR Perfil.LoadData] {ex.Message}");
+                Sales = new List<Estadisticas>();
+            }
         }
     }
 
-}
+    private string Eur(decimal? value) => value.HasValue
+        ? value.Value.ToString("C", new CultureInfo("es-ES"))
+        : "-";
 
+    private string Pct(double? value) => value.HasValue
+        ? $"{value.Value:F2}%"
+        : "-";
+
+    public void Dispose()
+    {
+        Auth.OnCustomerChanged -= OnCustomerChanged;
+    }
+}
