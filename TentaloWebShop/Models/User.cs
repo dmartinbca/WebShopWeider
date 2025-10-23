@@ -8,7 +8,7 @@ public class User
     public string FullName { get; set; } = "";
 
     public string Token { get; set; } = "";
-
+    public string Tipo { get; set; } = "";
     public bool EsMaster { get; set; }= false;
 
     public string salesCode { get; set; } = "";
