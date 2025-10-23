@@ -6,29 +6,26 @@ namespace TentaloWebShop.Services;
 public class AuthService
 {
     private readonly LocalStorageService _store;
-
     private const string KEY_USER = "auth.currentUser";
     private const string KEY_USERS = "auth.users";
-
     private const string KEY_CUSTOMER = "auth.currentCustomer";
     private const string KEY_CUSTOMERS = "auth.customer";
-
-
 
     private bool _initialized;
     public bool IsAuthenticated => CurrentUser is not null;
     public User? CurrentUser { get; private set; }
-
     public Customer? CurrentCustomer { get; private set; }
 
     private List<(User user, string password)> _users = new();
-
-    private List<(Customer cust,string cod)> _u_custsers = new();
+    private List<(Customer cust, string cod)> _u_custsers = new();
     private readonly RestDataService _rest;
-   
+
+    // Evento para notificar cambios en el cliente
+    public event Action? OnCustomerChanged;
+
     public AuthService(LocalStorageService store, RestDataService rest)
     {
-               _store = store;
+        _store = store;
         _rest = rest;
     }
 
@@ -42,7 +39,7 @@ public class AuthService
 
             var saved = await _store.GetAsync<User>(KEY_USER);
             var saved1 = await _store.GetAsync<Customer>(KEY_CUSTOMER);
-            _users = raw.Select(u => (u, "demo")).ToList(); // demo password
+            _users = raw.Select(u => (u, "demo")).ToList();
             CurrentUser = saved;
             CurrentCustomer = saved1;
         }
@@ -75,27 +72,39 @@ public class AuthService
     {
         await InitializeAsync();
         NavUser response = new NavUser();
-         
-        var euser= await _rest.GetAppLoginAPICloud(email,password);
 
-       // var match = _users.FirstOrDefault(u => u.user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-        if (euser is not null )
+        var euser = await _rest.GetAppLoginAPICloud(email, password);
+
+        if (euser is not null)
         {
             var eAddress = await _rest.GetDirecciones(euser.CustomerNo);
 
             var parts = email.Split('@');
-            if (eAddress==null)
+            if (eAddress == null)
             {
                 eAddress = new List<CustomerAddres>();
             }
-               
-            var newUser = new User { Email = euser.Usuario,   FullName=euser.CustomerName, CustomerNo=euser.CustomerNo, EsMaster=euser.EsMaster, CustomerAddres=eAddress, DescuentoFactura=euser.Descuento_en_factura ,Tipo=euser.Tipo,salesCode=euser.salesCode};
+
+            var newUser = new User
+            {
+                Email = euser.Usuario,
+                FullName = euser.CustomerName,
+                CustomerNo = euser.CustomerNo,
+                EsMaster = euser.EsMaster,
+                CustomerAddres = eAddress,
+                DescuentoFactura = euser.Descuento_en_factura,
+                Tipo = euser.Tipo,
+                salesCode = euser.salesCode
+            };
+
             _users.Add((newUser, password));
             await PersistUsers();
 
             CurrentUser = newUser;
             await PersistCurrent(CurrentUser);
-            if(euser.Tipo=="Customer")
+
+            // Solo cargar customer si es tipo "Customer"
+            if (euser.Tipo == "Customer")
             {
                 var cust = await _rest.GetCustomersAPI(euser.CustomerNo);
                 _u_custsers.Add((cust.FirstOrDefault(), cust.FirstOrDefault().CustNo));
@@ -103,17 +112,42 @@ public class AuthService
                 CurrentCustomer = cust.FirstOrDefault();
                 await PersistCurrentCust(CurrentCustomer);
             }
-          
+            else if (euser.Tipo == "Sales Team")
+            {
+                // Para Sales Team, cargar su propio customer inicialmente
+                var cust = await _rest.GetCustomersAPI(euser.CustomerNo);
+                if (cust.Any())
+                {
+                    _u_custsers.Add((cust.FirstOrDefault(), cust.FirstOrDefault().CustNo));
+                    await PersistCustomers();
+                    CurrentCustomer = cust.FirstOrDefault();
+                    await PersistCurrentCust(CurrentCustomer);
+                }
+            }
+
             return true;
         }
-         
+
         return false;
+    }
+
+    /// <summary>
+    /// Método público para actualizar el CurrentCustomer sin re-login
+    /// Usado por ClientSelectionService cuando un Sales Team selecciona un cliente
+    /// </summary>
+    public async Task SetCurrentCustomer(Customer? customer)
+    {
+        CurrentCustomer = customer;
+        await PersistCurrentCust(customer);
+        OnCustomerChanged?.Invoke();
     }
 
     public async Task Logout()
     {
         await InitializeAsync();
         CurrentUser = null;
+        CurrentCustomer = null;
         await PersistCurrent(null);
+        await PersistCurrentCust(null);
     }
 }

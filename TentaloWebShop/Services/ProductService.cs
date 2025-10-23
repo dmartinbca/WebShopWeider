@@ -17,8 +17,14 @@ public class ProductService
         _rest = rest;
         _auth = auth;
         _clientSelection = clientSelection;
+        _auth.OnCustomerChanged += OnCustomerChanged;
+        _clientSelection.OnClientChanged += OnCustomerChanged;
     }
-
+    private void OnCustomerChanged()
+    {
+        // Limpiar caché cuando cambia el cliente
+        ClearCache();
+    }
     public async Task<List<Product>> GetAllAsync()
     {
         // Determinar qué número de cliente usar
@@ -102,7 +108,7 @@ public class ProductService
             return _clientSelection.SelectedClient.CustNo;
         }
 
-        // Si es Customer o no hay selección, usar el propio usuario
+        // Si es Customer o Sales Team sin selección, usar el propio usuario
         return _auth.CurrentUser?.CustomerNo ?? "";
     }
 

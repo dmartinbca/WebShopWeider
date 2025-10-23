@@ -2,6 +2,7 @@
 @inject ClientSelectionService ClientSelection
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@inject ProductService Products
 @implements IDisposable
 
 @if (Auth.CurrentUser?.Tipo == "Sales Team")
@@ -54,8 +55,8 @@
                         <span class="input-group-text">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="text" 
-                               class="form-control" 
+                        <input type="text"
+                               class="form-control"
                                placeholder="Buscar por nombre o código de cliente..."
                                @bind="searchTerm"
                                @bind:event="oninput" />
@@ -131,8 +132,8 @@
                         Quitar Selección
                     </button>
                 }
-                <button type="button" 
-                        class="btn btn-danger" 
+                <button type="button"
+                        class="btn btn-danger"
                         disabled="@(selectedClientTemp == null)"
                         @onclick="ConfirmSelection">
                     <i class="bi bi-check-lg me-2"></i>
@@ -154,9 +155,9 @@
         z-index: 1020;
     }
 
-    .client-selector-banner.has-selection {
-        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
-    }
+        .client-selector-banner.has-selection {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        }
 
     .client-list {
         max-height: 400px;
@@ -175,16 +176,16 @@
         transition: all 0.2s ease;
     }
 
-    .client-item:hover {
-        border-color: #dc3545;
-        background-color: #f8f9fa;
-        transform: translateX(4px);
-    }
+        .client-item:hover {
+            border-color: #dc3545;
+            background-color: #f8f9fa;
+            transform: translateX(4px);
+        }
 
-    .client-item.selected {
-        border-color: #28a745;
-        background-color: #d4edda;
-    }
+        .client-item.selected {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
 
     .client-info {
         flex: 1;
@@ -214,15 +215,15 @@
             padding: 10px 0;
         }
 
-        .client-selector-banner .d-flex {
-            flex-direction: column;
-            gap: 10px;
-            align-items: flex-start !important;
-        }
+            .client-selector-banner .d-flex {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start !important;
+            }
 
-        .client-selector-banner button {
-            width: 100%;
-        }
+            .client-selector-banner button {
+                width: 100%;
+            }
     }
 </style>
 
@@ -235,18 +236,24 @@
     protected override async Task OnInitializedAsync()
     {
         await ClientSelection.InitializeAsync();
-        ClientSelection.OnClientChanged += StateHasChanged;
-        
+        ClientSelection.OnClientChanged += OnClientChanged;
+
         if (Auth.CurrentUser?.Tipo == "Sales Team")
         {
             await LoadClients();
         }
     }
 
+    private void OnClientChanged()
+    {
+        // Refrescar la UI cuando cambia el cliente
+        StateHasChanged();
+    }
+
     private async Task LoadClients()
     {
         if (Auth.CurrentUser?.salesCode == null) return;
-        
+
         isLoading = true;
         try
         {
@@ -267,7 +274,7 @@
         get
         {
             if (clients == null) return Enumerable.Empty<Customer>();
-            
+
             if (string.IsNullOrWhiteSpace(searchTerm))
                 return clients;
 
@@ -291,9 +298,9 @@
         {
             await ClientSelection.SelectClient(selectedClientTemp);
             await CloseModal();
-            
-            // Redirigir al catálogo para refrescar los productos
-            Nav.NavigateTo("/catalogo", forceLoad: true);
+
+            // NO redirigir - El catálogo se refresca automáticamente por los eventos
+            // Si estamos en una página que necesita refrescar, se refresca sola gracias a OnCustomerChanged
         }
     }
 
@@ -302,22 +309,23 @@
         await ClientSelection.ClearSelection();
         selectedClientTemp = null;
         await CloseModal();
-        Nav.NavigateTo("/", forceLoad: true);
+
+        // NO redirigir - El catálogo se refresca automáticamente
     }
 
     private async Task OpenClientModal()
     {
         selectedClientTemp = ClientSelection.SelectedClient;
-        
-        // Usar Bootstrap 5 nativo (sin jQuery)
-        await JS.InvokeVoidAsync("eval", 
+
+        // Bootstrap 5 nativo - sin jQuery
+        await JS.InvokeVoidAsync("eval",
             "new bootstrap.Modal(document.getElementById('clientSelectorModal')).show()");
     }
 
     private async Task CloseModal()
     {
-        // Usar Bootstrap 5 nativo (sin jQuery)
-        await JS.InvokeVoidAsync("eval", 
+        // Bootstrap 5 nativo - sin jQuery
+        await JS.InvokeVoidAsync("eval",
             "bootstrap.Modal.getInstance(document.getElementById('clientSelectorModal'))?.hide()");
     }
 
@@ -328,6 +336,6 @@
 
     public void Dispose()
     {
-        ClientSelection.OnClientChanged -= StateHasChanged;
+        ClientSelection.OnClientChanged -= OnClientChanged;
     }
 }
