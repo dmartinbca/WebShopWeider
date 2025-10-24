@@ -22,6 +22,7 @@ public class User
     public decimal DescuentoFactura { get; set; } = 0;
     public decimal DescuentoPP {  get; set; } = 0;
 
+    public string IdiomaPais { get; set; } = "";
     public List<CustomerAddres> CustomerAddres { get; set; }
 
 }

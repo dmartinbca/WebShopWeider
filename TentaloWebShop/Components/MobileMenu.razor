@@ -197,7 +197,7 @@
 
     private async Task HandleLogout()
     {
-        await Auth.Logout();
+        await Auth.LogoutAsync();
         await Close();
         Nav.NavigateTo("/");
     }

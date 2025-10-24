@@ -1,5 +1,4 @@
 ﻿using TentaloWebShop.Models;
-
 namespace TentaloWebShop.Services
 {
     public class InvoiceService
@@ -14,15 +13,16 @@ namespace TentaloWebShop.Services
         {
             _rest = rest;
             _auth = auth;
-
             // Suscribirse a cambios de cliente
             _auth.OnCustomerChanged += OnCustomerChanged;
         }
 
-        private void OnCustomerChanged()
+        // ✅ CAMBIO: de void a async Task
+        private async Task OnCustomerChanged()
         {
-            // Limpiar caché cuando cambia el cliente
+            Console.WriteLine("[InvoiceService.OnCustomerChanged] Limpiando caché");
             ClearCache();
+            await Task.CompletedTask;
         }
 
         public async Task<List<OrderNAVCabecera>> GetOrdersAsync(string? cliente = null)

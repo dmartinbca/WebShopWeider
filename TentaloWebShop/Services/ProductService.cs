@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+Ôªøusing System.Net.Http.Json;
 using TentaloWebShop.Models;
 
 namespace TentaloWebShop.Services;
@@ -18,19 +18,31 @@ public class ProductService
         _auth = auth;
         _clientSelection = clientSelection;
         _auth.OnCustomerChanged += OnCustomerChanged;
-        _clientSelection.OnClientChanged += OnCustomerChanged;
+        _clientSelection.OnClientChanged += OnClientSelectionChanged;
     }
-    private void OnCustomerChanged()
+
+    // ‚úÖ CAMBIO: de void a async Task
+    private async Task OnCustomerChanged()
     {
-        // Limpiar cachÈ cuando cambia el cliente
+        Console.WriteLine("[ProductService.OnCustomerChanged] Limpiando cach√©");
+        ClearCache();
+        // Si necesitas hacer algo async aqu√≠, hazlo
+        await Task.CompletedTask;
+    }
+
+    // ‚úÖ NUEVO: Handler separado para OnClientChanged (que es Action)
+    private void OnClientSelectionChanged()
+    {
+        Console.WriteLine("[ProductService.OnClientSelectionChanged] Limpiando cach√©");
         ClearCache();
     }
+
     public async Task<List<Product>> GetAllAsync()
     {
-        // Determinar quÈ n˙mero de cliente usar
+        // Determinar qu√© n√∫mero de cliente usar
         string customerNo = GetEffectiveCustomerNo();
 
-        // Si cambiÛ el cliente, invalidar cachÈ
+        // Si cambi√≥ el cliente, invalidar cach√©
         if (_lastCustomerNo != customerNo)
         {
             _cache = null;
@@ -99,7 +111,7 @@ public class ProductService
             p.SubfamilySlug == subSlug).ToList();
     }
 
-    // MÈtodo auxiliar para determinar el n˙mero de cliente efectivo
+    // M√©todo auxiliar para determinar el n√∫mero de cliente efectivo
     private string GetEffectiveCustomerNo()
     {
         // Si es Sales Team y hay un cliente seleccionado, usar ese
@@ -108,21 +120,21 @@ public class ProductService
             return _clientSelection.SelectedClient.CustNo;
         }
 
-        // Si es Customer o Sales Team sin selecciÛn, usar el propio usuario
+        // Si es Customer o Sales Team sin selecci√≥n, usar el propio usuario
         return _auth.CurrentUser?.CustomerNo ?? "";
     }
 
-    // MÈtodo p˙blico para forzar la recarga del cat·logo
+    // M√©todo p√∫blico para forzar la recarga del cat√°logo
     public void ClearCache()
     {
         _cache = null;
         _lastCustomerNo = null;
     }
 
-    // NUEVOS M…TODOS PARA FILTROS ESPECÕFICOS
+    // NUEVOS M√âTODOS PARA FILTROS ESPEC√çFICOS
 
     /// <summary>
-    /// Obtiene todos los productos marcados como promociÛn
+    /// Obtiene todos los productos marcados como promoci√≥n
     /// </summary>
     public async Task<List<Product>> GetPromotionsAsync()
     {

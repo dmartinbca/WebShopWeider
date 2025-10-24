@@ -119,15 +119,6 @@
                                     <span>Descargar PDF</span>
                                 }
                             </button>
-                        @*     @if (invoice.Status?.ToLower() != "paid")
-                            {
-                                <button class="btn btn-success btn-sm ms-2"
-                                        @onclick:stopPropagation="true"
-                                        @onclick="() => PayInvoice(invoice.No)">
-                                    <i class="bi bi-credit-card me-2"></i>
-                                    Pagar
-                                </button>
-                            } *@
                         </div>
                     </div>
                 </div>
@@ -172,14 +163,16 @@
         isLoading = true;
         try
         {
-            var customerNo = Auth.CurrentUser?.CustomerNo ?? "";
-            if (string.IsNullOrEmpty(customerNo))
+            // ✅ CORREGIDO: Verificar autenticación, no customerNo específico
+            if (!Auth.IsAuthenticated)
             {
                 Nav.NavigateTo("/login");
                 return;
             }
 
-            invoices = await InvoiceService.GetOrdersAsync(customerNo);
+            // ✅ CORREGIDO: InvoiceService usa GetEffectiveCustomerNo() internamente
+            // No necesitamos pasar customerNo
+            invoices = await InvoiceService.GetOrdersAsync();
         }
         catch (Exception ex)
         {

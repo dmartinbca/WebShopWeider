@@ -1,4 +1,4 @@
-using TentaloWebShop.Models;
+﻿using TentaloWebShop.Models;
 
 namespace TentaloWebShop.Services;
 
@@ -13,8 +13,8 @@ public class AuthService
     public Customer? CurrentCustomer { get; private set; }
     public bool IsAuthenticated => CurrentUser is not null;
 
-    // IMPORTANTE: Evento que notifica cuando cambia el cliente
-    public event Action? OnCustomerChanged;
+    // ✅ CAMBIO CRÍTICO: Usar Func<Task> en lugar de Action
+    public event Func<Task>? OnCustomerChanged;
     public event Action? OnAuthStateChanged;
 
     public AuthService(LocalStorageService store, RestDataService rest)
@@ -62,14 +62,15 @@ public class AuthService
                 CustomerName = navUser.CustomerName ?? "",
                 VatBusPostingGroup = navUser.VatBusPostingGroup ?? "",
                 DescuentoFactura = navUser.Descuento_en_factura,
-                DescuentoPP = 0
+                DescuentoPP = 0,
+                IdiomaPais = navUser.CodPais
             };
 
             // Guardar usuario
             await _store.SetAsync(KEY_USER, CurrentUser);
 
             // Cargar el cliente asociado SOLO si NO es Sales Team
-            // Los Sales Team seleccionar�n su cliente manualmente
+            // Los Sales Team seleccionarán su cliente manualmente
             if (CurrentUser.Tipo != "Sales Team" && !string.IsNullOrEmpty(CurrentUser.CustomerNo))
             {
                 var clientes = await _rest.GetCustomersAPI(CurrentUser.CustomerNo);
@@ -91,13 +92,18 @@ public class AuthService
 
     public async Task SetCurrentCustomer(Customer? customer)
     {
-        var previousCustomer = CurrentCustomer?.CustNo;
+        var previousCustNo = CurrentCustomer?.CustNo;
+        var newCustNo = customer?.CustNo;
+
+        // ✅ Verificar si realmente cambió el cliente
+        bool hasChanged = previousCustNo != newCustNo;
+
         CurrentCustomer = customer;
 
         if (customer != null)
         {
             await _store.SetAsync(KEY_CUSTOMER, customer);
-            Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente cambiado a: {customer.Name} ({customer.CustNo})");
+            Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente establecido: {customer.Name} ({customer.CustNo})");
         }
         else
         {
@@ -105,12 +111,34 @@ public class AuthService
             Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente eliminado");
         }
 
-        // CR�TICO: Solo disparar el evento si el cliente realmente cambi�
-        if (previousCustomer != customer?.CustNo)
+        // ✅ Disparar el evento SI cambió
+        if (hasChanged)
         {
-            Console.WriteLine($"[AuthService.SetCurrentCustomer] Disparando OnCustomerChanged");
-            OnCustomerChanged?.Invoke();
+            Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente cambió de {previousCustNo} a {newCustNo}. Disparando OnCustomerChanged");
+
+            // ✅ Invocar el evento y esperar todos los handlers
+            if (OnCustomerChanged != null)
+            {
+                try
+                {
+                    var tasks = OnCustomerChanged.GetInvocationList()
+                        .Cast<Func<Task>>()
+                        .Select(f => f.Invoke());
+
+                    await Task.WhenAll(tasks);
+                    Console.WriteLine($"[AuthService.SetCurrentCustomer] OnCustomerChanged completado");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR AuthService.SetCurrentCustomer] Error en OnCustomerChanged: {ex.Message}");
+                }
+            }
+
             OnAuthStateChanged?.Invoke();
+        }
+        else
+        {
+            Console.WriteLine($"[AuthService.SetCurrentCustomer] El cliente no cambió. No se dispara el evento.");
         }
     }
 

@@ -1,4 +1,6 @@
-@inject ProductService Products
+﻿@inject ProductService Products
+@inject AuthService Auth
+@implements IDisposable
 
 @if (items is null)
 {
@@ -26,6 +28,40 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // ✅ Sin wrapper, directo porque el evento es Func<Task>
+        Auth.OnCustomerChanged += OnCustomerChanged;
         items = Data ?? await Products.GetAllAsync();
+        Console.WriteLine($"[ProductGrid.OnInitializedAsync] Items: {items?.Count()}");
+    }
+
+    // ✅ CRÍTICO: Detectar cambios en el parámetro Data
+    protected override async Task OnParametersSetAsync()
+    {
+        Console.WriteLine($"[ProductGrid.OnParametersSetAsync] Data cambió, Items: {Data?.Count()}");
+
+        // Si Data cambió, actualizar items
+        if (Data != null)
+        {
+            items = Data;
+            Console.WriteLine($"[ProductGrid.OnParametersSetAsync] Items actualizados a {items?.Count()}");
+        }
+        else
+        {
+            items = await Products.GetAllAsync();
+        }
+    }
+
+    // ✅ Ahora es directo, sin wrapper
+    private async Task OnCustomerChanged()
+    {
+        Console.WriteLine($"[ProductGrid.OnCustomerChanged] Actualizando productos");
+        items = Data ?? await Products.GetAllAsync();
+        await InvokeAsync(StateHasChanged);
+        Console.WriteLine($"[ProductGrid.OnCustomerChanged] Completado - Items: {items?.Count()}");
+    }
+
+    public void Dispose()
+    {
+        Auth.OnCustomerChanged -= OnCustomerChanged;
     }
 }

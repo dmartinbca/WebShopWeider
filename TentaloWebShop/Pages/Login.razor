@@ -136,7 +136,7 @@
         Busy?.Show("Conectando…");
         try
         {
-            var ok = await Auth.Login(email, password);
+            var ok = await Auth.LoginAsync(email, password);
             if (ok)
             {
                 Nav.NavigateTo("/");

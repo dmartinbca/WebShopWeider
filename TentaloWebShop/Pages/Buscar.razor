@@ -1,28 +1,102 @@
 @page "/buscar"
+@inject NavigationManager Nav
+@inject ProductService Products
+@inject AuthService Auth
+@implements IDisposable
 
 <h1 class="mb-3">Resultados de búsqueda</h1>
-@if (items is null) { <p>Cargando...</p> }
-else if (!items.Any()) { <div class="alert alert-info">Sin resultados para <strong>@q</strong></div> }
+
+@if (items is null)
+{
+    <div class="text-center p-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Cargando resultados...</p>
+    </div>
+}
+else if (!items.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-search me-2"></i>
+        Sin resultados para <strong>@q</strong>
+    </div>
+}
 else
 {
-    <ProductGrid Data="items" @key="@($"search-{q}")" />
- }
- 
-@code {
-    [Inject] NavigationManager Nav { get; set; } = default!;
-    [Inject] ProductService Products { get; set; } = default!;
+    <div class="search-results-info mb-3">
+        <p class="text-muted">
+            <strong>@items.Count()</strong> resultado@(items.Count() != 1 ? "s" : "") encontrado@(items.Count() != 1 ? "s" : "")
+            para "<strong>@q</strong>"
+        </p>
+    </div>
 
+    <ProductGrid Data="items" @key="@GetSearchKey()" />
+}
+
+@code {
+  
     private string? q;
     private IEnumerable<Product>? items;
 
+    // ✅ Ciclo de vida
+    protected override async Task OnInitializedAsync()
+    {
+        // Suscribirse al evento de cambio de cliente
+        Auth.OnCustomerChanged += OnCustomerChanged;
+    }
+
     protected override async Task OnParametersSetAsync()
     {
-        
-       
-        var uri = new Uri(Nav.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        q = query.Get("q") ?? "";
-        var all = await Products.GetAllAsync();
-        items = all.Where(p => p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) || p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
+        await LoadSearchResultsAsync();
+    }
+
+    // ✅ NUEVO: Método para cargar resultados de búsqueda
+    private async Task LoadSearchResultsAsync()
+    {
+        try
+        {
+            var uri = new Uri(Nav.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            q = query.Get("q") ?? "";
+
+            Console.WriteLine($"[Buscar] Buscando: '{q}' para cliente: {Auth.CurrentCustomer?.CustNo ?? Auth.CurrentUser?.CustomerNo}");
+
+            items = null;
+            var all = await Products.GetAllAsync();
+            items = all.Where(p =>
+                p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+
+            Console.WriteLine($"[Buscar] Encontrados {items.Count()} resultados");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR Buscar.LoadSearchResultsAsync] {ex.Message}");
+            items = new List<Product>();
+        }
+    }
+
+    // ✅ NUEVO: Handler para cambio de cliente
+    private async Task OnCustomerChanged()
+    {
+        Console.WriteLine("[Buscar.OnCustomerChanged] Cliente cambió, refrescando búsqueda");
+        await LoadSearchResultsAsync();
+        await InvokeAsync(StateHasChanged);
+        Console.WriteLine($"[Buscar.OnCustomerChanged] Búsqueda completada - Resultados: {items?.Count()}");
+    }
+
+    // ✅ NUEVO: Clave dinámica que incluye el cliente
+    private string GetSearchKey()
+    {
+        var clientId = Auth.CurrentCustomer?.CustNo ?? Auth.CurrentUser?.CustomerNo ?? "default";
+        return $"search-{q}-{clientId}";
+    }
+
+    // ✅ Cleanup
+    public void Dispose()
+    {
+        Auth.OnCustomerChanged -= OnCustomerChanged;
     }
 }

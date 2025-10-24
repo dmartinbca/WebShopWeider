@@ -217,11 +217,12 @@ else
     {
         // Suscribirse al evento de cambio de cliente
         Auth.OnCustomerChanged += OnCustomerChanged;
-        
+
         await LoadData();
     }
 
-    private async void OnCustomerChanged()
+    // ✅ CAMBIO: de async void a async Task
+    private async Task OnCustomerChanged()
     {
         Console.WriteLine("[Perfil.razor] Cliente cambiado, refrescando datos...");
         await LoadData();
@@ -248,7 +249,7 @@ else
         ? value.Value.ToString("C", new CultureInfo("es-ES"))
         : "-";
 
-    private string Pct(double? value) => value.HasValue
+    private string Pct(decimal? value) => value.HasValue
         ? $"{value.Value:F2}%"
         : "-";
 

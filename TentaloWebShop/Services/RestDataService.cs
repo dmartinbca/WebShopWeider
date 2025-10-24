@@ -35,14 +35,25 @@ namespace TentaloWebShop.Services
         private readonly HttpClient _http;
         private readonly LocalStorageService _store;
         private readonly ApiSettings _apiSettings;
-
-        public RestDataService(HttpClient http, LocalStorageService store, IOptions<ApiSettings> apiSettings)
+        private readonly IServiceProvider _serviceProvider;  // ✅ AÑADIDO para resolver AuthService cuando sea necesario
+        public RestDataService(HttpClient http, LocalStorageService store, IOptions<ApiSettings> apiSettings, IServiceProvider serviceProvider)
         {
             _http = http;
             _store = store;
             _apiSettings = apiSettings.Value;
+            _serviceProvider = serviceProvider;  // ✅ AÑADIDO
         }
-
+        private AuthService? GetAuthService()
+        {
+            try
+            {
+                return _serviceProvider.GetService<AuthService>();
+            }
+            catch
+            {
+                return null;
+            }
+        }
         public async Task<NavUser> GetAppLoginAPICloud(string usuario, string password)
         {
 
@@ -188,12 +199,13 @@ namespace TentaloWebShop.Services
                 // 2. Construir URL con filtro por cliente
              
                 string baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppCustomers";
-                //string filter = App.IdiomaPais == "ITA"
-                //     ? $"?$filter=countryRegionCode eq 'IT' and orderDateFilterOnly le {fecha}"
-                //     : App.EsMaster
-                //         ? $"?$filter=orderDateFilterOnly le {fecha}"
-                //         : $"?$filter=salespersonCode eq '{vendedor}' and orderDateFilterOnly le {fecha}";
-                string filter = $"?$filter=salespersonCode eq '{vendedor}' and orderDateFilterOnly le {fecha}";
+                var authService = GetAuthService();
+                string filter = authService?.CurrentUser?.IdiomaPais == "ITA"
+                    ? $"?$filter=countryRegionCode eq 'IT' and orderDateFilterOnly le {fecha}"
+                    : authService?.CurrentUser?.EsMaster == true
+                        ? $"?$filter=orderDateFilterOnly le {fecha}"
+                        : $"?$filter=salespersonCode eq '{vendedor}' and orderDateFilterOnly le {fecha}";
+
                 string fullUrl = baseUrl + filter;
 
                 // 3. Crear petición
@@ -248,9 +260,20 @@ namespace TentaloWebShop.Services
                     token = tokenObj.AccessToken;
 
                 }
+                var url = "";
+                var authService = GetAuthService();
+                string stipo = authService?.CurrentUser?.Tipo;
+                if (stipo == "Customer") 
+                {
+                    url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppFamiliasWeb?$expand=subfamlines";
 
+                }
+                else
+                {
+                    url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppFamiliasWebII?$expand=subfamlines";
+
+                }
                 // 2. Construir URL
-                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppFamiliasWeb?$expand=subfamlines";
 
                 // 3. Preparar HttpClient
 
@@ -314,16 +337,33 @@ namespace TentaloWebShop.Services
                 // 2. Construir la URL dinámica según los parámetros recibidos
                 var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})";
                 string endpoint;
-
-                // Lógica igual que tu versión MAUI
-                if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                var authService = GetAuthService();
+                string stipo = authService?.CurrentUser?.Tipo;
+                if(stipo=="Customer")
                 {
-                    endpoint = $"/ApiListaProductosIV?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
+                    // Lógica igual que tu versión MAUI
+                    if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                    {
+                        endpoint = $"/ApiListaProductosIV?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
+                    }
+                    else
+                    {
+                        endpoint = $"/ApiListaProductosIV?$filter=no eq '{saved.CustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                    }
                 }
                 else
                 {
-                    endpoint =  $"/ApiListaProductosIV?$filter=no eq '{saved.CustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                    // Lógica igual que tu versión MAUI
+                    if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                    {
+                        endpoint = $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' '";
+                    }
+                    else
+                    {
+                        endpoint = $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                    }
                 }
+               
 
                 var url = baseUrl + endpoint;
 
@@ -908,18 +948,36 @@ namespace TentaloWebShop.Services
                 // 3. Construir la URL dinámica según los parámetros recibidos
                 var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})";
                 string endpoint;
-
+               
+                var authService = GetAuthService();
+                string stipo = authService?.CurrentUser?.Tipo;
                 // Lógica igual que tu versión MAUI
-                if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                if(stipo=="Customer")
                 {
-                    endpoint = $"/ApiListaProductosIV?$filter=no eq '{efectiveCustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
+                    if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                    {
+                        endpoint = $"/ApiListaProductosIV?$filter=no eq '{efectiveCustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' ' and ImageUrl ne ' '";
+                    }
+                    else
+                    {
+                        endpoint = $"/ApiListaProductosIV?$filter=no eq '{efectiveCustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                    }
                 }
                 else
                 {
-                    endpoint = $"/ApiListaProductosIV?$filter=no eq '{efectiveCustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                    if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
+                    {
+                        endpoint = $"/ApiListaProductosII?$filter=no eq '{efectiveCustomerNo}' and FamiliaN ne ' ' and SubFamilia ne ' '";
+                    }
+                    else
+                    {
+                        endpoint = $"/ApiListaProductosII?$filter=no eq '{efectiveCustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
+                    }
+
                 }
 
-                var url = baseUrl + endpoint;
+
+                    var url = baseUrl + endpoint;
 
                 // 4. Crear petición con HttpClient y cabeceras OAuth2 y Isolation
                 var request = new HttpRequestMessage(HttpMethod.Get, url);

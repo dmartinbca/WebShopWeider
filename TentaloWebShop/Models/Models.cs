@@ -474,13 +474,13 @@ namespace TentaloWebShop.Models
 
 
         [JsonPropertyName("discountGeneral")]
-        public double Desgeneral { get; set; }
+        public decimal Desgeneral { get; set; }
 
 
 
 
         [JsonPropertyName("discountPP")]
-        public double DescPP { get; set; }
+        public decimal DescPP { get; set; }
 
 
     }

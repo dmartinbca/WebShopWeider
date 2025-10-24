@@ -397,14 +397,15 @@
         isLoading = true;
         try
         {
-            var customerNo = Auth.CurrentUser?.CustomerNo ?? "";
-            if (string.IsNullOrEmpty(customerNo))
+            // ✅ CORREGIDO: Validar autenticación en lugar de CustomerNo
+            if (!Auth.IsAuthenticated)
             {
                 Nav.NavigateTo("/login");
                 return;
             }
 
-            invoice = await InvoiceService.GetOrderByIdAsync(InvoiceId, customerNo);
+            // ✅ CORREGIDO: No pasar customerNo - InvoiceService usa GetEffectiveCustomerNo() internamente
+            invoice = await InvoiceService.GetOrderByIdAsync(InvoiceId);
         }
         catch (Exception ex)
         {

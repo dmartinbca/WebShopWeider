@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @inject ProductService Products
+@inject LoadingService Loading
 @implements IDisposable
 
 @if (Auth.CurrentUser?.Tipo == "Sales Team")
@@ -28,7 +29,7 @@
                         </span>
                     }
                 </div>
-                <button class="btn btn-sm btn-outline-light" @onclick="OpenClientModal">
+                <button class="btn btn-sm btn-outline-light" @onclick="OpenClientModal" disabled="@Loading.IsLoading">
                     <i class="bi bi-search me-2"></i>
                     @(ClientSelection.SelectedClient != null ? "Cambiar Cliente" : "Seleccionar Cliente")
                 </button>
@@ -46,7 +47,7 @@
                     <i class="bi bi-people me-2"></i>
                     Seleccionar Cliente
                 </h5>
-                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Cerrar" disabled="@Loading.IsLoading"></button>
             </div>
             <div class="modal-body">
                 <!-- Barra de búsqueda -->
@@ -59,10 +60,11 @@
                                class="form-control"
                                placeholder="Buscar por nombre o código de cliente..."
                                @bind="searchTerm"
-                               @bind:event="oninput" />
+                               @bind:event="oninput"
+                               disabled="@Loading.IsLoading" />
                         @if (!string.IsNullOrEmpty(searchTerm))
                         {
-                            <button class="btn btn-outline-secondary" @onclick="ClearSearch">
+                            <button class="btn btn-outline-secondary" @onclick="ClearSearch" disabled="@Loading.IsLoading">
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         }
@@ -124,20 +126,28 @@
                 }
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancelar</button>
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal" disabled="@Loading.IsLoading">Cancelar</button>
                 @if (ClientSelection.SelectedClient != null)
                 {
-                    <button type="button" class="btn btn-outline-danger" @onclick="ClearClientSelection">
+                    <button type="button" class="btn btn-outline-danger" @onclick="ClearClientSelection" disabled="@Loading.IsLoading">
                         <i class="bi bi-x-circle me-2"></i>
                         Quitar Selección
                     </button>
                 }
                 <button type="button"
                         class="btn btn-danger"
-                        disabled="@(selectedClientTemp == null)"
+                        disabled="@(selectedClientTemp == null || Loading.IsLoading)"
                         @onclick="ConfirmSelection">
-                    <i class="bi bi-check-lg me-2"></i>
-                    Confirmar Selección
+                    @if (Loading.IsLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span>Procesando...</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-check-lg me-2"></i>
+                        <span>Confirmar Selección</span>
+                    }
                 </button>
             </div>
         </div>
@@ -292,25 +302,32 @@
         selectedClientTemp = client;
     }
 
+    // ✅ CAMBIO: Usar LoadingService para mostrar spinner
     private async Task ConfirmSelection()
     {
         if (selectedClientTemp != null)
         {
-            await ClientSelection.SelectClient(selectedClientTemp);
-            await CloseModal();
+            Console.WriteLine($"[ClientSelector] Cambiando a cliente: {selectedClientTemp.Name}");
 
-            // NO redirigir - El catálogo se refresca automáticamente por los eventos
-            // Si estamos en una página que necesita refrescar, se refresca sola gracias a OnCustomerChanged
+            await Loading.ExecuteWithLoadingAsync(async () =>
+            {
+                await ClientSelection.SelectClient(selectedClientTemp);
+                Console.WriteLine($"[ClientSelector] Cliente cambiado completamente");
+            });
+
+            await CloseModal();
         }
     }
 
     private async Task ClearClientSelection()
     {
-        await ClientSelection.ClearSelection();
-        selectedClientTemp = null;
-        await CloseModal();
+        await Loading.ExecuteWithLoadingAsync(async () =>
+        {
+            await ClientSelection.ClearSelection();
+            selectedClientTemp = null;
+        });
 
-        // NO redirigir - El catálogo se refresca automáticamente
+        await CloseModal();
     }
 
     private async Task OpenClientModal()

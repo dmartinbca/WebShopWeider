@@ -1,4 +1,4 @@
-using TentaloWebShop.Models;
+﻿using TentaloWebShop.Models;
 namespace TentaloWebShop.Services;
 
 public class CartService
@@ -13,7 +13,7 @@ public class CartService
     public event Action? Changed;
     public List<CartItem> Items { get; private set; } = new();
 
-    // Propiedades calculadas b�sicas
+    // Propiedades calculadas básicas
     public int TotalQuantity => Items.Sum(i => i.Quantity);
 
     // Base imponible (sin IVA, sin descuento en factura)
@@ -29,7 +29,7 @@ public class CartService
         }
     }
 
-    // Base imponible despu�s del descuento en factura
+    // Base imponible después del descuento en factura
     public decimal BaseImponibleConDescuento => BaseImponible - DescuentoFactura;
 
     // Total sin IVA (con descuento en factura aplicado)
@@ -46,8 +46,19 @@ public class CartService
         _store = store;
         _rest = rest;
         _auth = auth;
+
+        // ✅ SUSCRIBIRSE AL EVENTO DE CAMBIO DE CLIENTE
+        _auth.OnCustomerChanged += OnCustomerChanged;
     }
-    // M�todo auxiliar para calcular IVA de un item espec�fico
+
+    // ✅ CAMBIO: de void a async Task
+    private async Task OnCustomerChanged()
+    {
+        Console.WriteLine("[CartService.OnCustomerChanged] Limpiando carrito");
+        await Clear();
+    }
+
+    // Método auxiliar para calcular IVA de un item específico
     // Ahora aplica el descuento en factura proporcionalmente
     private decimal CalculateItemVat(CartItem item)
     {
@@ -59,14 +70,14 @@ public class CartService
             // Calcular el subtotal del item (sin descuento)
             decimal itemSubtotal = item.Product.PriceFrom * item.Quantity;
 
-            // Calcular la proporci�n del descuento en factura para esta l�nea
+            // Calcular la proporción del descuento en factura para esta línea
             decimal descuentoLineaFactura = 0;
             if (DescuentoFactura > 0 && BaseImponible > 0)
             {
                 descuentoLineaFactura = (itemSubtotal / BaseImponible) * DescuentoFactura;
             }
 
-            // Calcular la base imponible de la l�nea despu�s del descuento
+            // Calcular la base imponible de la línea después del descuento
             decimal baseLineaConDescuento = itemSubtotal - descuentoLineaFactura;
 
             // Validar y convertir el tipo de IVA
@@ -82,12 +93,12 @@ public class CartService
         }
     }
 
-    // M�todo auxiliar para obtener el porcentaje de IVA de forma segura
+    // Método auxiliar para obtener el porcentaje de IVA de forma segura
     private decimal GetVatPercentage(object tipoIva)
     {
         if (tipoIva == null) return 0;
 
-        // Intentar diferentes tipos de conversi�n
+        // Intentar diferentes tipos de conversión
         switch (tipoIva)
         {
             case decimal d:
@@ -104,7 +115,7 @@ public class CartService
                 break;
         }
 
-        // Si no se puede convertir, intentar Convert.ToDecimal como �ltimo recurso
+        // Si no se puede convertir, intentar Convert.ToDecimal como último recurso
         try
         {
             return Convert.ToDecimal(tipoIva);
@@ -114,6 +125,7 @@ public class CartService
             return 0;
         }
     }
+
     public async Task InitializeAsync()
     {
         if (_initialized)
@@ -181,18 +193,32 @@ public class CartService
         await SaveAndNotify();
     }
 
-    public async Task<Status> ProcessOrder(List<CartItem> carro, string direnvio, string usuario, string cliente)
+    // ✅ MÉTODO CORREGIDO: Usa GetEffectiveCustomerNo() para determinar el cliente
+    public async Task<Status> ProcessOrder(List<CartItem> carro, string direnvio, string usuario, string clienteParam)
     {
         var status = new Status();
 
-        // Obtener el descuento en factura del usuario
-        var descuentoCabecera = (double)(_auth?.CurrentUser?.DescuentoFactura ?? 0);
+        // ✅ CRÍTICO: Usar el cliente efectivo (CurrentCustomer o CurrentUser)
+        string cliente = GetEffectiveCustomerNo();
+
+        // Validar que tenemos código de cliente
+        if (string.IsNullOrWhiteSpace(cliente))
+        {
+            return new Status
+            {
+                IsSuccess = false,
+                Message = "No se pudo determinar el código de cliente para el pedido."
+            };
+        }
+
+        // Obtener el descuento en factura del usuario/cliente actual
+        var descuentoCabecera = (double)(_auth?.CurrentCustomer?.Desgeneral ??
+                                         _auth?.CurrentUser?.DescuentoFactura ?? 0);
 
         // Pasar directamente el carrito (List<CartItem>) al RestDataService
-        // RestDataService se encargar� de crear los BufferPedidos
         var eprods = await _rest.PedidoVenta(
             carro,              // List<CartItem> - el carrito tal cual
-            cliente,            // string cliente
+            cliente,            // ✅ string cliente - código de cliente efectivo
             descuentoCabecera,  // double descuentoCabecera
             "",                 // string Observaciones
             direnvio,           // string direnvio
@@ -211,12 +237,21 @@ public class CartService
 
         return status;
     }
+
+    // ✅ MÉTODO NUEVO: Determina el código de cliente efectivo
+    private string GetEffectiveCustomerNo()
+    {
+        // Prioridad:
+        // 1. Si hay CurrentCustomer (cliente seleccionado por Sales Team), usar ese
+        // 2. Si no, usar el CustomerNo del CurrentUser (cliente normal o vendedor sin selección)
+        return _auth?.CurrentCustomer?.CustNo ?? _auth?.CurrentUser?.CustomerNo ?? "";
+    }
+
     private async Task SaveAndNotify()
     {
         await _store.SetAsync(KEY, Items);
         Changed?.Invoke();
     }
+
     private void NotifyChanged() => Changed?.Invoke();
 }
-
- 
