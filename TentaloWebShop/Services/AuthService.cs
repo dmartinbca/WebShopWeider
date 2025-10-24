@@ -13,7 +13,6 @@ public class AuthService
     public Customer? CurrentCustomer { get; private set; }
     public bool IsAuthenticated => CurrentUser is not null;
 
-    // ✅ CAMBIO CRÍTICO: Usar Func<Task> en lugar de Action
     public event Func<Task>? OnCustomerChanged;
     public event Action? OnAuthStateChanged;
 
@@ -63,19 +62,20 @@ public class AuthService
                 VatBusPostingGroup = navUser.VatBusPostingGroup ?? "",
                 DescuentoFactura = navUser.Descuento_en_factura,
                 DescuentoPP = 0,
-                IdiomaPais = navUser.CodPais
+                IdiomaPais = navUser.CodPais,
+                CustomerAddres = new List<CustomerAddres>()
             };
 
             // Guardar usuario
             await _store.SetAsync(KEY_USER, CurrentUser);
 
             // Cargar el cliente asociado SOLO si NO es Sales Team
-            // Los Sales Team seleccionarán su cliente manualmente
             if (CurrentUser.Tipo != "Sales Team" && !string.IsNullOrEmpty(CurrentUser.CustomerNo))
             {
                 var clientes = await _rest.GetCustomersAPI(CurrentUser.CustomerNo);
                 if (clientes?.Count > 0)
                 {
+                    // ✅ SetCurrentCustomer cargará automáticamente las direcciones
                     await SetCurrentCustomer(clientes[0]);
                 }
             }
@@ -95,7 +95,6 @@ public class AuthService
         var previousCustNo = CurrentCustomer?.CustNo;
         var newCustNo = customer?.CustNo;
 
-        // ✅ Verificar si realmente cambió el cliente
         bool hasChanged = previousCustNo != newCustNo;
 
         CurrentCustomer = customer;
@@ -104,11 +103,47 @@ public class AuthService
         {
             await _store.SetAsync(KEY_CUSTOMER, customer);
             Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente establecido: {customer.Name} ({customer.CustNo})");
+
+            // ✅ AQUÍ CARGAMOS LAS DIRECCIONES DEL CLIENTE
+            if (CurrentUser != null)
+            {
+                try
+                {
+                    Console.WriteLine($"[AuthService.SetCurrentCustomer] Cargando direcciones para cliente: {customer.CustNo}");
+                    var direcciones = await _rest.GetDirecciones(customer.CustNo);
+
+                    if (direcciones?.Any() == true)
+                    {
+                        CurrentUser.CustomerAddres = direcciones;
+                        Console.WriteLine($"[AuthService.SetCurrentCustomer] ✅ Direcciones cargadas: {direcciones.Count}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[AuthService.SetCurrentCustomer] ⚠️ No hay direcciones para este cliente");
+                        CurrentUser.CustomerAddres = new List<CustomerAddres>();
+                    }
+
+                    // Guardar el usuario actualizado con las direcciones
+                    await _store.SetAsync(KEY_USER, CurrentUser);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR AuthService.SetCurrentCustomer] Cargando direcciones: {ex.Message}");
+                    CurrentUser.CustomerAddres = new List<CustomerAddres>();
+                }
+            }
         }
         else
         {
             await _store.RemoveAsync(KEY_CUSTOMER);
             Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente eliminado");
+
+            // Limpiar direcciones si se elimina el cliente
+            if (CurrentUser != null)
+            {
+                CurrentUser.CustomerAddres = new List<CustomerAddres>();
+                await _store.SetAsync(KEY_USER, CurrentUser);
+            }
         }
 
         // ✅ Disparar el evento SI cambió
@@ -116,7 +151,6 @@ public class AuthService
         {
             Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente cambió de {previousCustNo} a {newCustNo}. Disparando OnCustomerChanged");
 
-            // ✅ Invocar el evento y esperar todos los handlers
             if (OnCustomerChanged != null)
             {
                 try

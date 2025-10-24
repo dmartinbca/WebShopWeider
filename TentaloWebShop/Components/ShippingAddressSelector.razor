@@ -1,0 +1,196 @@
+@inject ShippingAddressService ShippingService
+@inject AuthService Auth
+@implements IDisposable
+
+<div class="shipping-address-selector">
+    @if (ShippingService.Addresses.Count == 0)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            No hay direcciones de envío disponibles para este cliente.
+        </div>
+    }
+    else
+    {
+        <div class="form-group">
+            <label class="form-label fw-semibold">
+                <i class="bi bi-geo-alt me-2"></i>
+                Selecciona una dirección de envío
+            </label>
+
+            <div class="address-list">
+                @foreach (var address in ShippingService.Addresses)
+                {
+                    var isSelected = ShippingService.SelectedAddress?.Code == address.Code;
+                    
+                    <div class="address-card @(isSelected ? "selected" : "")" 
+                         @onclick="() => SelectAddress(address)">
+                        <div class="address-header">
+                            <div class="address-title">
+                                <i class="bi bi-bookmark-star-fill me-2"></i>
+                                <strong>@address.Description</strong>
+                                @if (address.IsDefault)
+                                {
+                                    <span class="badge bg-success ms-2">Predeterminada</span>
+                                }
+                            </div>
+                            @if (isSelected)
+                            {
+                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                            }
+                        </div>
+
+                        <div class="address-content mt-2">
+                            <div class="address-line">
+                                <i class="bi bi-house me-2"></i>
+                                @address.Address
+                            </div>
+                            <div class="address-line">
+                                <i class="bi bi-geo me-2"></i>
+                                @address.PostCode @address.City, @address.County
+                            </div>
+                            @if (!string.IsNullOrEmpty(address.ContactPerson))
+                            {
+                                <div class="address-line">
+                                    <i class="bi bi-person me-2"></i>
+                                    @address.ContactPerson
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(address.Phone))
+                            {
+                                <div class="address-line">
+                                    <i class="bi bi-telephone me-2"></i>
+                                    @address.Phone
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (ShippingService.SelectedAddress != null)
+            {
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Dirección seleccionada:</strong><br>
+                    @ShippingService.SelectedAddress.Description<br>
+                    @ShippingService.SelectedAddress.Address, @ShippingService.SelectedAddress.PostCode @ShippingService.SelectedAddress.City
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .shipping-address-selector {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .address-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .address-card {
+        padding: 16px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .address-card:hover {
+        border-color: #dc3545;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .address-card.selected {
+        border-color: #28a745;
+        background-color: #d4edda;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    }
+
+    .address-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .address-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .address-content {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: #495057;
+    }
+
+    .address-line {
+        display: flex;
+        align-items: center;
+        margin: 6px 0;
+    }
+
+    .address-line i {
+        color: #dc3545;
+        min-width: 20px;
+    }
+
+    @@media (max-width: 768px) {
+        .address-list {
+            grid-template-columns: 1fr;
+        }
+
+        .address-card {
+            padding: 12px;
+        }
+
+        .address-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+    }
+</style>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ShippingService.OnAddressesLoaded += OnAddressesLoaded;
+        ShippingService.OnAddressSelected += OnAddressSelected;
+    }
+
+    private void OnAddressesLoaded()
+    {
+        Console.WriteLine($"[ShippingAddressSelector] Direcciones cargadas: {ShippingService.Addresses.Count}");
+        StateHasChanged();
+    }
+
+    private void OnAddressSelected()
+    {
+        Console.WriteLine($"[ShippingAddressSelector] Dirección seleccionada: {ShippingService.SelectedAddress?.Description}");
+        StateHasChanged();
+    }
+
+    private void SelectAddress(ShippingAddress address)
+    {
+        ShippingService.SelectAddress(address);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ShippingService.OnAddressesLoaded -= OnAddressesLoaded;
+        ShippingService.OnAddressSelected -= OnAddressSelected;
+    }
+}

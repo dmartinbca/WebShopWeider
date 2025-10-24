@@ -100,7 +100,7 @@
                 </a>
             </div>
         </div>
-        @if (Auth.CurrentUser?.Tipo == "Sales Team")
+       @*  @if (Auth.CurrentUser?.Tipo == "Sales Team")
         {
             <hr class="my-3" />
             <h6 class="px-3 text-muted text-uppercase small mb-2">
@@ -112,27 +112,24 @@
                 <span>Mis Clientes</span>
                 <i class="bi bi-chevron-right ms-auto"></i>
             </button>
-        }
+        } *@
         <!-- Sección MÁS -->
         <div class="mobile-menu-section">
-            <div class="section-title">
-                <i class="bi bi-three-dots me-2"></i>
-                MÁS
-            </div>
+            
             <div class="more-links">
                 @if (Auth.IsAuthenticated)
                 {
                     <a class="more-item" href="/perfil" @onclick="Close">
                         <i class="bi bi-person me-2"></i>
-                        Mi cuenta
+                        Cliente
                     </a>
                     <a class="more-item" href="/pedidos" @onclick="Close">
                         <i class="bi bi-bag me-2"></i>
-                        Mis Pedidos
+                        Pedidos
                     </a>
                     <a class="more-item" href="/facturas" @onclick="Close">
                         <i class="bi bi-receipt me-2"></i>
-                        Mis Facturas
+                        Facturas
                     </a>
                     <hr class="my-2" />
                 }
@@ -142,13 +139,13 @@
                         <i class="bi bi-box-arrow-in-right me-2"></i>
                         Iniciar sesión
                     </a>
-                    <a class="more-item" href="/register" @onclick="Close">
+                   @*  <a class="more-item" href="/register" @onclick="Close">
                         <i class="bi bi-person-plus me-2"></i>
                         Registrarse
-                    </a>
+                    </a> *@
                     <hr class="my-2" />
                 }
-
+@* 
                 <a class="more-item" href="/ayuda" @onclick="Close">
                     <i class="bi bi-question-circle me-2"></i>
                     Preguntas frecuentes
@@ -156,7 +153,7 @@
                 <a class="more-item" href="/sobre-nosotros" @onclick="Close">
                     <i class="bi bi-info-circle me-2"></i>
                     Quiénes somos
-                </a>
+                </a> *@
 
                 @if (Auth.IsAuthenticated)
                 {

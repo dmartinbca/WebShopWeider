@@ -1,4 +1,4 @@
-using TentaloWebShop.Models;
+﻿using TentaloWebShop.Models;
 
 namespace TentaloWebShop.Services;
 
@@ -12,7 +12,10 @@ public class ClientSelectionService
     public Customer? SelectedClient { get; private set; }
     public event Action? OnClientChanged;
 
-    public ClientSelectionService(LocalStorageService store, RestDataService rest, AuthService auth)
+    public ClientSelectionService(
+        LocalStorageService store,
+        RestDataService rest,
+        AuthService auth)
     {
         _store = store;
         _rest = rest;
@@ -24,10 +27,11 @@ public class ClientSelectionService
         var saved = await _store.GetAsync<Customer>(KEY_SELECTED_CLIENT);
         SelectedClient = saved;
 
-        // Si hay un cliente guardado y el usuario es Sales Team, actualizar AuthService
         if (saved != null && _auth.CurrentUser?.Tipo == "Sales Team")
         {
+            // ✅ SetCurrentCustomer cargará automáticamente las direcciones
             await _auth.SetCurrentCustomer(saved);
+            Console.WriteLine($"[ClientSelectionService.InitializeAsync] Cliente restaurado: {saved.Name}");
         }
     }
 
@@ -52,19 +56,22 @@ public class ClientSelectionService
 
         if (client is null)
         {
+            Console.WriteLine($"[ClientSelectionService.SelectClient] Limpiando selección");
             await _store.RemoveAsync(KEY_SELECTED_CLIENT);
-            // Si es Sales Team, mantener su propio customer
+
             if (_auth.CurrentUser?.Tipo == "Sales Team")
             {
-                // Cargar el customer del vendedor
                 var vendedorCustomer = await _rest.GetCustomersAPI(_auth.CurrentUser.CustomerNo);
+                // ✅ SetCurrentCustomer cargará automáticamente las direcciones del vendedor
                 await _auth.SetCurrentCustomer(vendedorCustomer.FirstOrDefault());
             }
         }
         else
         {
+            Console.WriteLine($"[ClientSelectionService.SelectClient] Seleccionando cliente: {client.Name} ({client.CustNo})");
             await _store.SetAsync(KEY_SELECTED_CLIENT, client);
-            // Actualizar el CurrentCustomer en AuthService
+
+            // ✅ CLAVE: SetCurrentCustomer() ya cargará las direcciones automáticamente
             await _auth.SetCurrentCustomer(client);
         }
 

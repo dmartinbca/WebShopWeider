@@ -2,6 +2,7 @@
 @inject CartService Cart
 @inject NavigationManager Nav
 @inject AuthService Auth
+@inject ShippingAddressService ShippingService
 @using TentaloWebShop.Models
 @using System.Globalization
 
@@ -154,7 +155,7 @@ else
                                 }
                             </select>
                         </div>
-
+                       
                         @if (!string.IsNullOrEmpty(selectedAddressId))
                         {
                             var selectedAddress = Auth.CurrentUser.CustomerAddres.FirstOrDefault(a => a.Code == selectedAddressId);
