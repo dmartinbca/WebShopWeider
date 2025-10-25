@@ -1,64 +1,83 @@
 @page "/"
+@inject AuthService Auth
 @implements IDisposable
 
-<!-- Carrusel Hero -->
-<div class="hero-carousel">
-    <div class="carousel-wrapper">
-        @for (int i = 0; i < carouselImages.Length; i++)
-        {
-            int index = i;
-            <div class="carousel-slide @(currentSlide == index ? "active" : "")"
-                 style="position: absolute; width: 100%; height: 100%; opacity: @(currentSlide == index ? "1" : "0"); transition: opacity 1s ease-in-out; pointer-events: @(currentSlide == index ? "auto" : "none");">
-                <img src="@carouselImages[index].ImageUrl"
-                     alt="@carouselImages[index].Alt"
-                     style="width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none;" />
-                <div class="carousel-overlay" style="pointer-events: none;">
-                    <div class="carousel-content container" style="pointer-events: auto;">
-                        <h1 class="hero-title">@carouselImages[index].Title</h1>
-                        <p class="hero-subtitle">@carouselImages[index].Subtitle</p>
-                        @if (!string.IsNullOrEmpty(carouselImages[index].ButtonText))
-                        {
-                            <a href="@carouselImages[index].ButtonLink"
-                               class="btn btn-hero"
-                               @onclick:stopPropagation="true">
-                                @carouselImages[index].ButtonText
-                            </a>
-                        }
+<!-- ✅ CARRUSEL SOLO PARA CLIENTES DIRECTOS (NO para Sales Team) -->
+@if (Auth.CurrentUser?.Tipo != "Sales Team")
+{
+    <!-- Carrusel Hero -->
+    <div class="hero-carousel">
+        <div class="carousel-wrapper">
+            @for (int i = 0; i < carouselImages.Length; i++)
+            {
+                int index = i;
+                <div class="carousel-slide @(currentSlide == index ? "active" : "")"
+                     style="position: absolute; width: 100%; height: 100%; opacity: @(currentSlide == index ? "1" : "0"); transition: opacity 1s ease-in-out; pointer-events: @(currentSlide == index ? "auto" : "none");">
+                    <img src="@carouselImages[index].ImageUrl"
+                         alt="@carouselImages[index].Alt"
+                         style="width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none;" />
+                    <div class="carousel-overlay" style="pointer-events: none;">
+                        <div class="carousel-content container" style="pointer-events: auto;">
+                            <h1 class="hero-title">@carouselImages[index].Title</h1>
+                            <p class="hero-subtitle">@carouselImages[index].Subtitle</p>
+                            @if (!string.IsNullOrEmpty(carouselImages[index].ButtonText))
+                            {
+                                <a href="@carouselImages[index].ButtonLink"
+                                   class="btn btn-hero"
+                                   @onclick:stopPropagation="true">
+                                    @carouselImages[index].ButtonText
+                                </a>
+                            }
+                        </div>
                     </div>
                 </div>
+            }
+        </div>
+
+        <!-- Indicadores -->
+        <div class="carousel-indicators" style="pointer-events: auto;">
+            @for (int i = 0; i < carouselImages.Length; i++)
+            {
+                int index = i;
+                <button class="indicator @(currentSlide == index ? "active" : "")"
+                        @onclick="() => GoToSlide(index)"
+                        @onclick:stopPropagation="true"
+                        aria-label="Ir a slide @(index + 1)">
+                </button>
+            }
+        </div>
+
+        <!-- Controles de navegación -->
+        <button class="carousel-control prev"
+                @onclick="PreviousSlide"
+                @onclick:stopPropagation="true"
+                aria-label="Anterior"
+                style="pointer-events: auto;">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="carousel-control next"
+                @onclick="NextSlide"
+                @onclick:stopPropagation="true"
+                aria-label="Siguiente"
+                style="pointer-events: auto;">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+}
+
+<!-- ✅ SI ES SALES TEAM, MOSTRAR MENSAJE DE BIENVENIDA ALTERNATIVO -->
+@if (Auth.CurrentUser?.Tipo == "Sales Team")
+{
+    <div class="container py-5">
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle me-3 fs-4"></i>
+            <div>
+                <strong>¡Bienvenido, @Auth.CurrentUser?.FirstName!</strong>
+                <p class="mb-0 mt-2">Accede al catálogo de productos o selecciona un cliente para empezar.</p>
             </div>
-        }
+        </div>
     </div>
-
-    <!-- Indicadores -->
-    <div class="carousel-indicators" style="pointer-events: auto;">
-        @for (int i = 0; i < carouselImages.Length; i++)
-        {
-            int index = i;
-            <button class="indicator @(currentSlide == index ? "active" : "")"
-                    @onclick="() => GoToSlide(index)"
-                    @onclick:stopPropagation="true"
-                    aria-label="Ir a slide @(index + 1)">
-            </button>
-        }
-    </div>
-
-    <!-- Controles de navegación -->
-    <button class="carousel-control prev"
-            @onclick="PreviousSlide"
-            @onclick:stopPropagation="true"
-            aria-label="Anterior"
-            style="pointer-events: auto;">
-        <i class="bi bi-chevron-left"></i>
-    </button>
-    <button class="carousel-control next"
-            @onclick="NextSlide"
-            @onclick:stopPropagation="true"
-            aria-label="Siguiente"
-            style="pointer-events: auto;">
-        <i class="bi bi-chevron-right"></i>
-    </button>
-</div>
+}
 
 <!-- Catálogo de productos -->
 <div class="container py-4">
@@ -114,7 +133,11 @@
 
     protected override void OnInitialized()
     {
-        StartAutoPlay();
+        // ✅ Solo iniciar autoplay si NO es Sales Team
+        if (Auth.CurrentUser?.Tipo != "Sales Team")
+        {
+            StartAutoPlay();
+        }
     }
 
     private void StartAutoPlay()
