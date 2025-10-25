@@ -3,6 +3,8 @@
 @inject NavigationManager Nav
 @inject AuthService Auth
 @inject ShippingAddressService ShippingService
+@inject AuthService Auth
+@implements IAsyncDisposable
 @using TentaloWebShop.Models
 @using System.Globalization
 
@@ -301,6 +303,28 @@ else
         Auth.CurrentUser?.CustomerAddres?.Any() != true ||
         !string.IsNullOrEmpty(selectedAddressId);
 
+    protected override async Task OnInitializedAsync()
+    {
+        // ✅ Suscribirse al evento de cambio de cliente
+        Auth.OnCustomerChanged += OnCustomerChanged;
+    }
+
+    // ✅ Handler para cuando cambia el cliente
+    private async Task OnCustomerChanged()
+    {
+        Console.WriteLine("[Carrito] Cliente cambió, limpiando estado");
+
+        // Limpiar variables locales
+        selectedAddressId = "";
+        isProcessingOrder = false;
+        orderCompleted = false;
+        orderSuccess = false;
+        orderErrorMessage = "";
+
+        // Refrescar la UI
+        await InvokeAsync(StateHasChanged);
+    }
+
     async Task Change(CartItem item, int qty) => await Cart.Update(item.Product.Id, qty);
     async Task Remove(CartItem item) => await Cart.Remove(item.Product.Id);
 
@@ -363,5 +387,12 @@ else
         orderSuccess = false;
         orderErrorMessage = "";
         StateHasChanged();
+    }
+
+    // ✅ Implementar IAsyncDisposable correctamente
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        Auth.OnCustomerChanged -= OnCustomerChanged;
+        await ValueTask.CompletedTask;
     }
 }

@@ -1,0 +1,160 @@
+﻿@inject CartService Cart
+@inject NavigationManager Nav
+@implements IDisposable
+
+<!-- ✅ BOTÓN FLOTANTE: Visible si el carrito tiene items -->
+@if (Cart.Items.Any())
+{
+    <div class="floating-cart-button">
+        <a href="/carrito" class="floating-cart-link" title="Ver carrito">
+            <div class="floating-cart-content">
+                <i class="bi bi-bag-fill"></i>
+                <div class="floating-cart-info">
+                    <div class="floating-cart-price">@Cart.ImporteTotal.ToString("0.00") €</div>
+                    <div class="floating-cart-items">@Cart.TotalQuantity artículo@(Cart.TotalQuantity != 1 ? "s" : "")</div>
+                </div>
+            </div>
+            <div class="floating-cart-arrow">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+    </div>
+}
+
+<style>
+    .floating-cart-button {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 999;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @@keyframes slideIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .floating-cart-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 2rem;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        transition: all 0.2s ease;
+        font-weight: 600;
+    }
+
+        .floating-cart-link:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+            color: white;
+        }
+
+        .floating-cart-link:active {
+            transform: translateY(-2px);
+        }
+
+    .floating-cart-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .floating-cart-content i {
+            font-size: 1.25rem;
+        }
+
+    .floating-cart-info {
+        text-align: left;
+    }
+
+    .floating-cart-price {
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .floating-cart-items {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        line-height: 1.2;
+    }
+
+    .floating-cart-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .floating-cart-link:hover .floating-cart-arrow {
+        transform: translateX(4px);
+    }
+
+    /* ✅ Responsive: Móvil */
+    @@media (max-width: 576px) {
+        .floating-cart-button
+
+    {
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    .floating-cart-link {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .floating-cart-content i {
+        font-size: 1.1rem;
+    }
+
+    .floating-cart-price {
+        font-size: 0.9rem;
+    }
+
+    .floating-cart-items {
+        font-size: 0.7rem;
+    }
+
+    }
+
+    /* ✅ Responsive: Tablet */
+    @@media (max-width: 992px) {
+        .floating-cart-button
+
+    {
+        bottom: 1.5rem;
+        right: 1.5rem;
+    }
+
+    }
+</style>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Cart.Changed += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        Cart.Changed -= StateHasChanged;
+    }
+}

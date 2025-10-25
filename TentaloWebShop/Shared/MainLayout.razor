@@ -1,4 +1,4 @@
-@using WeiderShop.Services
+﻿@using WeiderShop.Services
 @inherits LayoutComponentBase
 @inject BusyService Busy
 @inject AuthService Auth
@@ -6,7 +6,7 @@
 
 <TopNav />
 
-<!-- Banner de selecci�n de cliente (solo visible para Sales Team) -->
+<!-- Banner de selección de cliente (solo visible para Sales Team) -->
 @if (Auth.CurrentUser?.Tipo == "Sales Team")
 {
     <ClientSelector />
@@ -29,6 +29,9 @@
 }
 
 <Footer />
+
+<!-- ✅ BOTÓN FLOTANTE DEL CARRITO - SIEMPRE VISIBLE -->
+<FloatingCartButton />
 
 @code {
     protected override void OnInitialized() => Busy.Changed += StateHasChanged;
