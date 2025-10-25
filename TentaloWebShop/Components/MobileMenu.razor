@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+
 <!-- Overlay oscuro cuando el menú está abierto -->
 @if (IsOpen)
 {
@@ -19,18 +20,9 @@
     </div>
 
     <div class="mobile-menu-content">
-        <!-- Búsqueda -->
-        <div class="mobile-menu-search">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text"
-                       class="form-control border-start-0"
-                       placeholder="Buscar productos..."
-                       @bind="searchQuery"
-                       @bind:event="oninput">
-            </div>
+        <!-- ✅ Búsqueda reutilizando el componente SearchBar -->
+        <div class="mobile-menu-search" style="padding: 1rem;">
+            <SearchBar />
         </div>
 
         <!-- Categorías -->
@@ -100,22 +92,10 @@
                 </a>
             </div>
         </div>
-       @*  @if (Auth.CurrentUser?.Tipo == "Sales Team")
-        {
-            <hr class="my-3" />
-            <h6 class="px-3 text-muted text-uppercase small mb-2">
-                <i class="bi bi-briefcase me-2"></i>
-                Herramientas de Ventas
-            </h6>
-            <button class="mobile-menu-item w-100 text-start" @onclick="OpenClientSelector">
-                <i class="bi bi-people me-3"></i>
-                <span>Mis Clientes</span>
-                <i class="bi bi-chevron-right ms-auto"></i>
-            </button>
-        } *@
+
         <!-- Sección MÁS -->
         <div class="mobile-menu-section">
-            
+
             <div class="more-links">
                 @if (Auth.IsAuthenticated)
                 {
@@ -139,21 +119,8 @@
                         <i class="bi bi-box-arrow-in-right me-2"></i>
                         Iniciar sesión
                     </a>
-                   @*  <a class="more-item" href="/register" @onclick="Close">
-                        <i class="bi bi-person-plus me-2"></i>
-                        Registrarse
-                    </a> *@
                     <hr class="my-2" />
                 }
-@* 
-                <a class="more-item" href="/ayuda" @onclick="Close">
-                    <i class="bi bi-question-circle me-2"></i>
-                    Preguntas frecuentes
-                </a>
-                <a class="more-item" href="/sobre-nosotros" @onclick="Close">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Quiénes somos
-                </a> *@
 
                 @if (Auth.IsAuthenticated)
                 {
@@ -174,7 +141,6 @@
 
     private List<Category> families = new();
     private string? expandedFamily = null;
-    private string searchQuery = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -198,12 +164,10 @@
         await Close();
         Nav.NavigateTo("/");
     }
+
     private async Task OpenClientSelector()
     {
-        // Cerrar el menú móvil
         await IsOpenChanged.InvokeAsync(false);
-
-        // Abrir el modal de selección de clientes
         await JS.InvokeVoidAsync("eval", "$('#clientSelectorModal').modal('show')");
     }
 
