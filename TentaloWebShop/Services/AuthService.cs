@@ -89,7 +89,6 @@ public class AuthService
             return false;
         }
     }
-
     public async Task SetCurrentCustomer(Customer? customer)
     {
         var previousCustNo = CurrentCustomer?.CustNo;
@@ -104,9 +103,12 @@ public class AuthService
             await _store.SetAsync(KEY_CUSTOMER, customer);
             Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente establecido: {customer.Name} ({customer.CustNo})");
 
-            // ✅ AQUÍ CARGAMOS LAS DIRECCIONES DEL CLIENTE
+            // ✅ SINCRONIZAR EL DESCUENTO DEL CLIENTE AL USUARIO
             if (CurrentUser != null)
             {
+                CurrentUser.DescuentoFactura = customer.Descuentoenfactura;
+                CurrentUser.DescuentoPP = (int)customer.DescPP;
+
                 try
                 {
                     Console.WriteLine($"[AuthService.SetCurrentCustomer] Cargando direcciones para cliente: {customer.CustNo}");
@@ -123,7 +125,7 @@ public class AuthService
                         CurrentUser.CustomerAddres = new List<CustomerAddres>();
                     }
 
-                    // Guardar el usuario actualizado con las direcciones
+                    // Guardar el usuario actualizado con las direcciones Y los descuentos
                     await _store.SetAsync(KEY_USER, CurrentUser);
                 }
                 catch (Exception ex)
@@ -138,7 +140,6 @@ public class AuthService
             await _store.RemoveAsync(KEY_CUSTOMER);
             Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente eliminado");
 
-            // Limpiar direcciones si se elimina el cliente
             if (CurrentUser != null)
             {
                 CurrentUser.CustomerAddres = new List<CustomerAddres>();
@@ -146,7 +147,6 @@ public class AuthService
             }
         }
 
-        // ✅ Disparar el evento SI cambió
         if (hasChanged)
         {
             Console.WriteLine($"[AuthService.SetCurrentCustomer] Cliente cambió de {previousCustNo} a {newCustNo}. Disparando OnCustomerChanged");

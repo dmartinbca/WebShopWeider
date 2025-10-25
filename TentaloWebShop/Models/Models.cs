@@ -477,6 +477,8 @@ namespace TentaloWebShop.Models
         public decimal Desgeneral { get; set; }
 
 
+        [JsonPropertyName("descuentoenfactura")]
+        public decimal Descuentoenfactura { get; set; }
 
 
         [JsonPropertyName("discountPP")]
