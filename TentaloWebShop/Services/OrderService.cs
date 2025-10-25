@@ -1,4 +1,4 @@
-﻿using Syncfusion.Blazor.Chart3D.Internal;
+﻿
 using TentaloWebShop.Models;
 
 namespace TentaloWebShop.Services

@@ -8,119 +8,850 @@
 
 <PageTitle>Factura #@InvoiceId</PageTitle>
 
-<div class="container-fluid">
-    @if (isLoading)
-    {
-        <div class="text-center py-5">
-            <div class="spinner-border text-success" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-3 text-muted">Cargando factura...</p>
-        </div>
+<style>
+    /* ========================================
+           LAYOUT Y CONTAINER
+           ======================================== */
+
+    .factura-wrapper {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 1.5rem 0;
     }
-    else if (invoice == null)
-    {
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="bi bi-exclamation-triangle"></i>
-            </div>
-            <h3>Factura no encontrada</h3>
-            <p class="text-muted">La factura solicitada no existe o no tienes acceso a ella.</p>
-            <a href="/facturas" class="btn btn-success">
-                <i class="bi bi-arrow-left me-2"></i>
-                Volver a Facturas
-            </a>
-        </div>
+
+    .factura-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
     }
-    else
-    {
-        <!-- Header de la factura -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="/facturas">Facturas</a></li>
-                                <li class="breadcrumb-item active">Factura #@invoice.No</li>
-                            </ol>
-                        </nav>
-                        <h1 class="mb-0">
-                            <i class="bi bi-receipt me-2"></i>
+
+    /* ========================================
+           HEADER - BREADCRUMB Y TÍTULO
+           ======================================== */
+
+    .factura-header {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .factura-breadcrumb {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.75rem;
+    }
+
+        .factura-breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+            .factura-breadcrumb a:hover {
+                text-decoration: underline;
+            }
+
+    .factura-titulo-fila {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .factura-titulo {
+        flex: 1;
+        min-width: 200px;
+    }
+
+        .factura-titulo h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .factura-titulo h1 i {
+                color: #28a745;
+            }
+
+    .factura-estado {
+        flex-shrink: 0;
+    }
+
+    /* ========================================
+           CONTENIDO PRINCIPAL - GRID
+           ======================================== */
+
+    .factura-grid {
+        display: grid;
+        grid-template-columns: 1fr 2.5fr;
+        gap: 1.5rem;
+    }
+
+    /* ========================================
+           SIDEBAR - RESUMEN Y ACCIONES
+           ======================================== */
+
+    .factura-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .card-resumen {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        color: white;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .card-header i {
+            font-size: 1.25rem;
+        }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========================================
+           RESUMEN DE FACTURA
+           ======================================== */
+
+    .resumen-fila {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        font-size: 0.95rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .resumen-fila:last-child {
+            border-bottom: none;
+        }
+
+        .resumen-fila.total {
+            border-top: 2px solid #dee2e6;
+            margin-top: 0.75rem;
+            padding-top: 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .resumen-fila.descuento .valor {
+            color: #dc3545;
+        }
+
+    .resumen-label {
+        color: #495057;
+        flex: 1;
+    }
+
+    .resumen-valor {
+        color: #2c3e50;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    /* ========================================
+           BOTONES DE ACCIÓN
+           ======================================== */
+
+    .acciones {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+        .acciones .btn {
+            width: 100%;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .acciones .btn-primary {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+
+            .acciones .btn-primary:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(30, 126, 52, 0.3);
+            }
+
+        .acciones .btn-outline {
+            background: white;
+            color: #28a745;
+            border: 2px solid #28a745;
+        }
+
+            .acciones .btn-outline:hover:not(:disabled) {
+                background: #28a745;
+                color: white;
+            }
+
+        .acciones .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    /* ========================================
+           CONTENIDO PRINCIPAL
+           ======================================== */
+
+    .factura-contenido {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* ========================================
+           INFO DE FACTURA
+           ======================================== */
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .info-label i {
+            color: #28a745;
+        }
+
+    .info-valor {
+        font-size: 0.95rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .info-item.full {
+        grid-column: 1 / -1;
+    }
+
+    /* ========================================
+           TABLA DE LÍNEAS - DESKTOP
+           ======================================== */
+
+    .tabla-responsive {
+        overflow-x: auto;
+    }
+
+    .tabla-articulos {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+        .tabla-articulos thead {
+            background: #f8f9fa;
+        }
+
+        .tabla-articulos th {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+        .tabla-articulos td {
+            padding: 0.875rem 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.875rem;
+        }
+
+        .tabla-articulos tbody tr:hover {
+            background-color: rgba(40, 167, 69, 0.03);
+        }
+
+        .tabla-articulos .codigo {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .tabla-articulos .descripcion {
+            color: #495057;
+        }
+
+        .tabla-articulos .cantidad {
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .tabla-articulos .precio,
+        .tabla-articulos .total {
+            text-align: right;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .tabla-articulos .total {
+            color: #28a745;
+        }
+
+    /* ========================================
+           TABLA DE LÍNEAS - MOBILE
+           ======================================== */
+
+    .articulos-mobile {
+        display: none;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .articulo-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .articulo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .articulo-codigo {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.875rem;
+    }
+
+    .articulo-total {
+        font-weight: 700;
+        color: #28a745;
+        font-size: 0.8rem;
+    }
+
+    .articulo-desc {
+        font-size: 0.85rem;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .articulo-detalles {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    /* ========================================
+           ESTADO BADGE
+           ======================================== */
+
+    .estado-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .estado-abierta {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .estado-pagada {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .estado-liberada {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .estado-cancelada {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .estado-vencida {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* ========================================
+           EMPTY STATE
+           ======================================== */
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        background: white;
+        border-radius: 12px;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+        .empty-icon i {
+            display: block;
+        }
+
+    .empty-state h3 {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state .text-muted {
+        margin-bottom: 1.5rem;
+    }
+
+    /* ========================================
+           ALERTA DE VENCIMIENTO
+           ======================================== */
+
+    .alerta-vencimiento {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+        .alerta-vencimiento i {
+            color: #856404;
+        }
+
+    /* ========================================
+           RESPONSIVE - TABLET (768px - 991px)
+           ======================================== */
+
+    @@media (max-width: 991.98px) {
+        .factura-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .factura-titulo h1 {
+            font-size: 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item.full {
+            grid-column: 1;
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - MOBILE ( 768px)
+           ======================================== */
+
+    @@media (max-width: 767.98px) {
+        .factura-wrapper {
+            padding: 1rem 0;
+        }
+
+        .factura-container {
+            padding: 0 0.75rem;
+        }
+
+        .factura-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .factura-titulo-fila {
+            flex-direction: column;
+        }
+
+        .factura-titulo h1 {
+            font-size: 1.25rem;
+        }
+
+        .factura-estado {
+            width: 100%;
+        }
+
+        .factura-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .factura-sidebar {
+            order: 2;
+        }
+
+        .factura-contenido {
+            order: 1;
+        }
+
+        /* Tabla → Cards en móvil */
+        .tabla-responsive {
+            display: none;
+        }
+
+        .articulos-mobile {
+            display: flex;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-resumen {
+            border-radius: 8px;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .acciones {
+            gap: 0.5rem;
+        }
+
+            .acciones .btn {
+                padding: 0.625rem 0.875rem;
+                font-size: 0.85rem;
+            }
+    }
+
+    /* ========================================
+           RESPONSIVE - MOBILE PEQUEÑO ( 576px)
+           ======================================== */
+
+    @@media (max-width: 575.98px) {
+        .factura-breadcrumb {
+            font-size: 0.75rem;
+        }
+
+        .factura-titulo h1 {
+            font-size: 1.1rem;
+        }
+
+            .factura-titulo h1 i {
+                font-size: 1rem;
+            }
+
+        .factura-header {
+            padding: 0.75rem;
+        }
+
+        .estado-badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .info-item {
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+        }
+
+        .info-valor {
+            font-size: 0.85rem;
+        }
+
+        .card-header {
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .card-body {
+            padding: 0.875rem;
+        }
+
+        .resumen-fila {
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+
+        .resumen-label,
+        .resumen-valor {
+            font-size: 0.85rem;
+        }
+
+        .acciones .btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .articulo-card {
+            padding: 0.625rem;
+        }
+
+        .articulo-codigo {
+            font-size: 0.8rem;
+        }
+
+        .articulo-total {
+            font-size: 0.8rem;
+        }
+
+        .articulo-desc {
+            font-size: 0.8rem;
+        }
+
+        .articulo-detalles {
+            font-size: 0.7rem;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.1rem;
+        }
+    }
+
+    /* ========================================
+           SPINNER Y MENSAJES
+           ======================================== */
+
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+</style>
+
+<div class="factura-wrapper">
+    <div class="factura-container">
+        @if (isLoading)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-3 text-muted">Cargando factura...</p>
+            </div>
+        }
+        else if (invoice == null)
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <h3>Factura no encontrada</h3>
+                <p class="text-muted">La factura solicitada no existe o no tienes acceso a ella.</p>
+                <a href="/facturas" class="btn btn-primary" style="display: inline-block;">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Volver a Facturas
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Header -->
+            <div class="factura-header">
+                <div class="factura-breadcrumb">
+                    <a href="/facturas">Facturas</a> / <strong>Factura #@invoice.No</strong>
+                </div>
+                <div class="factura-titulo-fila">
+                    <div class="factura-titulo">
+                        <h1>
+                            <i class="bi bi-receipt"></i>
                             Factura #@invoice.No
                         </h1>
                     </div>
-                    <span class="status-badge status-large status-@GetStatusClass(invoice.Status)">
-                        @GetStatusText(invoice.Status)
-                    </span>
+                    <div class="factura-estado">
+                        <span class="estado-badge estado-@GetStatusClass(invoice.Status)">
+                            @GetStatusText(invoice.Status)
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row g-4">
-            <!-- Información de la factura -->
-            <div class="col-12 col-lg-8">
-                <!-- Cabecera de la factura -->
-                <div class="card invoice-detail-card mb-4">
-                    <div class="card-header invoice-detail-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Información de la Factura
-                        </h5>
+            <!-- Grid: Sidebar + Contenido -->
+            <div class="factura-grid">
+                <!-- SIDEBAR -->
+                <div class="factura-sidebar">
+                    <!-- Resumen de Factura -->
+                    <div class="card-resumen">
+                        <div class="card-header">
+                            <i class="bi bi-calculator"></i>
+                            Resumen Financiero
+                        </div>
+                        <div class="card-body">
+                            <div class="resumen-fila">
+                                <span class="resumen-label">Subtotal:</span>
+                                <span class="resumen-valor">@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
+                            </div>
+
+                            @if (invoice.Invoice_Discount_Value > 0)
+                            {
+                                <div class="resumen-fila descuento">
+                                    <span class="resumen-label">Descuento (@invoice.Invoice_Discount_Value.ToString("N1")%):</span>
+                                    <span class="resumen-valor valor">-@CalculateInvoiceDiscountAmount().ToString("N2") €</span>
+                                </div>
+                            }
+
+                            <div class="resumen-fila">
+                                <span class="resumen-label">Base imponible:</span>
+                                <span class="resumen-valor">@invoice.Amount.ToString("N2") €</span>
+                            </div>
+                            <div class="resumen-fila">
+                                <span class="resumen-label">IVA:</span>
+                                <span class="resumen-valor">@invoice.VAT_Amount.ToString("N2") €</span>
+                            </div>
+
+                            <div class="resumen-fila total">
+                                <span class="resumen-label">Total:</span>
+                                <span class="resumen-valor">@invoice.Amount_Including_VAT.ToString("N2") €</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-calendar3"></i>
-                                        <span>Fecha de Factura</span>
-                                    </div>
-                                    <div class="info-value">
-                                        @(DateTime.TryParse(invoice.Order_Date, out var invoiceDate) ? invoiceDate.ToString("dd/MM/yyyy") : invoice.Order_Date)
-                                    </div>
+
+                    <!-- Detalles de Factura -->
+                    <div class="card-resumen">
+                        <div class="card-header">
+                            <i class="bi bi-calendar3"></i>
+                            Fechas
+                        </div>
+                        <div class="card-body">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="bi bi-calendar-event"></i>
+                                    <span>Fecha de Factura</span>
+                                </div>
+                                <div class="info-valor">
+                                    @(DateTime.TryParse(invoice.Order_Date, out var orderDate) ? orderDate.ToString("dd/MM/yyyy") : invoice.Order_Date)
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-calendar-check"></i>
-                                        <span>Fecha de Contabilización</span>
-                                    </div>
-                                    <div class="info-value">
-                                        @(DateTime.TryParse(invoice.Posting_Date, out var postingDate) ? postingDate.ToString("dd/MM/yyyy") : invoice.Posting_Date)
-                                    </div>
+                            <div class="info-item" style="margin-top: 0.75rem;">
+                                <div class="info-label">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <span>Fecha de Contabilización</span>
+                                </div>
+                                <div class="info-valor">
+                                    @(DateTime.TryParse(invoice.Posting_Date, out var postingDate) ? postingDate.ToString("dd/MM/yyyy") : invoice.Posting_Date)
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-calendar-event"></i>
-                                        <span>Fecha de Vencimiento</span>
-                                    </div>
-                                    <div class="info-value">
-                                        @(DateTime.TryParse(invoice.Expected_Receipt_Date, out var dueDate) ? dueDate.ToString("dd/MM/yyyy") : invoice.Expected_Receipt_Date)
-                                    </div>
+                            <div class="info-item" style="margin-top: 0.75rem;">
+                                <div class="info-label">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    <span>Fecha de Vencimiento</span>
+                                </div>
+                                <div class="info-valor">
+                                    @(DateTime.TryParse(invoice.Expected_Receipt_Date, out var dueDate) ? dueDate.ToString("dd/MM/yyyy") : invoice.Expected_Receipt_Date)
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="acciones">
+                        <button class="btn btn-primary" @onclick="DownloadInvoice" disabled="@isDownloading">
+                            @if (isDownloading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                <span>Generando PDF...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-download me-2"></i>
+                                <span>Descargar PDF</span>
+                            }
+                        </button>
+                        <a href="/facturas" class="btn btn-outline">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Volver a Facturas
+                        </a>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO PRINCIPAL -->
+                <div class="factura-contenido">
+                    <!-- Información de Cliente -->
+                    <div class="card-resumen">
+                        <div class="card-header">
+                            <i class="bi bi-person-vcard"></i>
+                            Información de la Factura
+                        </div>
+                        <div class="card-body">
+                            <div class="info-grid">
                                 <div class="info-item">
                                     <div class="info-label">
                                         <i class="bi bi-building"></i>
                                         <span>Cliente</span>
                                     </div>
-                                    <div class="info-value">
-                                        @invoice.Sell_to_Customer_Name
-                                    </div>
+                                    <div class="info-valor">@invoice.Sell_to_Customer_Name</div>
                                 </div>
-                            </div>
-                            <div class="col-12">
                                 <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="bi bi-hash"></i>
+                                        <span>Código Cliente</span>
+                                    </div>
+                                    <div class="info-valor">@invoice.Sell_to_Customer_No</div>
+                                </div>
+                                <div class="info-item full">
                                     <div class="info-label">
                                         <i class="bi bi-geo-alt"></i>
                                         <span>Dirección de Facturación</span>
                                     </div>
-                                    <div class="info-value">
+                                    <div class="info-valor">
                                         @invoice.Sell_to_Address<br />
                                         @invoice.Sell_to_County<br />
                                         @invoice.Sell_to_City, @invoice.Sell_to_Post_Code
@@ -129,253 +860,90 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Líneas de la factura -->
-                <div class="card invoice-detail-card">
-                    <div class="card-header invoice-detail-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-list-ul me-2"></i>
+                    <!-- Líneas de Factura -->
+                    <div class="card-resumen">
+                        <div class="card-header">
+                            <i class="bi bi-list-ul"></i>
                             Detalle de la Factura
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        @if (GetInvoiceLines().Any())
-                        {
-                            <!-- Tabla para Desktop -->
-                            <div class="table-responsive d-none d-md-block">
-                                <table class="table table-hover invoice-lines-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Cód.</th>
-                                            <th>Descripción</th>
-                                            <th class="text-center">Cantidad</th>
-                                            <th class="text-end">Precio Unit.</th>
-                                            <th class="text-end">IVA %</th>
-                                            <th class="text-end">Desc.</th>
-                                            <th class="text-end">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var line in GetInvoiceLines())
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <small>@line.No</small>
-                                                </td>
-                                                <td>
-                                                    <div class="line-description">
-                                                        @line.Description
-                                                        @if (!string.IsNullOrEmpty(line.Unit_of_Measure))
-                                                        {
-                                                            <small class="text-muted d-block">Unidad: @line.Unit_of_Measure</small>
-                                                        }
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="quantity-badge">@line.Quantity</span>
-                                                </td>
-                                                <td class="text-end">@line.Unit_Price.ToString("N2") €</td>
-                                                <td class="text-end">
-                                                    <span class="vat-badge">@line.VAT_Percent.ToString("N0")%</span>
-                                                </td>
-                                                <td class="text-end">
-                                                    @if (line.Line_Discount_Percent > 0)
-                                                    {
-                                                        <span class="text-success">@line.Line_Discount_Percent.ToString("N1")%</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-muted">-</span>
-                                                    }
-                                                </td>
-                                                <td class="text-end">
-                                                    <strong>@line.Amount.ToString("N2") €</strong>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Vista móvil sin código de artículo -->
-                            <div class="d-md-none mobile-invoice-lines">
-                                @foreach (var line in GetInvoiceLines())
-                                {
-                                    <div class="mobile-line-item">
-                                        <div class="mobile-line-header">
-                                            <div class="mobile-line-description">
-                                                <strong>@line.Description</strong>
-                                                @if (!string.IsNullOrEmpty(line.Unit_of_Measure))
-                                                {
-                                                    <small class="text-muted d-block">Unidad: @line.Unit_of_Measure</small>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="mobile-line-details">
-                                            <div class="mobile-line-row">
-                                                <span class="mobile-label">Cantidad:</span>
-                                                <span class="mobile-value">@line.Quantity</span>
-                                            </div>
-                                            <div class="mobile-line-row">
-                                                <span class="mobile-label">Precio Unit:</span>
-                                                <span class="mobile-value">@line.Unit_Price.ToString("N2") €</span>
-                                            </div>
-                                            <div class="mobile-line-row">
-                                                <span class="mobile-label">IVA:</span>
-                                                <span class="mobile-value">@line.VAT_Percent.ToString("N0")%</span>
-                                            </div>
-                                            @if (line.Line_Discount_Percent > 0)
-                                            {
-                                                <div class="mobile-line-row">
-                                                    <span class="mobile-label">Descuento:</span>
-                                                    <span class="mobile-value text-success">@line.Line_Discount_Percent.ToString("N1")%</span>
-                                                </div>
-                                            }
-                                            <div class="mobile-line-row mobile-line-total">
-                                                <span class="mobile-label">Total:</span>
-                                                <span class="mobile-value"><strong>@line.Amount.ToString("N2") €</strong></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="p-4 text-center text-muted">
-                                <i class="bi bi-inbox display-6"></i>
-                                <p class="mt-2">No hay líneas de factura disponibles</p>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resumen y acciones -->
-            <div class="col-12 col-lg-4">
-                <div class="card invoice-detail-card">
-                    <div class="card-header invoice-detail-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-calculator me-2"></i>
-                            Resumen de la Factura
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="invoice-summary">
-                            @if (invoice.Invoice_Discount_Value > 0)
-                            {
-                                <div class="summary-row">
-                                    <span>Subtotal sin descuento:</span>
-                                    <span>@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
-                                </div>
-                                <div class="summary-row discount">
-                                    <span>Descuento en factura (@invoice.Invoice_Discount_Value.ToString("N1")%):</span>
-                                    <span>-@CalculateInvoiceDiscountAmount().ToString("N2") €</span>
-                                </div>
-                            }
-                            <div class="summary-row">
-                                <span>Base imponible:</span>
-                                <span>@invoice.Amount.ToString("N2") €</span>
-                            </div>
-                            <div class="summary-row">
-                                <span>IVA:</span>
-                                <span>@invoice.VAT_Amount.ToString("N2") €</span>
-                            </div>
-                            <hr />
-                            <div class="summary-row total">
-                                <span>Total a Pagar:</span>
-                                <span>@invoice.Amount_Including_VAT.ToString("N2") €</span>
-                            </div>
-                        </div>
-
-                        <div class="invoice-actions mt-4">
-                            <button class="btn btn-success w-100 mb-2"
-                                    @onclick="DownloadInvoice"
-                                    disabled="@isDownloading">
-                                @if (isDownloading)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    <span>Generando PDF...</span>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-download me-2"></i>
-                                    <span>Descargar PDF</span>
-                                }
-                            </button>
-
-                            @if (invoice.Status?.ToLower() != "paid")
-                            {
-                               @*  <button class="btn btn-outline-success w-100 mb-2" @onclick="PayInvoice">
-                                    <i class="bi bi-credit-card me-2"></i>
-                                    Pagar Factura
-                                </button> *@
-
-                                @if (IsOverdue())
-                                {
-                                    <div class="alert alert-warning mt-3">
-                                        <i class="bi bi-exclamation-triangle me-2"></i>
-                                        <strong>Factura Vencida</strong><br />
-                                        Esta factura está vencida. Por favor, procedan al pago.
-                                    </div>
-                                }
-                            }
-
-                            else
-                            {
-                                <div class="alert alert-success mt-3">
-                                    <i class="bi bi-check-circle me-2"></i>
-                                    <strong>Factura Pagada</strong><br />
-                                    Esta factura ya ha sido abonada.
-                                </div>
-                            }
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(downloadMessage))
-                        {
-                            <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
-                                <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
-                                @downloadMessage
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Información adicional -->
-                @if (!string.IsNullOrEmpty(invoice.Usuario_App))
-                {
-                    <div class="card invoice-detail-card mt-4">
-                        <div class="card-header invoice-detail-header">
-                            <h6 class="card-title mb-0">
-                                <i class="bi bi-person me-2"></i>
-                                Información Adicional
-                            </h6>
                         </div>
                         <div class="card-body">
-                            <div class="info-item">
-                                <div class="info-label">
-                                    <i class="bi bi-person-circle"></i>
-                                    <span>Usuario</span>
-                                </div>
-                                <div class="info-value">@invoice.Usuario_App</div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(invoice.Location_Code))
+                            @if (GetInvoiceLines().Any())
                             {
-                                <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-building"></i>
-                                        <span>Almacén</span>
-                                    </div>
-                                    <div class="info-value">@invoice.Location_Code</div>
+                                <!-- Desktop: Tabla -->
+                                <div class="tabla-responsive">
+                                    <table class="tabla-articulos">
+                                        <thead>
+                                            <tr>
+                                                <th>Código</th>
+                                                <th>Descripción</th>
+                                                <th>Cantidad</th>
+                                                <th>Precio Unitario</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var line in GetInvoiceLines())
+                                            {
+                                                <tr>
+                                                    <td><span class="codigo">@line.No</span></td>
+                                                    <td><span class="descripcion">@line.Description</span></td>
+                                                    <td><span class="cantidad">@line.Quantity</span></td>
+                                                    <td><span class="precio">@(line.Unit_Price.ToString("N2")) €</span></td>
+                                                    <td><span class="total">@((line.Quantity * line.Unit_Price).ToString("N2")) €</span></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
+
+                                <!-- Mobile: Cards -->
+                                <div class="articulos-mobile">
+                                    @foreach (var line in GetInvoiceLines())
+                                    {
+                                        <div class="articulo-card">
+                                            <div class="articulo-header">
+                                                <span class="articulo-codigo">@line.No</span>
+                                                <span class="articulo-total">@((line.Quantity * line.Unit_Price).ToString("N2")) €</span>
+                                            </div>
+                                            <div class="articulo-desc">@line.Description</div>
+                                            <div class="articulo-detalles">
+                                                <span><strong>@line.Quantity</strong> unidad(es)</span>
+                                                <span>@(line.Unit_Price.ToString("N2")) € c/u</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p style="color: #6c757d; text-align: center;">No hay líneas en esta factura.</p>
                             }
                         </div>
                     </div>
-                }
+
+                    <!-- Alerta de Vencimiento -->
+                    @if (IsOverdue())
+                    {
+                        <div class="alerta-vencimiento">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Factura Vencida</strong><br />
+                            <small>Esta factura está vencida. Por favor, procede al pago urgentemente.</small>
+                        </div>
+                    }
+
+                    <!-- Mensajes de Descarga -->
+                    @if (!string.IsNullOrEmpty(downloadMessage))
+                    {
+                        <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
+                            <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
+                            @downloadMessage
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @code {
@@ -398,14 +966,12 @@
         isLoading = true;
         try
         {
-            // ✅ CORREGIDO: Validar autenticación en lugar de CustomerNo
             if (!Auth.IsAuthenticated)
             {
                 Nav.NavigateTo("/login");
                 return;
             }
 
-            // ✅ CORREGIDO: No pasar customerNo - InvoiceService usa GetEffectiveCustomerNo() internamente
             invoice = await InvoiceService.GetOrderByIdAsync(InvoiceId);
         }
         catch (Exception ex)
@@ -429,28 +995,18 @@
                new List<OrderNAVLineas>();
     }
 
-    /// <summary>
-    /// Calcula el subtotal ANTES del descuento de factura.
-    /// Como Amount ya incluye el descuento aplicado, calculamos hacia atrás:
-    /// SubtotalSinDescuento = Amount / (1 - (Invoice_Discount_Value / 100))
-    /// </summary>
     private double CalculateSubtotalBeforeDiscount()
     {
         if (invoice == null) return 0;
 
         if (invoice.Invoice_Discount_Value > 0)
         {
-            // Calculamos el subtotal original antes del descuento
             return invoice.Amount / (1 - (invoice.Invoice_Discount_Value / 100));
         }
 
         return invoice.Amount;
     }
 
-    /// <summary>
-    /// Calcula el importe del descuento de factura.
-    /// ImporteDescuento = SubtotalSinDescuento - Amount
-    /// </summary>
     private double CalculateInvoiceDiscountAmount()
     {
         if (invoice == null) return 0;
@@ -466,9 +1022,7 @@
         try
         {
             var payload = new { numero = InvoiceId };
-            var respCR = await Api.PostAsync(
-                   "customReports(1)/Microsoft.NAV.GenerateInvoiceWithLayout",
-                   payload);
+            var respCR = await Api.PostAsync("customReports(1)/Microsoft.NAV.GenerateInvoiceWithLayout", payload);
 
             if (respCR.IsSuccessStatusCode)
             {
@@ -477,61 +1031,43 @@
                 var rootCR = docCR.RootElement;
                 string? b64CR = null;
 
-                if (rootCR.TryGetProperty("data", out var dataElCR) &&
-                    dataElCR.TryGetProperty("value", out var valueElCR))
-                {
+                if (rootCR.TryGetProperty("data", out var dataElCR) && dataElCR.TryGetProperty("value", out var valueElCR))
                     b64CR = valueElCR.GetString();
-                }
                 else if (rootCR.TryGetProperty("value", out var valueEl2CR))
-                {
                     b64CR = valueEl2CR.GetString();
-                }
 
                 if (!string.IsNullOrWhiteSpace(b64CR))
                 {
                     var fileName = $"Factura_{InvoiceId}_{DateTime.Now:yyyyMMdd}.pdf";
-                    await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64",
-                        b64CR,
-                        fileName,
-                        "application/pdf");
+                    await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64", b64CR, fileName, "application/pdf");
 
-                    downloadMessage = "PDF descargado correctamente";
+                    downloadMessage = "✓ PDF descargado correctamente";
                     downloadSuccess = true;
 
-                    _ = Task.Delay(3000).ContinueWith(_ =>
-                    {
-                        downloadMessage = "";
-                        InvokeAsync(StateHasChanged);
-                    });
+                    _ = Task.Delay(3000).ContinueWith(_ => { downloadMessage = ""; InvokeAsync(StateHasChanged); });
                 }
                 else
                 {
-                    downloadMessage = "No se pudo generar el PDF";
+                    downloadMessage = "✗ No se pudo generar el PDF";
                     downloadSuccess = false;
                 }
             }
             else
             {
-                downloadMessage = $"Error al generar el PDF: {respCR.StatusCode}";
+                downloadMessage = $"✗ Error al generar el PDF: {respCR.StatusCode}";
                 downloadSuccess = false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error downloading invoice: {ex.Message}");
-            downloadMessage = "Error al descargar el PDF. Inténtalo de nuevo.";
+            downloadMessage = "✗ Error al descargar el PDF. Inténtalo de nuevo.";
             downloadSuccess = false;
         }
         finally
         {
             isDownloading = false;
         }
-    }
-
-    private async Task PayInvoice()
-    {
-        Console.WriteLine($"Iniciando pago para factura: {InvoiceId}");
-        // Implementar proceso de pago
     }
 
     private bool IsOverdue()
@@ -543,20 +1079,20 @@
         return false;
     }
 
-    private string GetStatusClass(string status)
+    private string GetStatusClass(string? status)
     {
         return status?.ToLower() switch
         {
-            "open" => "pending",
-            "released" => "released",
-            "paid" => "paid",
-            "cancelled" => "cancelled",
-            "overdue" => "overdue",
-            _ => "unknown"
+            "open" => "abierta",
+            "released" => "liberada",
+            "paid" => "pagada",
+            "cancelled" => "cancelada",
+            "overdue" => "vencida",
+            _ => "abierta"
         };
     }
 
-    private string GetStatusText(string status)
+    private string GetStatusText(string? status)
     {
         return status?.ToLower() switch
         {
@@ -565,7 +1101,7 @@
             "paid" => "Pagada",
             "cancelled" => "Cancelada",
             "overdue" => "Vencida",
-            _ => status ?? "Abierta"
+            _ => status ?? "Desconocido"
         };
     }
 }

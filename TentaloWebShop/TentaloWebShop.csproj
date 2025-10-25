@@ -17,8 +17,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Syncfusion.Blazor.Chart3D" Version="30.2.7" />
-    <PackageReference Include="Syncfusion.Licensing" Version="30.2.7" />
+    <PackageReference Include="Syncfusion.Blazor.Charts" Version="31.2.3" />
+    <PackageReference Include="Syncfusion.Licensing" Version="31.2.3" />
   </ItemGroup>
 
 </Project>

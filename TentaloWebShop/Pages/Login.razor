@@ -53,22 +53,22 @@
         align-items: center;
         justify-content: center;
         padding: 20px;
+        overflow: hidden;
+        background-color: #f8f9fa;
     }
 
     .login-background-image {
-        position: absolute;
+        position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 100%;
-        height: 100%;
-        max-width: 1200px;
-        max-height: 1200px;
+        width: 150%;
+        height: 150%;
         background-image: url('/images/entradaweider.png');
-        background-size: contain;
+        background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        opacity: 0.15;
+        opacity: 0.12;
         z-index: 0;
     }
 
@@ -76,21 +76,41 @@
         position: relative;
         z-index: 1;
         width: 100%;
-        max-width: 480px;
+        max-width: none;
     }
 
         .login-content-wrapper .card {
-            background-color: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(10px);
+            max-width: 450px;
+            margin: 0 auto;
+            border: none !important;
+            border-radius: 8px;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .login-content-wrapper .card-body {
+            border: none !important;
+            padding: 1.5rem;
+        }
+
+        .login-content-wrapper .form-control {
+            border: 1px solid #dee2e6 !important;
+            box-shadow: none !important;
+        }
+
+        .login-content-wrapper .form-label {
+            color: #333;
+            font-weight: 500;
         }
 
         .login-content-wrapper h1 {
             text-align: center;
             margin-bottom: 2rem;
-        }
-
-        .login-content-wrapper .card {
-            margin: 0 auto;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
         }
 
     /* Responsive adjustments */
@@ -98,8 +118,8 @@
         .login-background-image
 
     {
-        max-width: 800px;
-        max-height: 800px;
+        width: 120%;
+        height: 120%;
     }
 
     }
@@ -112,12 +132,16 @@
     }
 
     .login-background-image {
-        max-width: 600px;
-        max-height: 600px;
+        width: 100%;
+        height: 100%;
     }
 
     .login-content-wrapper h1 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+    }
+
+    .login-content-wrapper .card {
+        max-width: 100%;
     }
 
     }

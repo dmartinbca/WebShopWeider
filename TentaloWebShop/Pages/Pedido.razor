@@ -1,4 +1,4 @@
-﻿@page "/pedido/{OrderId}"
+@page "/pedido/{OrderId}"
 @inject OrderService OrderService
 @inject AuthService Auth
 @inject NavigationManager Nav
@@ -8,343 +8,841 @@
 
 <PageTitle>Pedido #@OrderId</PageTitle>
 
-<div class="container-fluid">
-    @if (isLoading)
-    {
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-3 text-muted">Cargando pedido...</p>
-        </div>
+<style>
+    /* ========================================
+           LAYOUT Y CONTAINER
+           ======================================== */
+
+    .pedido-wrapper {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 1.5rem 0;
     }
-    else if (order == null)
-    {
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="bi bi-exclamation-triangle"></i>
-            </div>
-            <h3>Pedido no encontrado</h3>
-            <p class="text-muted">El pedido solicitado no existe o no tienes acceso a él.</p>
-            <a href="/pedidos" class="btn btn-primary">
-                <i class="bi bi-arrow-left me-2"></i>
-                Volver a Pedidos
-            </a>
-        </div>
+
+    .pedido-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
     }
-    else
-    {
-        <!-- Header del pedido -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="/pedidos">Pedidos</a></li>
-                                <li class="breadcrumb-item active">Pedido #@order.No</li>
-                            </ol>
-                        </nav>
-                        <h1 class="mb-0">
-                            <i class="bi bi-receipt me-2"></i>
+
+    /* ========================================
+           HEADER - BREADCRUMB Y TÍTULO
+           ======================================== */
+
+    .pedido-header {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .pedido-breadcrumb {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.75rem;
+    }
+
+        .pedido-breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+            .pedido-breadcrumb a:hover {
+                text-decoration: underline;
+            }
+
+    .pedido-titulo-fila {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .pedido-titulo {
+        flex: 1;
+        min-width: 200px;
+    }
+
+        .pedido-titulo h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .pedido-titulo h1 i {
+                color: #dc3545;
+            }
+
+    .pedido-estado {
+        flex-shrink: 0;
+    }
+
+    /* ========================================
+           CONTENIDO PRINCIPAL - GRID
+           ======================================== */
+
+    .pedido-grid {
+        display: grid;
+        grid-template-columns: 1fr 2.5fr;
+        gap: 1.5rem;
+    }
+
+    /* ========================================
+           SIDEBAR - RESUMEN Y ACCIONES
+           ======================================== */
+
+    .pedido-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .card-resumen {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .card-header i {
+            font-size: 1.25rem;
+        }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========================================
+           RESUMEN DEL PEDIDO
+           ======================================== */
+
+    .resumen-fila {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        font-size: 0.95rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .resumen-fila:last-child {
+            border-bottom: none;
+        }
+
+        .resumen-fila.total {
+            border-top: 2px solid #dee2e6;
+            margin-top: 0.75rem;
+            padding-top: 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .resumen-fila.descuento .valor {
+            color: #dc3545;
+        }
+
+    .resumen-label {
+        color: #495057;
+        flex: 1;
+    }
+
+    .resumen-valor {
+        color: #2c3e50;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    /* ========================================
+           BOTONES DE ACCIÓN
+           ======================================== */
+
+    .acciones {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+        .acciones .btn {
+            width: 100%;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .acciones .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+
+            .acciones .btn-primary:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+            }
+
+        .acciones .btn-outline {
+            background: white;
+            color: #dc3545;
+            border: 2px solid #dc3545;
+        }
+
+            .acciones .btn-outline:hover:not(:disabled) {
+                background: #dc3545;
+                color: white;
+            }
+
+        .acciones .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    /* ========================================
+           CONTENIDO PRINCIPAL
+           ======================================== */
+
+    .pedido-contenido {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* ========================================
+           INFO DEL PEDIDO
+           ======================================== */
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .info-label i {
+            color: #007bff;
+        }
+
+    .info-valor {
+        font-size: 0.95rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .info-item.full {
+        grid-column: 1 / -1;
+    }
+
+    /* ========================================
+           TABLA DE ARTÍCULOS - DESKTOP
+           ======================================== */
+
+    /* BASE: Tabla oculta por defecto */
+    .tabla-responsive {
+        display: none !important;
+        overflow-x: auto;
+    }
+
+    /* MOSTRAR tabla SOLO en desktop (≥768px) */
+    @@media (min-width: 768px) {
+        .tabla-responsive {
+            display: block !important;
+        }
+    }
+
+    /* Ajustes para Tablet (768px - 991px) - Ocultar Precio Unitario */
+    @@media (min-width: 768px) and (max-width: 991.98px) {
+        .tabla-articulos th:nth-child(4),
+        .tabla-articulos td:nth-child(4) {
+            display: none;
+        }
+
+        .tabla-articulos th,
+        .tabla-articulos td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .codigo {
+            font-size: 0.8rem;
+        }
+
+        .descripcion {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .tabla-articulos {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+        .tabla-articulos thead {
+            background: #f8f9fa;
+        }
+
+        .tabla-articulos th {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 0.875rem;
+        }
+
+        .tabla-articulos td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
+        }
+
+        .tabla-articulos tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+    .codigo {
+        font-weight: 700;
+        color: #2c3e50;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+    }
+
+    .descripcion {
+        color: #495057;
+    }
+
+    .cantidad {
+        text-align: center;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .precio {
+        text-align: right;
+        color: #6c757d;
+    }
+
+    .total {
+        text-align: right;
+        font-weight: 700;
+        color: #dc3545;
+        white-space: nowrap;
+        min-width: 60px;
+    }
+
+    /* ========================================
+           CARDS ARTÍCULOS - MOBILE
+           ======================================== */
+
+    /* BASE: Cards ocultas por defecto */
+    .articulos-mobile {
+        display: none !important;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* MOSTRAR cards SOLO en móvil (768px) */
+    @@media (max-width: 767.98px) {
+        .articulos-mobile {
+            display: flex !important;
+        }
+    }
+
+    .articulo-card {
+        background: white;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .articulo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .articulo-codigo {
+        font-weight: 700;
+        color: #2c3e50;
+        font-size: 0.85rem;
+        font-family: 'Courier New', monospace;
+    }
+
+    .articulo-total {
+        font-weight: 700;
+        color: #dc3545;
+        font-size: 1.1rem;
+    }
+
+    .articulo-desc {
+        color: #495057;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .articulo-detalles {
+        font-size: 0.85rem;
+        color: #6c757d;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    /* ========================================
+           ALERTAS
+           ======================================== */
+
+    .alert {
+        padding: 0.875rem 1rem;
+        border-radius: 8px;
+        border-left: 4px solid;
+        margin-top: 1rem;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+    }
+
+    /* ========================================
+           EMPTY STATE
+           ======================================== */
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    /* ========================================
+           RESPONSIVE - TABLET (768px - 991px)
+           ======================================== */
+
+    @@media (max-width: 991.98px) {
+        .pedido-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pedido-header {
+            padding: 1.25rem;
+        }
+
+        .pedido-titulo h1 {
+            font-size: 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - MOBILE (max-width: 767.98px)
+           ======================================== */
+
+    @@media (max-width: 767.98px) {
+        .pedido-wrapper {
+            padding: 1rem 0;
+        }
+
+        .pedido-container {
+            padding: 0 0.75rem;
+        }
+
+        .pedido-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pedido-titulo-fila {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .pedido-titulo h1 {
+            font-size: 1.25rem;
+        }
+
+        .pedido-estado {
+            width: 100%;
+        }
+
+        .pedido-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .card-resumen {
+            border-radius: 10px;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .acciones .btn {
+            padding: 0.625rem 0.875rem;
+            font-size: 0.9rem;
+        }
+
+        /* Las vistas de tabla y cards se manejan arriba con display: none/flex !important */
+
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - MOBILE PEQUEÑO (max-width: 575.98px)
+           ======================================== */
+
+    @@media (max-width: 575.98px) {
+        .pedido-container {
+            padding: 0 0.5rem;
+        }
+
+        .pedido-header {
+            padding: 0.875rem;
+        }
+
+        .pedido-titulo h1 {
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 0.875rem;
+        }
+
+        .resumen-fila {
+            font-size: 0.85rem;
+            padding: 0.5rem 0;
+        }
+
+        .resumen-valor {
+            font-size: 0.9rem;
+        }
+
+        .articulo-card {
+            padding: 0.875rem;
+        }
+
+        .articulo-total {
+            font-size: 1rem;
+        }
+    }
+
+    /* ========================================
+           SPINNER
+           ======================================== */
+
+    .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem 1rem;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div class="pedido-wrapper">
+    <div class="pedido-container">
+        @if (isLoading)
+        {
+            <div class="spinner-container">
+                <div class="spinner"></div>
+            </div>
+        }
+        else if (order == null)
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <h3>Pedido no encontrado</h3>
+                <p style="color: #6c757d; margin-bottom: 1.5rem;">El pedido solicitado no existe o no tienes acceso a él.</p>
+                <a href="/pedidos" class="acciones" style="display: inline-block; margin: 0;">
+                    <button class="btn btn-primary" style="width: auto; padding: 0.75rem 1.5rem;">
+                        <i class="bi bi-arrow-left me-2"></i>Volver a Pedidos
+                    </button>
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Header -->
+            <div class="pedido-header">
+                <div class="pedido-breadcrumb">
+                    <a href="/pedidos">Pedidos</a> / Pedido #@order.No
+                </div>
+                <div class="pedido-titulo-fila">
+                    <div class="pedido-titulo">
+                        <h1>
+                            <i class="bi bi-receipt"></i>
                             Pedido #@order.No
                         </h1>
                     </div>
-                    <span class="status-badge status-large status-@GetStatusClass(order.Status)">
-                        @GetStatusText(order.Status)
-                    </span>
+                    <div class="pedido-estado">
+                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; background: @GetStatusBgColor(order.Status); color: @GetStatusTextColor(order.Status);">
+                            @GetStatusText(order.Status)
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row g-4">
-            <!-- Resumen y totales - PRIMERO en móvil con order-1 -->
-            <div class="col-12 col-lg-4 order-1 order-lg-2">
-                <div class="card order-detail-card">
-                    <div class="card-header order-detail-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-calculator me-2"></i>
+            <!-- Grid Principal -->
+            <div class="pedido-grid">
+                <!-- Sidebar -->
+                <div class="pedido-sidebar">
+                    <!-- Resumen -->
+                    <div class="card-resumen">
+                        <div class="card-header">
+                            <i class="bi bi-calculator"></i>
                             Resumen del Pedido
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="order-summary">
+                        </div>
+                        <div class="card-body">
                             @if (order.Invoice_Discount_Value > 0)
                             {
-                                <div class="summary-row">
-                                    <span>Subtotal sin descuento:</span>
-                                    <span>@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
+                                <div class="resumen-fila">
+                                    <span class="resumen-label">Subtotal sin descuento:</span>
+                                    <span class="resumen-valor">@(CalculateSubtotalBeforeDiscount().ToString("N2")) €</span>
                                 </div>
-                                <div class="summary-row discount">
-                                    <span>Descuento en factura (@order.Invoice_Discount_Value.ToString("N1")%):</span>
-                                    <span>-@CalculateInvoiceDiscountAmount().ToString("N2") €</span>
+                                <div class="resumen-fila descuento">
+                                    <span class="resumen-label">Descuento (@order.Invoice_Discount_Value.ToString("N1")%):</span>
+                                    <span class="resumen-valor valor">-@(CalculateInvoiceDiscountAmount().ToString("N2")) €</span>
                                 </div>
                             }
-                            <div class="summary-row">
-                                <span>Base imponible:</span>
-                                <span>@order.Amount.ToString("N2") €</span>
+                            <div class="resumen-fila">
+                                <span class="resumen-label">Base imponible:</span>
+                                <span class="resumen-valor">@(order.Amount.ToString("N2")) €</span>
                             </div>
-                            <div class="summary-row">
-                                <span>IVA:</span>
-                                <span>@order.VAT_Amount.ToString("N2") €</span>
+                            <div class="resumen-fila">
+                                <span class="resumen-label">IVA:</span>
+                                <span class="resumen-valor">@(order.VAT_Amount.ToString("N2")) €</span>
                             </div>
-                            <hr />
-                            <div class="summary-row total">
-                                <span>Total:</span>
-                                <span>@order.Amount_Including_VAT.ToString("N2") €</span>
+                            <div class="resumen-fila total">
+                                <span class="resumen-label">Total:</span>
+                                <span class="resumen-valor">@(order.Amount_Including_VAT.ToString("N2")) €</span>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="order-actions mt-4">
-                            <button class="btn btn-primary w-100 mb-2"
-                                    @onclick="DownloadOrder"
-                                    disabled="@isDownloading">
-                                @if (isDownloading)
+                    <!-- Acciones -->
+                    <div class="acciones">
+                        <button class="btn btn-primary" @onclick="DownloadOrder" disabled="@isDownloading">
+                            @if (isDownloading)
+                            {
+                                <span>⏳ Generando PDF...</span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-download"></i> Descargar PDF</span>
+                            }
+                        </button>
+                        @if (order.Status?.ToLower() == "open")
+                        {
+                            <button class="btn btn-outline" @onclick="CancelOrder" disabled="@isCanceling">
+                                @if (isCanceling)
                                 {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    <span>Generando PDF...</span>
+                                    <span>⏳ Cancelando...</span>
                                 }
                                 else
                                 {
-                                    <i class="bi bi-download me-2"></i>
-                                    <span>Descargar PDF</span>
+                                    <span><i class="bi bi-x-circle"></i> Cancelar Pedido</span>
                                 }
                             </button>
-                            @if (order.Status?.ToLower() == "open")
-                            {
-                                <button class="btn btn-outline-danger w-100"
-                                        @onclick="CancelOrder"
-                                        disabled="@isCanceling">
-                                    @if (isCanceling)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                        <span>Cancelando Pedido...</span>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-x-circle me-2"></i>
-                                        <span>Cancelar Pedido</span>
-                                    }
-                                </button>
-                            }
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(downloadMessage))
-                        {
-                            <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
-                                <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
-                                @downloadMessage
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(cancelMessage))
-                        {
-                            <div class="alert @(cancelSuccess ? "alert-success" : "alert-danger") mt-3 mb-0" role="alert">
-                                <i class="bi @(cancelSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
-                                @cancelMessage
-                            </div>
                         }
                     </div>
+
+                    @if (!string.IsNullOrEmpty(downloadMessage))
+                    {
+                        <div class="alert @(downloadSuccess ? "alert-success" : "alert-danger")">
+                            @downloadMessage
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(cancelMessage))
+                    {
+                        <div class="alert @(cancelSuccess ? "alert-success" : "alert-danger")">
+                            @cancelMessage
+                        </div>
+                    }
                 </div>
 
-                <!-- Información adicional -->
-                @if (!string.IsNullOrEmpty(order.Usuario_App))
-                {
-                    <div class="card order-detail-card mt-4">
-                        <div class="card-header order-detail-header">
-                            <h6 class="card-title mb-0">
-                                <i class="bi bi-person me-2"></i>
-                                Información Adicional
-                            </h6>
+                <!-- Contenido Principal -->
+                <div class="pedido-contenido">
+                    <!-- Información del Pedido -->
+                    <div class="card-resumen">
+                        <div class="card-header">
+                            <i class="bi bi-info-circle"></i>
+                            Información del Pedido
                         </div>
                         <div class="card-body">
-                            <div class="info-item">
-                                <div class="info-label">
-                                    <i class="bi bi-person-circle"></i>
-                                    <span>Usuario</span>
-                                </div>
-                                <div class="info-value">@order.Usuario_App</div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(order.Location_Code))
-                            {
+                            <div class="info-grid">
                                 <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-building"></i>
-                                        <span>Almacén</span>
-                                    </div>
-                                    <div class="info-value">@order.Location_Code</div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <!-- Información del pedido - SEGUNDO en móvil con order-2 -->
-            <div class="col-12 col-lg-8 order-2 order-lg-1">
-                <!-- Cabecera del pedido -->
-                <div class="card order-detail-card mb-4">
-                    <div class="card-header order-detail-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Información del Pedido
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-calendar3"></i>
-                                        <span>Fecha de Pedido</span>
-                                    </div>
-                                    <div class="info-value">
+                                    <span class="info-label"><i class="bi bi-calendar"></i> Fecha de Pedido</span>
+                                    <span class="info-valor">
                                         @(DateTime.TryParse(order.Order_Date, out var orderDate) ? orderDate.ToString("dd/MM/yyyy") : order.Order_Date)
-                                    </div>
+                                    </span>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
                                 <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-calendar-check"></i>
-                                        <span>Fecha de Entrega</span>
-                                    </div>
-                                    <div class="info-value">
+                                    <span class="info-label"><i class="bi bi-calendar-check"></i> Fecha de Entrega</span>
+                                    <span class="info-valor">
                                         @(DateTime.TryParse(order.Expected_Receipt_Date, out var receiptDate) ? receiptDate.ToString("dd/MM/yyyy") : order.Expected_Receipt_Date)
-                                    </div>
+                                    </span>
                                 </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="info-item">
-                                    <div class="info-label">
-                                        <i class="bi bi-geo-alt"></i>
-                                        <span>Dirección de Entrega</span>
-                                    </div>
-                                    <div class="info-value">
+                                <div class="info-item full">
+                                    <span class="info-label"><i class="bi bi-geo-alt"></i> Dirección de Entrega</span>
+                                    <span class="info-valor">
                                         @order.Sell_to_Address<br />
                                         @order.Sell_to_County<br />
                                         @order.Sell_to_City, @order.Sell_to_Post_Code
-                                    </div>
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Líneas del pedido -->
-                <div class="card order-detail-card">
-                    <div class="card-header order-detail-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-list-ul me-2"></i>
+                    <!-- Artículos -->
+                    <div class="card-resumen">
+                        <div class="card-header">
+                            <i class="bi bi-list-ul"></i>
                             Artículos del Pedido
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        @if (GetOrderLines().Any())
-                        {
-                            <!-- Tabla para Desktop -->
-                            <div class="table-responsive d-none d-md-block">
-                                <table class="table table-hover order-lines-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Cod.</th>
-                                            <th>Descripción</th>
-                                            <th class="text-center">Cantidad</th>
-                                            <th class="text-end">Precio</th>
-                                            <th class="text-end">Desc.</th>
-                                            <th class="text-end">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var line in GetOrderLines())
-                                        {
+                        </div>
+                        <div class="card-body">
+                            @if (GetOrderLines().Any())
+                            {
+                                <!-- Desktop: Tabla -->
+                                <div class="tabla-responsive">
+                                    <table class="tabla-articulos">
+                                        <thead>
                                             <tr>
-                                                <td>
-                                                    <small>@line.No</small>
-                                                </td>
-                                                <td>
-                                                    <div class="line-description">
-                                                        @line.Description
-                                                        @if (!string.IsNullOrEmpty(line.Unit_of_Measure))
-                                                        {
-                                                            <small class="text-muted d-block">Unidad: @line.Unit_of_Measure</small>
-                                                        }
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="quantity-badge">@line.Quantity</span>
-                                                </td>
-                                                <td class="text-end">@line.Unit_Price.ToString("N2") €</td>
-                                                <td class="text-end">
-                                                    @if (line.Line_Discount_Percent > 0)
-                                                    {
-                                                        <span class="text-success">@line.Line_Discount_Percent.ToString("N1")%</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-muted">-</span>
-                                                    }
-                                                </td>
-                                                <td class="text-end">
-                                                    <strong>@line.Amount.ToString("N2") €</strong>
-                                                </td>
+                                                <th>Código</th>
+                                                <th>Descripción</th>
+                                                <th>Cantidad</th>
+                                                <th>Precio Unitario</th>
+                                                <th>Total</th>
                                             </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Vista móvil sin código de artículo -->
-                            <div class="d-md-none mobile-order-lines">
-                                @foreach (var line in GetOrderLines())
-                                {
-                                    <div class="mobile-line-item">
-                                        <div class="mobile-line-header">
-                                            <div class="mobile-line-description">
-                                                <strong>@line.Description</strong>
-                                                @if (!string.IsNullOrEmpty(line.Unit_of_Measure))
-                                                {
-                                                    <small class="text-muted d-block">Unidad: @line.Unit_of_Measure</small>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="mobile-line-details">
-                                            <div class="mobile-line-row">
-                                                <span class="mobile-label">Cantidad:</span>
-                                                <span class="mobile-value">@line.Quantity</span>
-                                            </div>
-                                            <div class="mobile-line-row">
-                                                <span class="mobile-label">Precio Unit:</span>
-                                                <span class="mobile-value">@line.Unit_Price.ToString("N2") €</span>
-                                            </div>
-                                            @if (line.Line_Discount_Percent > 0)
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var line in GetOrderLines())
                                             {
-                                                <div class="mobile-line-row">
-                                                    <span class="mobile-label">Desc:</span>
-                                                    <span class="mobile-value text-success">@line.Line_Discount_Percent.ToString("N1")%</span>
-                                                </div>
+                                                <tr>
+                                                    <td><span class="codigo">@line.No</span></td>
+                                                    <td><span class="descripcion">@line.Description</span></td>
+                                                    <td><span class="cantidad">@line.Quantity</span></td>
+                                                    <td><span class="precio">@(line.Unit_Price.ToString("N2")) €</span></td>
+                                                    <td><span class="total">@((line.Quantity * line.Unit_Price).ToString("N2")) €</span></td>
+                                                </tr>
                                             }
-                                            <div class="mobile-line-row mobile-line-total">
-                                                <span class="mobile-label">Total:</span>
-                                                <span class="mobile-value"><strong>@line.Amount.ToString("N2") €</strong></span>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Mobile: Cards -->
+                                <div class="articulos-mobile">
+                                    @foreach (var line in GetOrderLines())
+                                    {
+                                        <div class="articulo-card">
+                                            <div class="articulo-header">
+                                                <span class="articulo-codigo">@line.No</span>
+                                                <span class="articulo-total">@((line.Quantity * line.Unit_Price).ToString("N2")) €</span>
+                                            </div>
+                                            <div class="articulo-desc">@line.Description</div>
+                                            <div class="articulo-detalles">
+                                                <span><strong>@line.Quantity</strong> unidad(es)</span>
+                                                <span>@(line.Unit_Price.ToString("N2")) € c/u</span>
                                             </div>
                                         </div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="p-4 text-center text-muted">
-                                <i class="bi bi-inbox display-6"></i>
-                                <p class="mt-2">No hay líneas de pedido disponibles</p>
-                            </div>
-                        }
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p style="color: #6c757d; text-align: center;">No hay artículos en este pedido.</p>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @code {
@@ -370,14 +868,12 @@
         isLoading = true;
         try
         {
-            // ✅ CORREGIDO: Validar autenticación en lugar de CustomerNo
             if (!Auth.IsAuthenticated)
             {
                 Nav.NavigateTo("/login");
                 return;
             }
 
-            // ✅ CORREGIDO: No pasar customerNo - OrderService usa GetEffectiveCustomerNo() internamente
             order = await OrderService.GetOrderByIdAsync(OrderId);
         }
         catch (Exception ex)
@@ -393,29 +889,20 @@
     private List<OrderNAVLineas> GetOrderLines()
     {
         if (order == null) return new List<OrderNAVLineas>();
-
-        return order.Lines?.ToList() ??
-               order.LineasVenta?.ToList() ??
-               order.Lineas?.ToList() ??
-               new List<OrderNAVLineas>();
+        return order.Lines?.ToList() ?? order.LineasVenta?.ToList() ?? order.Lineas?.ToList() ?? new List<OrderNAVLineas>();
     }
 
     private double CalculateSubtotalBeforeDiscount()
     {
         if (order == null) return 0;
-
         if (order.Invoice_Discount_Value > 0)
-        {
             return order.Amount / (1 - (order.Invoice_Discount_Value / 100));
-        }
-
         return order.Amount;
     }
 
     private double CalculateInvoiceDiscountAmount()
     {
         if (order == null) return 0;
-
         return CalculateSubtotalBeforeDiscount() - order.Amount;
     }
 
@@ -427,9 +914,7 @@
         try
         {
             var payload = new { numero = OrderId };
-            var respCR = await Api.PostAsync(
-                   "customReports(1)/Microsoft.NAV.GenerateReportWithLayout",
-                   payload);
+            var respCR = await Api.PostAsync("customReports(1)/Microsoft.NAV.GenerateReportWithLayout", payload);
 
             if (respCR.IsSuccessStatusCode)
             {
@@ -438,49 +923,36 @@
                 var rootCR = docCR.RootElement;
                 string? b64CR = null;
 
-                if (rootCR.TryGetProperty("data", out var dataElCR) &&
-                    dataElCR.TryGetProperty("value", out var valueElCR))
-                {
+                if (rootCR.TryGetProperty("data", out var dataElCR) && dataElCR.TryGetProperty("value", out var valueElCR))
                     b64CR = valueElCR.GetString();
-                }
                 else if (rootCR.TryGetProperty("value", out var valueEl2CR))
-                {
                     b64CR = valueEl2CR.GetString();
-                }
 
                 if (!string.IsNullOrWhiteSpace(b64CR))
                 {
                     var fileName = $"Pedido_{OrderId}_{DateTime.Now:yyyyMMdd}.pdf";
-                    await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64",
-                        b64CR,
-                        fileName,
-                        "application/pdf");
-
-                    downloadMessage = "PDF descargado correctamente";
+                    await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64", b64CR, fileName, "application/pdf");
+                    downloadMessage = "✓ PDF descargado correctamente";
                     downloadSuccess = true;
 
-                    _ = Task.Delay(3000).ContinueWith(_ =>
-                    {
-                        downloadMessage = "";
-                        InvokeAsync(StateHasChanged);
-                    });
+                    _ = Task.Delay(3000).ContinueWith(_ => { downloadMessage = ""; InvokeAsync(StateHasChanged); });
                 }
                 else
                 {
-                    downloadMessage = "No se pudo generar el PDF";
+                    downloadMessage = "✗ No se pudo generar el PDF";
                     downloadSuccess = false;
                 }
             }
             else
             {
-                downloadMessage = $"Error al generar el PDF: {respCR.StatusCode}";
+                downloadMessage = $"✗ Error al generar el PDF: {respCR.StatusCode}";
                 downloadSuccess = false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error downloading order: {ex.Message}");
-            downloadMessage = "Error al descargar el PDF. Inténtalo de nuevo.";
+            downloadMessage = "✗ Error al descargar el PDF. Inténtalo de nuevo.";
             downloadSuccess = false;
         }
         finally
@@ -500,23 +972,22 @@
 
             if (res.IsSuccess)
             {
-                cancelMessage = "Pedido cancelado exitosamente. Redirigiendo...";
+                cancelMessage = "✓ Pedido cancelado exitosamente. Redirigiendo...";
                 cancelSuccess = true;
-
                 OrderService.ClearCache();
                 await Task.Delay(1500);
                 Nav.NavigateTo("/pedidos");
             }
             else
             {
-                cancelMessage = "No se pudo cancelar el pedido. Inténtalo de nuevo.";
+                cancelMessage = "✗ No se pudo cancelar el pedido. Inténtalo de nuevo.";
                 cancelSuccess = false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error canceling order: {ex.Message}");
-            cancelMessage = "Error al cancelar el pedido. Inténtalo de nuevo.";
+            cancelMessage = "✗ Error al cancelar el pedido. Inténtalo de nuevo.";
             cancelSuccess = false;
         }
         finally
@@ -526,27 +997,39 @@
         }
     }
 
-    private string GetStatusClass(string status)
+    private string GetStatusClass(string status) => status?.ToLower() switch
     {
-        return status?.ToLower() switch
-        {
-            "open" => "pending",
-            "released" => "released",
-            "closed" => "completed",
-            "cancelled" => "cancelled",
-            _ => "unknown"
-        };
-    }
+        "open" => "pending",
+        "released" => "released",
+        "closed" => "completed",
+        "cancelled" => "cancelled",
+        _ => "unknown"
+    };
 
-    private string GetStatusText(string status)
+    private string GetStatusText(string status) => status?.ToLower() switch
     {
-        return status?.ToLower() switch
-        {
-            "open" => "Abierto",
-            "released" => "Liberado",
-            "closed" => "Cerrado",
-            "cancelled" => "Cancelado",
-            _ => status ?? "Desconocido"
-        };
-    }
+        "open" => "Abierto",
+        "released" => "Liberado",
+        "closed" => "Cerrado",
+        "cancelled" => "Cancelado",
+        _ => status ?? "Desconocido"
+    };
+
+    private string GetStatusBgColor(string status) => status?.ToLower() switch
+    {
+        "open" => "#fff3cd",
+        "released" => "#d1ecf1",
+        "closed" => "#d4edda",
+        "cancelled" => "#f8d7da",
+        _ => "#e9ecef"
+    };
+
+    private string GetStatusTextColor(string status) => status?.ToLower() switch
+    {
+        "open" => "#856404",
+        "released" => "#0c5460",
+        "closed" => "#155724",
+        "cancelled" => "#721c24",
+        _ => "#495057"
+    };
 }

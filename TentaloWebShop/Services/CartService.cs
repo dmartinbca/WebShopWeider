@@ -8,10 +8,24 @@ public class CartService
     private readonly LocalStorageService _store;
     private readonly AuthService _auth;
     private const string KEY = "cart";
+    private const string KEY_OBSERVACIONES = "cart.observaciones";
     private bool _initialized;
 
     public event Action? Changed;
     public List<CartItem> Items { get; private set; } = new();
+
+    // ✅ NUEVA PROPIEDAD: Observaciones del carrito
+    private string _observaciones = "";
+    public string Observaciones
+    {
+        get => _observaciones;
+        set
+        {
+            _observaciones = value ?? "";
+            SaveObservaciones();
+            Changed?.Invoke();
+        }
+    }
 
     // Propiedades calculadas básicas
     public int TotalQuantity => Items.Sum(i => i.Quantity);
@@ -136,10 +150,12 @@ public class CartService
         try
         {
             Items = await _store.GetAsync<List<CartItem>>(KEY) ?? new();
+            _observaciones = await _store.GetAsync<string>(KEY_OBSERVACIONES) ?? "";
         }
         catch
         {
             Items = new();
+            _observaciones = "";
         }
 
         _initialized = true;
@@ -190,6 +206,8 @@ public class CartService
     public async Task Clear()
     {
         Items.Clear();
+        _observaciones = "";
+        await _store.RemoveAsync(KEY_OBSERVACIONES);
         await SaveAndNotify();
     }
 
@@ -215,12 +233,12 @@ public class CartService
         var descuentoCabecera = (double)(_auth?.CurrentCustomer?.Desgeneral ??
                                          _auth?.CurrentUser?.DescuentoFactura ?? 0);
 
-        // Pasar directamente el carrito (List<CartItem>) al RestDataService
+        // ✅ CAMBIO: Pasar Observaciones en lugar de ""
         var eprods = await _rest.PedidoVenta(
             carro,              // List<CartItem> - el carrito tal cual
             cliente,            // ✅ string cliente - código de cliente efectivo
             descuentoCabecera,  // double descuentoCabecera
-            "",                 // string Observaciones
+            Observaciones,      // ✅ string observaciones - AHORA CON VALOR REAL
             direnvio,           // string direnvio
             usuario             // string usuario
         );
@@ -245,6 +263,12 @@ public class CartService
         // 1. Si hay CurrentCustomer (cliente seleccionado por Sales Team), usar ese
         // 2. Si no, usar el CustomerNo del CurrentUser (cliente normal o vendedor sin selección)
         return _auth?.CurrentCustomer?.CustNo ?? _auth?.CurrentUser?.CustomerNo ?? "";
+    }
+
+    // ✅ MÉTODO NUEVO: Guardar observaciones
+    private async void SaveObservaciones()
+    {
+        await _store.SetAsync(KEY_OBSERVACIONES, _observaciones);
     }
 
     private async Task SaveAndNotify()

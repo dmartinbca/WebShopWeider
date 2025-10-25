@@ -1,9 +1,11 @@
 @page "/perfil"
 @inject AuthService Auth
-@using System.Globalization
 @inject EstadisticasService EstadisticasService
-@implements IDisposable
-
+@using System.Globalization
+@using Syncfusion.Blazor
+ 
+@using Syncfusion.Blazor.Charts
+@implements IAsyncDisposable
 @if (!Auth.IsAuthenticated)
 {
     <div class="alert alert-warning d-flex align-items-center">
@@ -16,161 +18,182 @@
 }
 else
 {
-    <div class="profile-container">
-        <div class="row equal-height">
-            <div class="row g-4">
-                <!-- Información del Cliente -->
-                <div class="col-12 col-xl-8">
-                    <div class="card profile-card client-info-card equal-height-card">
-                        <div class="card-header client-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-person-lines-fill me-2"></i>
-                                Información del Cliente
-                            </h5>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="row g-0">
-                                <div class="col-12 col-md-6">
-                                    <div class="client-item">
-                                        <div class="client-label">
-                                            <div class="client-icon icon-person">
-                                                <i class="bi bi-person-fill"></i>
-                                            </div>
-                                            <span>Cliente</span>
+    <div class="perfil-container">
+        <!-- Información del Cliente -->
+        <div class="row g-4">
+            <div class="col-12 col-xl-8">
+                <div class="perfil-card cliente-card">
+                    <div class="perfil-header">
+                        <h5 class="perfil-title">
+                            <i class="bi bi-person-lines-fill me-2"></i>
+                            Información del Cliente
+                        </h5>
+                    </div>
+                    <div class="perfil-body">
+                        <div class="row g-0">
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <div class="info-icon">
+                                            <i class="bi bi-person-fill"></i>
                                         </div>
-                                        <div class="client-value">@Auth.CurrentCustomer?.Name</div>
+                                        <span>Cliente</span>
+                                    </div>
+                                    <div class="info-value">@Auth.CurrentCustomer?.Name</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <div class="info-icon">
+                                            <i class="bi bi-hash"></i>
+                                        </div>
+                                        <span>Código de Cliente</span>
+                                    </div>
+                                    <div class="info-value">@Auth.CurrentCustomer?.CustNo</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <div class="info-icon">
+                                            <i class="bi bi-telephone-fill"></i>
+                                        </div>
+                                        <span>Teléfono</span>
+                                    </div>
+                                    <div class="info-value">
+                                        @if (!string.IsNullOrEmpty(Auth.CurrentCustomer?.PhoneNo))
+                                        {
+                                            @Auth.CurrentCustomer?.PhoneNo
+                                        }
+                                        else
+                                        {
+                                            <span class="no-data">No especificado</span>
+                                        }
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="col-12 col-md-6">
-                                    <div class="client-item">
-                                        <div class="client-label">
-                                            <div class="client-icon icon-code">
-                                                <i class="bi bi-upc"></i>
-                                            </div>
-                                            <span>Código</span>
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <div class="info-icon">
+                                            <i class="bi bi-envelope-fill"></i>
                                         </div>
-                                        <div class="client-value">@Auth.CurrentCustomer?.CustNo</div>
+                                        <span>Email</span>
                                     </div>
+                                    <div class="info-value">@Auth.CurrentUser?.Email</div>
                                 </div>
+                            </div>
 
-                                <div class="col-12 col-md-6">
-                                    <div class="client-item">
-                                        <div class="client-label">
-                                            <div class="client-icon icon-phone">
-                                                <i class="bi bi-telephone-fill"></i>
-                                            </div>
-                                            <span>Teléfono</span>
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <div class="info-icon">
+                                            <i class="bi bi-card-text"></i>
                                         </div>
-                                        <div class="client-value">@Auth.CurrentCustomer?.PhoneNo</div>
+                                        <span>CIF/NIF</span>
                                     </div>
+                                    <div class="info-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
                                 </div>
+                            </div>
 
-                                <div class="col-12 col-md-6">
-                                    <div class="client-item">
-                                        <div class="client-label">
-                                            <div class="client-icon icon-email">
-                                                <i class="bi bi-envelope-fill"></i>
-                                            </div>
-                                            <span>Email</span>
+                            <div class="col-12 col-md-6">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <div class="info-icon">
+                                            <i class="bi bi-geo-alt-fill"></i>
                                         </div>
-                                        <div class="client-value">@Auth.CurrentUser?.Email</div>
+                                        <span>Ciudad</span>
                                     </div>
+                                    <div class="info-value">@Auth.CurrentCustomer?.City</div>
                                 </div>
+                            </div>
 
-                                <div class="col-12 col-md-6">
-                                    <div class="client-item">
-                                        <div class="client-label">
-                                            <div class="client-icon icon-document">
-                                                <i class="bi bi-card-text"></i>
-                                            </div>
-                                            <span>CIF/NIF</span>
+                            <div class="col-12">
+                                <div class="info-item info-item-full">
+                                    <div class="info-label">
+                                        <div class="info-icon">
+                                            <i class="bi bi-map"></i>
                                         </div>
-                                        <div class="client-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
+                                        <span>Dirección Completa</span>
                                     </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="client-item client-item-full">
-                                        <div class="client-label">
-                                            <div class="client-icon icon-location">
-                                                <i class="bi bi-geo-alt-fill"></i>
-                                            </div>
-                                            <span>Dirección</span>
-                                        </div>
-                                        <div class="client-value client-address">
-                                            @Auth.CurrentCustomer?.Address<br />
-                                            @Auth.CurrentCustomer?.County<br />
-                                            @Auth.CurrentCustomer?.City, @Auth.CurrentCustomer?.PostCode
-                                        </div>
+                                    <div class="info-value address-value">
+                                        @Auth.CurrentCustomer?.Address<br />
+                                        @Auth.CurrentCustomer?.County<br />
+                                        @Auth.CurrentCustomer?.City, @Auth.CurrentCustomer?.PostCode
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Información Financiera -->
-                <div class="col-12 col-xl-4">
-                    <div class="card profile-card financial-summary-card equal-height-card">
-                        <div class="card-header financial-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-wallet2 me-2"></i>
-                                Resumen Financiero
-                            </h5>
+            <!-- Información Financiera -->
+            <div class="col-12 col-xl-4">
+                <div class="perfil-card financiero-card">
+                    <div class="perfil-header">
+                        <h5 class="perfil-title">
+                            <i class="bi bi-wallet2 me-2"></i>
+                            Resumen Financiero
+                        </h5>
+                    </div>
+                    <div class="perfil-body">
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <div class="financial-icon">
+                                    <i class="bi bi-currency-euro"></i>
+                                </div>
+                                <span>Saldo</span>
+                            </div>
+                            <div class="financial-value @(Auth.CurrentCustomer?.netChange >= 0 ? "positive" : "negative")">
+                                @Eur(Auth.CurrentCustomer?.netChange)
+                            </div>
                         </div>
-                        <div class="card-body p-0">
-                            <div class="financial-item">
-                                <div class="financial-label">
-                                    <div class="financial-icon icon-balance">
-                                        <i class="bi bi-currency-euro"></i>
-                                    </div>
-                                    <span>Saldo</span>
-                                </div>
-                                <div class="financial-value positive">@Eur(Auth.CurrentCustomer?.netChange)</div>
-                            </div>
 
-                            <div class="financial-item">
-                                <div class="financial-label">
-                                    <div class="financial-icon icon-overdue">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                    </div>
-                                    <span>Saldo vencido</span>
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <div class="financial-icon">
+                                    <i class="bi bi-exclamation-triangle"></i>
                                 </div>
-                                <div class="financial-value @(Auth.CurrentCustomer?.balanceDue > 0 ? "negative" : "neutral")">
-                                    @Eur(Auth.CurrentCustomer?.balanceDue)
-                                </div>
+                                <span>Saldo Vencido</span>
                             </div>
+                            <div class="financial-value @(Auth.CurrentCustomer?.balanceDue > 0 ? "negative" : "positive")">
+                                @Eur(Auth.CurrentCustomer?.balanceDue)
+                            </div>
+                        </div>
 
-                            <div class="financial-item">
-                                <div class="financial-label">
-                                    <div class="financial-icon icon-credit">
-                                        <i class="bi bi-credit-card"></i>
-                                    </div>
-                                    <span>Límite de crédito</span>
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <div class="financial-icon">
+                                    <i class="bi bi-credit-card"></i>
                                 </div>
-                                <div class="financial-value neutral">@Eur(Auth.CurrentCustomer?.creditLimitLCY)</div>
+                                <span>Límite de Crédito</span>
                             </div>
+                            <div class="financial-value neutral">@Eur(Auth.CurrentCustomer?.creditLimitLCY)</div>
+                        </div>
 
-                            <div class="financial-item">
-                                <div class="financial-label">
-                                    <div class="financial-icon icon-discount">
-                                        <i class="bi bi-percent"></i>
-                                    </div>
-                                    <span>Descuento general</span>
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <div class="financial-icon">
+                                    <i class="bi bi-percent"></i>
                                 </div>
-                                <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.Desgeneral)</div>
+                                <span>Descuento General</span>
                             </div>
+                            <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.Desgeneral)</div>
+                        </div>
 
-                            <div class="financial-item no-border">
-                                <div class="financial-label">
-                                    <div class="financial-icon icon-tag">
-                                        <i class="bi bi-tag"></i>
-                                    </div>
-                                    <span>Descuento PP</span>
+                        <div class="financial-item">
+                            <div class="financial-label">
+                                <div class="financial-icon">
+                                    <i class="bi bi-tag"></i>
                                 </div>
-                                <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.DescPP)</div>
+                                <span>Descuento Punto Pronto</span>
                             </div>
+                            <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.DescPP)</div>
                         </div>
                     </div>
                 </div>
@@ -178,83 +201,432 @@ else
         </div>
 
         <!-- Gráfico de Ventas -->
-        @if (Sales?.Count > 0)
-        {
-            <div class="row g-4 mt-2">
-                <div class="col-12">
-                    <div class="card profile-card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-bar-chart me-2"></i>
-                                Evolución de Ventas
-                            </h5>
-                        </div>
-                        <div class="card-body">
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="perfil-card chart-card">
+                    <div class="perfil-header">
+                        <h5 class="perfil-title">
+                            <i class="bi bi-bar-chart me-2"></i>
+                            Evolución de Ventas Mensuales
+                        </h5>
+                    </div>
+                    <div class="perfil-body chart-body">
+                        @if (Sales != null && Sales.Any())
+                        {
                             <div class="chart-container">
-                                <SfChart3D>
-                                    <Chart3DPrimaryXAxis ValueType="Syncfusion.Blazor.Chart3D.ValueType.Category"></Chart3DPrimaryXAxis>
-                                    <Chart3DSeriesCollection>
-                                        <Chart3DSeries DataSource="@Sales"
-                                                       XName="Nombre"
-                                                       YName="Numero"
-                                                       Type="Syncfusion.Blazor.Chart3D.Chart3DSeriesType.Column">
-                                        </Chart3DSeries>
-                                    </Chart3DSeriesCollection>
-                                </SfChart3D>
+                                <SfChart Title="Evolución de Ventas Mensuales" Width="100%">
+                                    <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+                                    <ChartMargin Bottom="12"></ChartMargin>
+                                    <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category">
+                                        <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+                                    </ChartPrimaryXAxis>
+                                    <ChartPrimaryYAxis    ValueType="Syncfusion.Blazor.Charts.ValueType.Double"/>
+                                 
+                                    <ChartTooltipSettings Enable="true" Format="${point.x}th Over : <b>${point.y} Runs</b>" EnableHighlight="true"></ChartTooltipSettings>
+                                    <ChartSeriesCollection>
+                                        <ChartSeries DataSource="@Sales" 
+                                                     XName="Nombre" 
+                                                     YName="VentasAA" 
+                                                     Opacity="1" 
+                                                     Name="Ventas Año Anterior" 
+                                                     Fill="@ChartPalettes[0]" 
+                                                     Width="2" 
+                                                     ColumnSpacing="0.1" 
+                                                     Type="ChartSeriesType.Column">
+                                            <ChartCornerRadius TopLeft="4" TopRight="4"></ChartCornerRadius>
+                                            <ChartMarker>
+                                                <ChartDataLabel Visible="true" Position="LabelPosition.Top">
+                                                    <ChartDataLabelFont FontWeight="600"></ChartDataLabelFont>
+                                                </ChartDataLabel>
+                                            </ChartMarker>
+                                        </ChartSeries>
+                                        <ChartSeries DataSource="@Sales" 
+                                                     XName="Nombre" 
+                                                     YName="Ventas" 
+                                                     Opacity="1" 
+                                                     Name="Ventas Año Actual" 
+                                                     Fill="@ChartPalettes[1]" 
+                                                     Width="2" 
+                                                     ColumnSpacing="0.1" 
+                                                     Type="ChartSeriesType.Column">
+                                            <ChartCornerRadius TopLeft="4" TopRight="4"></ChartCornerRadius>
+                                            <ChartMarker>
+                                                <ChartDataLabel Visible="true" Position="LabelPosition.Top">
+                                                    <ChartDataLabelFont FontWeight="600"></ChartDataLabelFont>
+                                                </ChartDataLabel>
+                                            </ChartMarker>
+                                        </ChartSeries>
+                                    </ChartSeriesCollection>
+                                    <ChartLegendSettings Visible="true" EnableHighlight="true"></ChartLegendSettings>
+                                </SfChart>
                             </div>
-                        </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info" role="alert">
+                                <i class="bi bi-info-circle me-2"></i>
+                                No hay datos de ventas disponibles para este cliente.
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
-        }
+        </div>
     </div>
 }
 
+<style>
+/* Contenedor principal */
+.perfil-container {
+    padding: 2rem 0;
+}
+
+/* Cards del perfil */
+.perfil-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.perfil-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header de card */
+.perfil-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #f9fafb 100%);
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.perfil-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+}
+
+.perfil-title i {
+    font-size: 1.35rem;
+    color: #3b82f6;
+}
+
+/* Body de card */
+.perfil-body {
+    padding: 0;
+}
+
+/* Items de información */
+.info-item {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item:hover {
+    background-color: #f9fafb;
+}
+
+.info-item-full {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.info-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: right;
+}
+
+.address-value {
+    text-align: left !important;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.no-data {
+    color: #9ca3af;
+    font-style: italic;
+    font-weight: 400;
+}
+
+/* Items financieros */
+.financial-item {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.financial-item:last-child {
+    border-bottom: none;
+}
+
+.financial-item:hover {
+    background-color: #f9fafb;
+}
+
+.financial-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.financial-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.financial-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+/* Estados de valores */
+.financial-value.positive {
+    color: #10b981;
+}
+
+.financial-value.negative {
+    color: #ef4444;
+}
+
+.financial-value.neutral {
+    color: #1f2937;
+}
+
+.financial-value.highlight {
+    color: #3b82f6;
+}
+
+/* Gráfico */
+.chart-body {
+    padding: 2rem 1rem !important;
+}
+
+.chart-container {
+    min-height: 400px;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* Responsive - Tablet */
+@@media (max-width: 1199.98px) {
+    .info-item,
+    .financial-item {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .info-label,
+    .financial-label {
+        font-size: 0.9rem;
+    }
+
+    .info-value,
+    .financial-value {
+        font-size: 1rem;
+    }
+
+    .perfil-header {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .perfil-title {
+        font-size: 1rem;
+    }
+
+    .perfil-title i {
+        font-size: 1.1rem;
+    }
+}
+
+/* Responsive - Mobile */
+@@media (max-width: 767.98px) {
+    .perfil-container {
+        padding: 1rem 0;
+    }
+
+    .perfil-card {
+        border-radius: 10px;
+    }
+
+    .perfil-header {
+        padding: 1rem 1.25rem;
+    }
+
+    .perfil-title {
+        font-size: 0.95rem;
+    }
+
+    .perfil-title i {
+        font-size: 1rem;
+    }
+
+    .info-item,
+    .financial-item {
+        padding: 1rem 1.25rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .info-label,
+    .financial-label {
+        width: 100%;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        text-align: left !important;
+        width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .financial-value {
+        text-align: left !important;
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .chart-container {
+        min-height: 300px;
+        padding: 0.5rem;
+    }
+
+    .chart-body {
+        padding: 1rem !important;
+    }
+}
+
+/* Responsive - Mobile Pequeño */
+@@media (max-width: 575.98px) {
+    .perfil-header {
+        padding: 0.875rem 1rem;
+    }
+
+    .info-item,
+    .financial-item {
+        padding: 0.875rem 1rem;
+    }
+
+    .info-icon,
+    .financial-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    .info-value,
+    .financial-value {
+        font-size: 0.9rem;
+    }
+
+    .perfil-title {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
 @code {
-    private List<Estadisticas>? Sales;
+    private static readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
+    
+    public List<Estadisticas> Sales = new();
+    
+    // ✅ Paleta de colores personalizada (Naranja y Verde)
+    private string[] ChartPalettes = new string[] { "#FF9500", "#10B981" };
 
     protected override async Task OnInitializedAsync()
     {
-        // Suscribirse al evento de cambio de cliente
-        Auth.OnCustomerChanged += OnCustomerChanged;
-
-        await LoadData();
+        // ✅ Suscribirse al evento de cambio de cliente
+        Auth.OnCustomerChanged += OnCustomerChangedAsync;
+        
+        // Cargar datos iniciales
+        await LoadProfileData();
     }
 
-    // ✅ CAMBIO: de async void a async Task
-    private async Task OnCustomerChanged()
+    // ✅ Handler que se dispara cuando cambia el cliente
+    private async Task OnCustomerChangedAsync()
     {
-        Console.WriteLine("[Perfil.razor] Cliente cambiado, refrescando datos...");
-        await LoadData();
+        Console.WriteLine("[Perfil] Cliente cambió, recargando datos...");
+        await LoadProfileData();
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task LoadData()
+    // ✅ Cargar datos del perfil (reutilizable)
+    private async Task LoadProfileData()
     {
-        if (Auth.CurrentCustomer?.CustNo != null)
+        if (Auth.IsAuthenticated && Auth.CurrentCustomer != null)
         {
-            try
-            {
-                Sales = await EstadisticasService.GetEstadisticas(Auth.CurrentCustomer.CustNo);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[ERROR Perfil.LoadData] {ex.Message}");
-                Sales = new List<Estadisticas>();
-            }
+            Sales = await EstadisticasService.GetEstadisticas(Auth.CurrentCustomer.CustNo);
         }
     }
 
-    private string Eur(decimal? value) => value.HasValue
-        ? value.Value.ToString("C", new CultureInfo("es-ES"))
-        : "-";
-
-    private string Pct(decimal? value) => value.HasValue
-        ? $"{value.Value:F2}%"
-        : "-";
-
-    public void Dispose()
+    // ✅ Limpiar suscripciones al desmontar
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        Auth.OnCustomerChanged -= OnCustomerChanged;
+        Auth.OnCustomerChanged -= OnCustomerChangedAsync;
+        await ValueTask.CompletedTask;
     }
+
+    private string Eur(decimal? v) => (v ?? 0m).ToString("C", es);
+    private string Eur(double? v) => Eur(v.HasValue ? (decimal?)v.Value : null);
+
+    private string Pct(decimal? v)
+    {
+        var d = v ?? 0m;
+        if (d > 1m) d /= 100m;
+        return d.ToString("P2", es);
+    }
+
+    private string Pct(double? v) => Pct(v.HasValue ? (decimal?)v.Value : null);
 }
