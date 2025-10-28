@@ -52,22 +52,72 @@ else
         <!-- Información del Producto -->
         <div class="col-12 col-md-7">
             <h1>@product.Name</h1>
+            <sm>EAN @product.EAN13</sm> 
             <div class="mb-2 d-flex align-items-baseline gap-2">
-                <span class="price h4 mb-0">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
+                <!-- ✅ PRECIO CON DESCUENTO -->
+                @if (descuentoProducto > 0)
+                {
+                    <span class="price-original" style="text-decoration: line-through; color: #999; font-size: 0.9em;">
+                        @product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
+                    </span>
+                    <span class="price h4 mb-0" style="color: var(--primary);">
+                        @CalculatePriceWithDiscount(product.PriceFrom, descuentoProducto).ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
+                    </span>
+                    <span class="badge bg-danger">-@descuentoProducto.ToString("0.##")%</span>
+                }
+                else
+                {
+                    <span class="price h4 mb-0">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
+                }
                 <span class="price-single">x</span>
                 <span class="price-single">@product.Presentation_Unit</span>
             </div>
 
             @if (!hasStock)
             {
-                <div class="alert alert-warning d-flex align-items-center mt-3" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <div>
-                        <strong>Producto no disponible temporalmente.</strong> Este producto está agotado en este momento.
+                <!-- ✅ ALERTA CON FECHA DE DISPONIBILIDAD -->
+                @if (IsValidDate(product.FechaCompra))
+                {
+                    <div class="alert alert-info d-flex align-items-center mt-3" role="alert">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        <div>
+                            <strong>Disponible a partir de:</strong> <span class="fecha-disponible ms-1">@FormatDateToSpanish(product.FechaCompra)</span>
+                        </div>
                     </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning d-flex align-items-center mt-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>
+                            <strong>Producto no disponible temporalmente.</strong> Este producto está agotado en este momento.
+                        </div>
+                    </div>
+                }
+            }
+            <!-- ✅ CAMPO DE DESCUENTO (Solo Sales Team) - MISMO ANCHO QUE BOTONES -->
+            @if (Auth.CurrentUser?.Tipo == "Sales Team")
+            {
+                <div class="descuento-product-container">
+                    <label class="form-label">
+                        <i class="bi bi-percent"></i>Descuento por Producto (%)
+                    </label>
+                    <div class="input-group">
+                        <input type="number"
+                               class="form-control"
+                               placeholder="0"
+                               min="0"
+                               max="100"
+                               step="0.01"
+                               @bind="descuentoProducto"
+                               @bind:event="oninput">
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <small class="form-text">
+                        Precio final: <strong>@CalculatePriceWithDiscount(product.PriceFrom, descuentoProducto).ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</strong>
+                    </small>
                 </div>
             }
-
             @* ⬇️⬇️⬇️ CAMBIO CRÍTICO AQUÍ - Cambiado de d-flex a product-actions-container ⬇️⬇️⬇️ *@
             <div class="product-actions-container my-3">
                 <QuantityStepper Value="qty"
@@ -568,6 +618,63 @@ else
             padding: 5px 10px;
         }
     }
+    /* ========================================
+           DESCUENTO - ANCHO IGUAL A BOTONES
+           ======================================== */
+
+    .descuento-product-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+        .descuento-product-container .form-label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .descuento-product-container .input-group {
+            display: flex;
+            max-width: 200px;
+        }
+
+        .descuento-product-container .form-control {
+            padding: 0.625rem 0.875rem;
+            font-size: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+
+        .descuento-product-container .input-group-text {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 0.625rem 0.875rem;
+            border-radius: 0 0.375rem 0.375rem 0;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .descuento-product-container .form-text {
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            color: #6c757d;
+        }
+
+    @@media (max-width: 767.98px) {
+        .descuento-product-container .input-group
+
+    {
+        max-width: 100%;
+    }
+
+    .descuento-product-container .form-label {
+        font-size: 0.95rem;
+    }
+
+    }
 </style>
 
 @code {
@@ -577,7 +684,7 @@ else
     private string activeTab = "description";
     private List<Stock> productStocks = new List<Stock>();
     private bool loadingStock = false;
-
+    private decimal descuentoProducto = 0;
     protected override async Task OnParametersSetAsync()
     {
         product = (await Products.GetAllAsync()).FirstOrDefault(p => p.Slug == slug);
@@ -593,8 +700,53 @@ else
     {
         if (product is not null && qty >= 1 && product.inventario100 > 0)
         {
-            await Cart.Add(product, qty);
+            // ✅ Usar AddWithDiscount para incluir el descuento
+            await Cart.AddWithDiscount(product, qty, descuentoProducto);
+
+            // ✅ Limpiar descuento después de agregar
+            descuentoProducto = 0;
         }
     }
-     
+    private decimal CalculatePriceWithDiscount(decimal price, decimal discountPercent)
+    {
+        if (discountPercent <= 0)
+            return price;
+
+        decimal descuentoAbsoluto = price * (discountPercent / 100);
+        return price - descuentoAbsoluto;
+    }
+    // ✅ MÉTODO: Valida si la fecha es válida (no es 0001-01-01)
+    private bool IsValidDate(string? dateString)
+    {
+        if (string.IsNullOrWhiteSpace(dateString))
+            return false;
+
+        if (dateString == "0001-01-01")
+            return false;
+
+        if (DateTime.TryParseExact(dateString, "yyyy-MM-dd",
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out DateTime result))
+        {
+            return result > DateTime.MinValue && result.Year > 1;
+        }
+
+        return false;
+    }
+
+    // ✅ MÉTODO: Transforma la fecha a formato español (DD/MM/YYYY)
+    private string FormatDateToSpanish(string? dateString)
+    {
+        if (!IsValidDate(dateString))
+            return "";
+
+        if (DateTime.TryParseExact(dateString, "yyyy-MM-dd",
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out DateTime result))
+        {
+            return result.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.GetCultureInfo("es-ES"));
+        }
+
+        return "";
+    }
 }

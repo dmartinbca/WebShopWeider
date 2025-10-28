@@ -66,7 +66,7 @@ else
             var all = await Products.GetAllAsync();
             items = all.Where(p =>
                 p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase)
+                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase) || p.EAN13.Contains(q, StringComparison.OrdinalIgnoreCase)
             ).ToList();
 
             Console.WriteLine($"[Buscar] Encontrados {items.Count()} resultados");

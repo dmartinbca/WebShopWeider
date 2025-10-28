@@ -24,7 +24,7 @@ public class Product
      public int Presentation_Qty { get; set; }
     public double Presentation_Price { get; set; }
     public string Presentation_Unit { get; set; } = "";
-
+    public string FechaCompra { get; set; } = "";
     public bool EsPack { get; set; }
     public bool EsNovedad { get; set; } 
     public string FamilySlug { get; set; } = "";      // p.ej. "better-nutrition"

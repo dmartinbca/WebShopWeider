@@ -878,6 +878,9 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("inventarioNo100")]
         public double inventarioNo100 { get; set; }
 
+        [JsonPropertyName("FechaCompra")]
+        public string FechaCompra { get; set; }
+        
 
 
         [JsonPropertyName("descriptionprod")]

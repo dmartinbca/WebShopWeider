@@ -36,7 +36,25 @@ public class ProductService
         Console.WriteLine("[ProductService.OnClientSelectionChanged] Limpiando caché");
         ClearCache();
     }
+    /// <summary>
+    /// Obtiene un producto específico por su ID (Itemno)
+    /// </summary>
+    public async Task<Product?> GetProductByIdAsync(string productId)
+    {
+        if (string.IsNullOrWhiteSpace(productId))
+            return null;
 
+        try
+        {
+            var all = await GetAllAsync();
+            return all.FirstOrDefault(p => p.Itemno.Equals(productId, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ProductService.GetProductByIdAsync] Error: {ex.Message}");
+            return null;
+        }
+    }
     public async Task<List<Product>> GetAllAsync()
     {
         // Determinar qué número de cliente usar
@@ -78,12 +96,13 @@ public class ProductService
                         Presentation_Unit = p.Present_Unit ?? "",
                         FamilySlug = (p.FamiliaN.Replace(" ", "")) ?? "",
                         SubfamilySlug = string.IsNullOrEmpty(p.SubFamilia) ? "" : p.SubFamilia.Replace(" ", ""),
-
+                        EAN13 = p.EAN13 ?? "",
                         DescProducto = p.descripcion_Producto,
                         // NUEVOS CAMPOS MAPEADOS
                         Promotion = p.Promotion,
                         EsPack = p.Es_Pack,
-                        EsNovedad = p.Marcar_como_Novedad
+                        EsNovedad = p.Marcar_como_Novedad,
+                        FechaCompra = p.FechaCompra ?? "",
                     });
                 }
                 catch (Exception ex)

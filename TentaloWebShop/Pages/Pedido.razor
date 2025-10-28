@@ -3,6 +3,7 @@
 @inject AuthService Auth
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
+
 @using System.Text.Json
 @using TentaloWebShop.Models
 
@@ -702,7 +703,25 @@
                             </div>
                         </div>
                     </div>
+                    <button class="btn btn-primary" @onclick="RepeatOrder" disabled="@isRepeating">
+                        <i class="bi bi-arrow-repeat"></i>
+                        @if (isRepeating)
+                        {
+                            <span>Agregando al carrito...</span>
+                        }
+                        else
+                        {
 
+                            <span>Repetir Pedido</span>
+                        }
+                    </button>
+
+                    @if (!string.IsNullOrWhiteSpace(repeatMessage))
+                    {
+                        <div class="alert @(repeatSuccess ? "alert-success" : "alert-danger")" role="alert">
+                            @repeatMessage
+                        </div>
+                    }
                     <!-- Acciones -->
                     <div class="acciones">
                         <button class="btn btn-primary" @onclick="DownloadOrder" disabled="@isDownloading">
@@ -796,7 +815,8 @@
                                                 <th>Código</th>
                                                 <th>Descripción</th>
                                                 <th>Cantidad</th>
-                                                <th>Precio Unitario</th>
+                                                <th>% Desc.</th>
+                                                <th>Precio</th>
                                                 <th>Total</th>
                                             </tr>
                                         </thead>
@@ -807,7 +827,8 @@
                                                     <td><span class="codigo">@line.No</span></td>
                                                     <td><span class="descripcion">@line.Description</span></td>
                                                     <td><span class="cantidad">@line.Quantity</span></td>
-                                                    <td><span class="precio">@(line.Unit_Price.ToString("N2")) €</span></td>
+                                                    <td><span class="descuento">@line.Line_Discount_Percent</span></td>
+                                                    <td><span class="importe">@(line.Amount.ToString("N2")) €</span></td>
                                                     <td><span class="total">@((line.Quantity * line.Unit_Price).ToString("N2")) €</span></td>
                                                 </tr>
                                             }
@@ -848,7 +869,8 @@
 @code {
     [Inject] protected IApiService Api { get; set; } = default!;
     [Parameter] public string OrderId { get; set; } = "";
-
+    [Inject] protected CartService CartService { get; set; } = default!;
+    [Inject] protected ProductService ProductService { get; set; } = default!;
     private OrderNAVCabecera? order;
     private bool isLoading = true;
     private bool isDownloading = false;
@@ -857,12 +879,82 @@
     private bool isCanceling = false;
     private string cancelMessage = "";
     private bool cancelSuccess = false;
-
+    private bool isRepeating = false;
+    private string repeatMessage = "";
+    private bool repeatSuccess = false;
     protected override async Task OnInitializedAsync()
     {
         await LoadOrder();
     }
+    private async Task RepeatOrder()
+    {
+        isRepeating = true;
+        repeatMessage = "";
 
+        try
+        {
+            var lines = GetOrderLines();
+            if (!lines.Any())
+            {
+                repeatMessage = "✗ No hay artículos para repetir";
+                repeatSuccess = false;
+                return;
+            }
+
+            int addedCount = 0;
+
+            // Agregar cada línea al carrito
+            foreach (var line in lines)
+            {
+                try
+                {
+                    // Obtener el producto completo por su ID (No)
+                    var product = await ProductService.GetProductByIdAsync(line.No);
+
+                    if (product != null)
+                    {
+                        // Agregar con descuento si existe
+                        decimal descuentoProducto = (decimal)(line.Line_Discount_Percent);
+                        await CartService.Add(product, (int)line.Quantity, descuentoProducto);
+                        addedCount++;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[RepeatOrder] Producto no encontrado: {line.No}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[RepeatOrder] Error agregando producto {line.No}: {ex.Message}");
+                }
+            }
+
+            if (addedCount > 0)
+            {
+                repeatMessage = $"✓ {addedCount} artículo(s) agregado(s). Redirigiendo al carrito...";
+                repeatSuccess = true;
+
+                await Task.Delay(1500);
+                Nav.NavigateTo("/carrito");
+            }
+            else
+            {
+                repeatMessage = "✗ No se pudo agregar ningún artículo. Inténtalo de nuevo.";
+                repeatSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[RepeatOrder] Error: {ex.Message}");
+            repeatMessage = "✗ Error al repetir el pedido.";
+            repeatSuccess = false;
+        }
+        finally
+        {
+            isRepeating = false;
+            StateHasChanged();
+        }
+    }
     private async Task LoadOrder()
     {
         isLoading = true;

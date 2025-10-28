@@ -329,6 +329,8 @@
 
         .tabla-articulos .total {
             color: #28a745;
+            font-size: 0.75rem;
+            justify-content:center;
         }
 
     /* ========================================
@@ -877,9 +879,10 @@
                                             <tr>
                                                 <th>Código</th>
                                                 <th>Descripción</th>
-                                                <th>Cantidad</th>
-                                                <th>Precio Unitario</th>
-                                                <th>Total</th>
+                                                <th>Cant.</th>
+                                                <th>Desc.</th>
+                                                <th>Precio</th>
+                                                <th>Importe Total</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -889,8 +892,9 @@
                                                     <td><span class="codigo">@line.No</span></td>
                                                     <td><span class="descripcion">@line.Description</span></td>
                                                     <td><span class="cantidad">@line.Quantity</span></td>
+                                                    <td><span class="descuento">@line.Line_Discount_Percent</span></td>
                                                     <td><span class="precio">@(line.Unit_Price.ToString("N2")) €</span></td>
-                                                    <td><span class="total">@((line.Quantity * line.Unit_Price).ToString("N2")) €</span></td>
+                                                    <td><span class="total">@((line.Amount).ToString("N2")) €</span></td>
                                                 </tr>
                                             }
                                         </tbody>

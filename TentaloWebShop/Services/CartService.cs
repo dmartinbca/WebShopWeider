@@ -30,8 +30,8 @@ public class CartService
     // Propiedades calculadas básicas
     public int TotalQuantity => Items.Sum(i => i.Quantity);
 
-    // Base imponible (sin IVA, sin descuento en factura)
-    public decimal BaseImponible => Items.Sum(i => i.Product.PriceFrom * i.Quantity);
+    // ✅ ACTUALIZADO: Base imponible usa SubtotalWithDiscount (respeta descuentos por línea)
+    public decimal BaseImponible => Items.Sum(i => i.SubtotalWithDiscount);
 
     // Descuento en factura (se aplica sobre la base imponible)
     public decimal DescuentoFactura
@@ -40,6 +40,20 @@ public class CartService
         {
             var descuentoPorcentaje = _auth?.CurrentUser?.DescuentoFactura ?? 0;
             return BaseImponible * descuentoPorcentaje / 100;
+        }
+    }
+
+    // ✅ NUEVO: Calcula el total de descuentos por producto (todas las líneas)
+    public decimal DescuentoProductos
+    {
+        get
+        {
+            return Items.Sum(i =>
+            {
+                decimal precioOriginal = i.Product.PriceFrom * i.Quantity;
+                decimal precioConDescuento = i.SubtotalWithDiscount;
+                return precioOriginal - precioConDescuento;
+            });
         }
     }
 
@@ -82,7 +96,7 @@ public class CartService
             if (item?.Product == null) return 0;
 
             // Calcular el subtotal del item (sin descuento)
-            decimal itemSubtotal = item.Product.PriceFrom * item.Quantity;
+            decimal itemSubtotal = item.SubtotalWithDiscount;
 
             // Calcular la proporción del descuento en factura para esta línea
             decimal descuentoLineaFactura = 0;
@@ -162,23 +176,59 @@ public class CartService
         Changed?.Invoke();
     }
 
-    public async Task Add(Product product, int quantity = 1)
+    // ========================================================================
+    // ✅ MÉTODO Add() - ACTUALIZADO para soportar descuentos
+    // Si no especificas descuento (0), se agrupa con otras líneas sin descuento
+    // Si especificas descuento > 0, crea una LÍNEA SEPARADA
+    // ========================================================================
+    public async Task Add(Product product, int quantity = 1, decimal descuentoProducto = 0)
     {
-        var existing = Items.FirstOrDefault(x => x.Product.Id == product.Id);
+        // Buscar SOLO por ProductId + DescuentoProducto
+        // De esta forma, mismo producto con descuentos diferentes = líneas separadas
+        var existing = Items.FirstOrDefault(x =>
+            x.Product.Id == product.Id &&
+            x.DescuentoProducto == descuentoProducto);
+
         if (existing != null)
         {
+            // Mismo producto, MISMO descuento → agrupa
             existing.Quantity += quantity;
         }
         else
         {
-            Items.Add(new CartItem { Product = product, Quantity = quantity });
+            // Mismo producto, DIFERENTE descuento → nueva línea
+            Items.Add(new CartItem
+            {
+                Product = product,
+                Quantity = quantity,
+                DescuentoProducto = descuentoProducto
+            });
         }
+
         await SaveAndNotify();
     }
 
-    public async Task Update(string productId, int newQuantity)
+    // ========================================================================
+    // ✅ MÉTODO AddWithDiscount() - Ahora SÍ crea líneas separadas
+    // (Alias de Add() con parámetro descuento explícito)
+    // ========================================================================
+    public async Task AddWithDiscount(Product product, int quantity = 1, decimal descuentoProducto = 0)
     {
-        var item = Items.FirstOrDefault(x => x.Product.Id == productId);
+        // Simplemente llamar a Add() con los parámetros
+        await Add(product, quantity, descuentoProducto);
+    }
+
+    // ========================================================================
+    // ✅ MÉTODO Update() - ACTUALIZADO para identificar por ProductId + DescuentoProducto
+    // Ahora necesitas especificar también el descuento para actualizar la cantidad
+    // ========================================================================
+    public async Task Update(string productId, int newQuantity, decimal descuentoProducto = 0)
+    {
+        // Buscar por AMBOS: ProductId AND DescuentoProducto
+        var item = Items.FirstOrDefault(x =>
+            x.Product.Id == productId &&
+            x.DescuentoProducto == descuentoProducto);
+
         if (item != null)
         {
             if (newQuantity <= 0)
@@ -193,9 +243,17 @@ public class CartService
         }
     }
 
-    public async Task Remove(string productId)
+    // ========================================================================
+    // ✅ MÉTODO Remove() - ACTUALIZADO para identificar por ProductId + DescuentoProducto
+    // Ahora necesitas especificar también el descuento para eliminar la línea correcta
+    // ========================================================================
+    public async Task Remove(string productId, decimal descuentoProducto = 0)
     {
-        var item = Items.FirstOrDefault(x => x.Product.Id == productId);
+        // Buscar por AMBOS: ProductId AND DescuentoProducto
+        var item = Items.FirstOrDefault(x =>
+            x.Product.Id == productId &&
+            x.DescuentoProducto == descuentoProducto);
+
         if (item != null)
         {
             Items.Remove(item);

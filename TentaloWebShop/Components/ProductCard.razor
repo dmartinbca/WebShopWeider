@@ -47,13 +47,24 @@
         <h6 class="product-title" @onclick="Open" role="button" tabindex="0">
             @Product.Name
         </h6>
-
+        <span class="price-title">EAN @Product.EAN13</span>
+            
+      
         <div class="product-price mb-3">
             <span class="price-single">@Product.PriceFrom.ToString("N2", es) €</span>
             <span class="price-single">x</span>
             <span class="price-single">@Product.Presentation_Unit</span>
         </div>
-
+        <!-- ✅ FECHA DE DISPONIBILIDAD CUANDO ESTÁ OUT-OF-STOCK -->
+        @if (Product.inventario100 <= 0 && IsValidDate(Product.FechaCompra))
+        {
+            <div class="fecha-disponibilidad mb-2">
+                <small class="d-flex align-items-center gap-1">
+                    <i class="bi bi-calendar-event"></i>
+                    <strong>Disponible a partir de:</strong> @FormatDateToSpanish(Product.FechaCompra)
+                </small>
+            </div>
+        }
         <div class="mt-auto product-actions">
             <!-- Quantity and Add to Cart - Mobile Optimized -->
             <div class="quantity-section mb-2">
@@ -78,12 +89,12 @@
                     }
                 </button>
 
-                <button class="btn btn-outline-secondary btn-view"
+                @* <button class="btn btn-outline-secondary btn-view"
                         @onclick="Open"
                         aria-label="Ver detalles de @Product.Name">
                     <i class="bi bi-eye"></i>
                     <span class="d-none d-md-inline ms-1">Ver</span>
-                </button>
+                </button> *@
             </div>
         </div>
     </div>
@@ -204,4 +215,35 @@
     }
 
     private void Open() { Nav.NavigateTo($"/producto/{Product.Slug}"); }
+    private bool IsValidDate(string? dateString)
+    {
+        if (string.IsNullOrWhiteSpace(dateString))
+            return false;
+
+        if (dateString == "0001-01-01")
+            return false;
+
+        if (DateTime.TryParseExact(dateString, "yyyy-MM-dd",
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out DateTime result))
+        {
+            return result > DateTime.MinValue && result.Year > 1;
+        }
+
+        return false;
+    }
+    private string FormatDateToSpanish(string? dateString)
+    {
+        if (!IsValidDate(dateString))
+            return "";
+
+        if (DateTime.TryParseExact(dateString, "yyyy-MM-dd",
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out DateTime result))
+        {
+            return result.ToString("dd/MM/yyyy", es);
+        }
+
+        return "";
+    }
 }

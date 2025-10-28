@@ -728,7 +728,7 @@ namespace TentaloWebShop.Services
                     Usuario = usuario,
                     IdGUID = Guid.NewGuid(),
                     Token = "",
-                    Descuento_Linea = 0
+                    Descuento_Linea = Convert.ToDouble(p.DescuentoProducto)
                 }).ToList();
 
                 // 4. Crear cabecera con el descuento en factura

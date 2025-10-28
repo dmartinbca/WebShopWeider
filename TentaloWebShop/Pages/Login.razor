@@ -7,10 +7,11 @@
 @inject BusyService Busy
 
 <div class="login-wrapper">
-    <div class="login-background-image"></div>
-
     <div class="login-content-wrapper">
-        <h1>Acceder</h1>
+        <div class="login-header">
+            <h1>Acceder</h1>
+            <img src="/images/entradaweider.png" alt="Logo Tentalo" class="login-logo" />
+        </div>
         <div class="card" style="max-width:480px">
             <div class="card-body">
                 <div class="mb-3">
@@ -54,22 +55,7 @@
         justify-content: center;
         padding: 20px;
         overflow: hidden;
-        background-color: #f8f9fa;
-    }
-
-    .login-background-image {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 150%;
-        height: 150%;
-        background-image: url('/images/entradaweider.png');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        opacity: 0.12;
-        z-index: 0;
+        background-color: #ffffff;
     }
 
     .login-content-wrapper {
@@ -79,47 +65,67 @@
         max-width: none;
     }
 
-        .login-content-wrapper .card {
-            background-color: rgba(255, 255, 255, 0.75) !important;
-            backdrop-filter: blur(10px);
-            max-width: 450px;
-            margin: 0 auto;
-            border: none !important;
-            border-radius: 8px;
-            box-shadow: none !important;
-            outline: none !important;
-        }
+    .login-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
 
-        .login-content-wrapper .card-body {
-            border: none !important;
-            padding: 1.5rem;
-        }
-
-        .login-content-wrapper .form-control {
-            border: 1px solid #dee2e6 !important;
-            box-shadow: none !important;
-        }
-
-        .login-content-wrapper .form-label {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .login-content-wrapper h1 {
-            text-align: center;
-            margin-bottom: 2rem;
+        .login-header h1 {
             font-size: 2rem;
             font-weight: 700;
             color: #2c3e50;
+            margin: 0;
+            white-space: nowrap;
         }
+
+        .login-header .login-logo {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+
+    .login-content-wrapper .card {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        max-width: 450px;
+        margin: 0 auto;
+        border: 1px solid #e9ecef !important;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .login-content-wrapper .card-body {
+        border: none !important;
+        padding: 1.5rem;
+    }
+
+    .login-content-wrapper .form-control {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
+    }
+
+    .login-content-wrapper .form-label {
+        color: #333;
+        font-weight: 500;
+    }
 
     /* Responsive adjustments */
     @@media (max-width: 768px) {
-        .login-background-image
+        .login-header
 
     {
-        width: 120%;
-        height: 120%;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .login-header .login-logo {
+        height: 50px;
     }
 
     }
@@ -131,14 +137,19 @@
         padding: 15px;
     }
 
-    .login-background-image {
-        width: 100%;
-        height: 100%;
+    .login-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
 
-    .login-content-wrapper h1 {
-        font-size: 1.5rem;
-    }
+        .login-header h1 {
+            font-size: 1.25rem;
+        }
+
+        .login-header .login-logo {
+            height: 45px;
+        }
 
     .login-content-wrapper .card {
         max-width: 100%;
