@@ -5,6 +5,83 @@ using System.Text.Json.Serialization;
 
 namespace TentaloWebShop.Models
 {
+    public class Stock : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        [JsonProperty("no")]
+        public string No { get; set; }
+
+        [JsonProperty("stockUnitofMeasure")]
+        public string StockUnitofMeasure { get; set; }
+
+        [JsonProperty("qtyperUnitofMeasure")]
+        public int QtyperUnitofMeasure { get; set; }
+
+        [JsonProperty("netChange")]
+        public double NetChange { get; set; }
+
+        [JsonProperty("itemNo")]
+        public string itemNo { get; set; }
+
+        [JsonProperty("lotNo")]
+        public string lotNo { get; set; }
+
+        [JsonProperty("expirationDate")]
+        public DateTime expirationDate { get; set; }
+
+        [JsonProperty("remainingQuantity")]
+        public decimal remainingQuantity { get; set; }
+
+        private bool caducidad;
+
+        public bool Caducidad
+        {
+            get => caducidad;
+            set
+            {
+                caducidad = value;
+                NotifyPropertyChanged(nameof(Caducidad));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Wrapper JSON para la respuesta del API de lotes
+    /// </summary>
+    public class StockJson
+    {
+        [JsonProperty("value")]
+        public List<Stock> Value { get; set; }
+    }
+    public class CarouselCloud
+    {
+        public int No { get; set; }
+        public string Title { get; set; }
+        public string Subtitle { get; set; }
+        public string Alt { get; set; }
+        public string ImageUrl { get; set; }
+        public string ButtonText { get; set; }
+        public string ButtonLink { get; set; }
+        public string ExtensionImagen { get; set; }
+    }
+
+    /// <summary>
+    /// Wrapper JSON para la respuesta del API de carruseles
+    /// </summary>
+    public class CarruselCloudJson
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("@odata.context")]
+        public string OdataContext { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
+        public List<CarouselCloud> Value { get; set; }
+    }
     public class NavUser
     {
 

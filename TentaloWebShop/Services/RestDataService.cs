@@ -61,7 +61,7 @@ namespace TentaloWebShop.Services
             var request1 = new
             {
                 tenant = _apiSettings.Tenant,
-               
+
             };
 
             try
@@ -71,13 +71,13 @@ namespace TentaloWebShop.Services
                 var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
-                    
+
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
                     token = tokenObj.AccessToken;
-                  
+
                 }
-                 
-               
+
+
                 // 3. Construir URL
                 var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppUsuarios?$filter=usuario eq '{usuario.ToLower()}' and password eq '{password}'";
 
@@ -103,7 +103,7 @@ namespace TentaloWebShop.Services
                         musuario = result.Value.FirstOrDefault();
                         if (musuario != null)
                         {
-                          
+
                             Console.WriteLine(token);
                         }
                     }
@@ -116,7 +116,68 @@ namespace TentaloWebShop.Services
 
             return musuario;
         }
-        public async Task<List<Customer>> GetCustomersAPI( string cliente)
+        public async Task<List<Stock>> GetStockProductoAsync(string almacen, string producto)
+        {
+            var resultado = new List<Stock>();
+
+            try
+            {
+                // 1. Obtener token OAuth2
+                var requestToken = new { tenant = _apiSettings.Tenant };
+                string token = string.Empty;
+
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    Console.WriteLine("[GetStockProductoAsync] No se pudo obtener token");
+                    return resultado;
+                }
+
+                // 2. Construir la URL del endpoint de lotes
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/ApiLotes?$filter=itemNo eq '{producto}'";
+
+                // 3. Crear petición con cabeceras OAuth2 e Isolation
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                // 4. Ejecutar llamada
+                var response = await _http.SendAsync(request);
+
+                // 5. Procesar respuesta
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var data = System.Text.Json.JsonSerializer.Deserialize<StockJson>(content, options);
+
+                    if (data?.Value != null)
+                    {
+                        resultado.AddRange(data.Value);
+                        Console.WriteLine($"[GetStockProductoAsync] Se obtuvieron {resultado.Count} lotes para producto {producto}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[GetStockProductoAsync] Error: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetStockProductoAsync] Error: {ex.Message}");
+            }
+
+            return resultado;
+        }
+        public async Task<List<Customer>> GetCustomersAPI(string cliente)
         {
             var resultado = new List<Customer>();
             try
@@ -125,7 +186,7 @@ namespace TentaloWebShop.Services
                 var request1 = new
                 {
                     tenant = _apiSettings.Tenant,
-                    
+
                 };
 
                 string token = string.Empty;
@@ -197,7 +258,7 @@ namespace TentaloWebShop.Services
 
                 }
                 // 2. Construir URL con filtro por cliente
-             
+
                 string baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppCustomers";
                 var authService = GetAuthService();
                 string filter = authService?.CurrentUser?.IdiomaPais == "ITA"
@@ -248,7 +309,7 @@ namespace TentaloWebShop.Services
                 var request1 = new
                 {
                     tenant = _apiSettings.Tenant,
-                    
+
                 };
 
                 string token = string.Empty;
@@ -263,7 +324,7 @@ namespace TentaloWebShop.Services
                 var url = "";
                 var authService = GetAuthService();
                 string stipo = authService?.CurrentUser?.Tipo;
-                if (stipo == "Customer") 
+                if (stipo == "Customer")
                 {
                     url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/AppFamiliasWeb?$expand=subfamlines";
 
@@ -294,16 +355,16 @@ namespace TentaloWebShop.Services
 
                     if (data?.Value != null)
                     {
-                         
+
 
                         resultado.AddRange(
                             data.Value
                                 .OrderBy(c => c.Order)
-                                
+
                         );
                     }
 
-                     
+
                 }
             }
             catch (Exception ex)
@@ -323,7 +384,7 @@ namespace TentaloWebShop.Services
                 var requestToken = new
                 {
                     tenant = _apiSettings.Tenant,
-                   
+
                 };
 
                 string token = string.Empty;
@@ -339,7 +400,7 @@ namespace TentaloWebShop.Services
                 string endpoint;
                 var authService = GetAuthService();
                 string stipo = authService?.CurrentUser?.Tipo;
-                if(stipo=="Customer")
+                if (stipo == "Customer")
                 {
                     // Lógica igual que tu versión MAUI
                     if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
@@ -363,7 +424,7 @@ namespace TentaloWebShop.Services
                         endpoint = $"/ApiListaProductosII?$filter=no eq '{saved.CustomerNo}' and FamiliaN eq '{familia}' and SubFamilia eq '{subfamilia}'";
                     }
                 }
-               
+
 
                 var url = baseUrl + endpoint;
 
@@ -429,7 +490,7 @@ namespace TentaloWebShop.Services
                 var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/APiBorrarPedidos({docref})/Microsoft.NAV.BorrarPedido";
 
                 // 3. Construir URL
- 
+
 
 
                 var request = new HttpRequestMessage(HttpMethod.Post, baseUrl);
@@ -466,7 +527,7 @@ namespace TentaloWebShop.Services
                 var request1 = new
                 {
                     tenant = _apiSettings.Tenant,
-                   
+
                 };
 
                 string token = string.Empty;
@@ -500,7 +561,7 @@ namespace TentaloWebShop.Services
                     if (data?.Value != null)
                     {
                         mensajes.AddRange(data.Value);
-                         
+
                     }
                 }
 
@@ -523,7 +584,7 @@ namespace TentaloWebShop.Services
                 var request1 = new
                 {
                     tenant = _apiSettings.Tenant,
-                   
+
                 };
 
                 string token = string.Empty;
@@ -536,7 +597,7 @@ namespace TentaloWebShop.Services
 
                 }
 
-              
+
                 // Construir URL
                 var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/ApiDirEnvios?$filter=customerNo eq '{cliente}'";
 
@@ -560,7 +621,7 @@ namespace TentaloWebShop.Services
                     }
                 }
 
-              
+
                 return resultado;
             }
             catch (Exception ex)
@@ -737,7 +798,7 @@ namespace TentaloWebShop.Services
                 var request1 = new
                 {
                     tenant = _apiSettings.Tenant,
-                    
+
                 };
 
                 string token = string.Empty;
@@ -816,12 +877,12 @@ namespace TentaloWebShop.Services
 
                 }
 
-            
+
                 var fecha = DateTime.Now;
                 var fechastr = new DateTime(fecha.Year, 1, 1).ToString("yyyy-MM-dd");
 
                 var urlBase = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/APIPSalesOrders";
-                var filtro =  $"$filter=Document_Type eq 'Order' and Sell_to_Customer_No eq '{cliente}' and Order_Date ge {fechastr}&$expand=salelines";
+                var filtro = $"$filter=Document_Type eq 'Order' and Sell_to_Customer_No eq '{cliente}' and Order_Date ge {fechastr}&$expand=salelines";
 
                 var url = $"{urlBase}?{filtro}";
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -851,7 +912,7 @@ namespace TentaloWebShop.Services
 
             return resultado;
         }
- 
+
         public async Task<List<OrderNAVCabecera>> ListaFacturaCabeceraVenta(string cliente)
         {
             var resultado = new List<OrderNAVCabecera>();
@@ -948,11 +1009,11 @@ namespace TentaloWebShop.Services
                 // 3. Construir la URL dinámica según los parámetros recibidos
                 var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})";
                 string endpoint;
-               
+
                 var authService = GetAuthService();
                 string stipo = authService?.CurrentUser?.Tipo;
                 // Lógica igual que tu versión MAUI
-                if(stipo=="Customer")
+                if (stipo == "Customer")
                 {
                     if (string.IsNullOrWhiteSpace(familia) && string.IsNullOrWhiteSpace(subfamilia))
                     {
@@ -977,7 +1038,7 @@ namespace TentaloWebShop.Services
                 }
 
 
-                    var url = baseUrl + endpoint;
+                var url = baseUrl + endpoint;
 
                 // 4. Crear petición con HttpClient y cabeceras OAuth2 y Isolation
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -1010,7 +1071,76 @@ namespace TentaloWebShop.Services
             return resultado;
         }
 
+
+        public async Task<List<CarouselCloud>> GetCarruselesAPICloud(string customerNo = "")
+        {
+            var resultado = new List<CarouselCloud>();
+
+            try
+            {
+                // 1. Obtener token OAuth2
+                var requestToken = new { tenant = _apiSettings.Tenant };
+                string token = string.Empty;
+
+                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    Console.WriteLine("[GetCarruselesAPICloud] No se pudo obtener token");
+                    return resultado;
+                }
+
+                // 2. Determinar qué customerNo usar
+                string efectiveCustomerNo = customerNo;
+                if (string.IsNullOrWhiteSpace(efectiveCustomerNo))
+                {
+                    var saved = await _store.GetAsync<User>(KEY_USER);
+                    efectiveCustomerNo = saved?.CustomerNo ?? "";
+                }
+
+                // 3. Construir la URL del endpoint carruseles
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/carruselesWebShop";
+
+                // 4. Crear petición con cabeceras OAuth2 e Isolation
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                // 5. Ejecutar llamada
+                var response = await _http.SendAsync(request);
+
+                // 6. Procesar respuesta
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var data = System.Text.Json.JsonSerializer.Deserialize<CarruselCloudJson>(content, options);
+
+                    if (data?.Value != null)
+                    {
+                        resultado.AddRange(data.Value);
+                        Console.WriteLine($"[GetCarruselesAPICloud] Se obtuvieron {resultado.Count} carruseles");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[GetCarruselesAPICloud] Error: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetCarruselesAPICloud] Error: {ex.Message}");
+            }
+
+            return resultado;
+        }
+
     }
-
-
 }

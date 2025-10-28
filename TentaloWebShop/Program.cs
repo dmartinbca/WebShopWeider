@@ -56,6 +56,7 @@ builder.Services.AddScoped<InvoiceService>();
 builder.Services.AddScoped<ClientSelectionService>(); // ← NUEVO
 builder.Services.AddScoped<LoadingService>();
 builder.Services.AddScoped<ShippingAddressService>();
+builder.Services.AddScoped<CarouselService>();
 builder.Services.AddSyncfusionBlazor();
 
 await builder.Build().RunAsync();

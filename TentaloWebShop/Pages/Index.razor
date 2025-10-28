@@ -1,68 +1,87 @@
 @page "/"
 @inject AuthService Auth
+@inject CarouselService CarouselSvc
 @implements IDisposable
 
 <!-- ✅ CARRUSEL SOLO PARA CLIENTES DIRECTOS (NO para Sales Team) -->
 @if (Auth.CurrentUser?.Tipo != "Sales Team")
 {
     <!-- Carrusel Hero -->
-    <div class="hero-carousel">
-        <div class="carousel-wrapper">
-            @for (int i = 0; i < carouselImages.Length; i++)
-            {
-                int index = i;
-                <div class="carousel-slide @(currentSlide == index ? "active" : "")"
-                     style="position: absolute; width: 100%; height: 100%; opacity: @(currentSlide == index ? "1" : "0"); transition: opacity 1s ease-in-out; pointer-events: @(currentSlide == index ? "auto" : "none");">
-                    <img src="@carouselImages[index].ImageUrl"
-                         alt="@carouselImages[index].Alt"
-                         style="width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none;" />
-                    <div class="carousel-overlay" style="pointer-events: none;">
-                        <div class="carousel-content container" style="pointer-events: auto;">
-                            <h1 class="hero-title">@carouselImages[index].Title</h1>
-                            <p class="hero-subtitle">@carouselImages[index].Subtitle</p>
-                            @if (!string.IsNullOrEmpty(carouselImages[index].ButtonText))
-                            {
-                                <a href="@carouselImages[index].ButtonLink"
-                                   class="btn btn-hero"
-                                   @onclick:stopPropagation="true">
-                                    @carouselImages[index].ButtonText
-                                </a>
-                            }
+    @if (carouselItems != null && carouselItems.Count > 0)
+    {
+        <div class="hero-carousel">
+            <div class="carousel-wrapper">
+                @for (int i = 0; i < carouselItems.Count; i++)
+                {
+                    int index = i;
+                    <div class="carousel-slide @(currentSlide == index ? "active" : "")"
+                         style="position: absolute; width: 100%; height: 100%; opacity: @(currentSlide == index ? "1" : "0"); transition: opacity 1s ease-in-out; pointer-events: @(currentSlide == index ? "auto" : "none");">
+                        <img src="@carouselItems[index].ImageUrl"
+                             alt="@carouselItems[index].Alt"
+                             style="width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none;" />
+                        <div class="carousel-overlay" style="pointer-events: none;">
+                            <div class="carousel-content container" style="pointer-events: auto;">
+                                <h1 class="hero-title">@carouselItems[index].Title</h1>
+                                <p class="hero-subtitle">@carouselItems[index].Subtitle</p>
+                                @if (!string.IsNullOrEmpty(carouselItems[index].ButtonText))
+                                {
+                                    <a href="@carouselItems[index].ButtonLink"
+                                       class="btn btn-hero"
+                                       @onclick:stopPropagation="true">
+                                        @carouselItems[index].ButtonText
+                                    </a>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
+                }
+            </div>
 
-        <!-- Indicadores -->
-        <div class="carousel-indicators" style="pointer-events: auto;">
-            @for (int i = 0; i < carouselImages.Length; i++)
-            {
-                int index = i;
-                <button class="indicator @(currentSlide == index ? "active" : "")"
-                        @onclick="() => GoToSlide(index)"
-                        @onclick:stopPropagation="true"
-                        aria-label="Ir a slide @(index + 1)">
-                </button>
-            }
-        </div>
+            <!-- Indicadores -->
+            <div class="carousel-indicators" style="pointer-events: auto;">
+                @for (int i = 0; i < carouselItems.Count; i++)
+                {
+                    int index = i;
+                    <button class="indicator @(currentSlide == index ? "active" : "")"
+                            @onclick="() => GoToSlide(index)"
+                            @onclick:stopPropagation="true"
+                            aria-label="Ir a slide @(index + 1)">
+                    </button>
+                }
+            </div>
 
-        <!-- Controles de navegación -->
-        <button class="carousel-control prev"
-                @onclick="PreviousSlide"
-                @onclick:stopPropagation="true"
-                aria-label="Anterior"
-                style="pointer-events: auto;">
-            <i class="bi bi-chevron-left"></i>
-        </button>
-        <button class="carousel-control next"
-                @onclick="NextSlide"
-                @onclick:stopPropagation="true"
-                aria-label="Siguiente"
-                style="pointer-events: auto;">
-            <i class="bi bi-chevron-right"></i>
-        </button>
-    </div>
+            <!-- Controles de navegación -->
+            <button class="carousel-control prev"
+                    @onclick="PreviousSlide"
+                    @onclick:stopPropagation="true"
+                    aria-label="Anterior"
+                    style="pointer-events: auto;">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-control next"
+                    @onclick="NextSlide"
+                    @onclick:stopPropagation="true"
+                    aria-label="Siguiente"
+                    style="pointer-events: auto;">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    }
+    else if (isLoading)
+    {
+        <div class="hero-carousel" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando carrusel...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning container my-4" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            No hay carruseles disponibles en este momento.
+        </div>
+    }
 }
 
 <!-- ✅ SI ES SALES TEAM, MOSTRAR MENSAJE DE BIENVENIDA ALTERNATIVO -->
@@ -86,57 +105,35 @@
 </div>
 
 @code {
+    private List<CarouselItem>? carouselItems;
     private int currentSlide = 0;
-    private Timer autoPlayTimer;
+    private Timer? autoPlayTimer;
+    private bool isLoading = true;
     private const int AutoPlayInterval = 5000; // 5 segundos
 
-    // Array de imágenes del carrusel - Personaliza estas según tus productos
-    private CarouselItem[] carouselImages = new[]
+    protected override async Task OnInitializedAsync()
     {
-        new CarouselItem
+        try
         {
-            ImageUrl = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80",
-            Alt = "Suplementos deportivos de alta calidad",
-            Title = "Potencia Tu Rendimiento",
-            Subtitle = "Complementos alimenticios diseñados para deportistas exigentes",
-            ButtonText = "Ver Productos",
-            ButtonLink = "/catalogo"
-        },
-        new CarouselItem
-        {
-            ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80",
-            Alt = "Nutrición deportiva profesional",
-            Title = "Nutrición de Élite",
-            Subtitle = "Fórmulas científicamente respaldadas para alcanzar tus metas",
-            ButtonText = "Ver Ofertas",
-            ButtonLink = "/ofertas"
-        },
-        new CarouselItem
-        {
-            ImageUrl = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80",
-            Alt = "Ejercicio y suplementación",
-            Title = "Alcanza Tus Objetivos",
-            Subtitle = "El complemento perfecto para tu entrenamiento diario",
-            ButtonText = "Ver Novedades",
-            ButtonLink = "/novedades"
-        },
-        new CarouselItem
-        {
-            ImageUrl = "https://images.unsplash.com/photo-1623874228601-f4193c7b1818?w=1600&q=80",
-            Alt = "Productos premium para deportistas",
-            Title = "Calidad Premium",
-            Subtitle = "Productos certificados con los más altos estándares",
-            ButtonText = "Ver Packs",
-            ButtonLink = "/packs"
-        }
-    };
+            // ✅ Cargar carruseles desde Business Central Cloud
+            if (Auth.CurrentUser?.Tipo != "Sales Team")
+            {
+                isLoading = true;
+                carouselItems = await CarouselSvc.GetCarruselesAsync();
+                isLoading = false;
 
-    protected override void OnInitialized()
-    {
-        // ✅ Solo iniciar autoplay si NO es Sales Team
-        if (Auth.CurrentUser?.Tipo != "Sales Team")
+                // Solo iniciar autoplay si hay carruseles y NO es Sales Team
+                if (carouselItems != null && carouselItems.Count > 0)
+                {
+                    StartAutoPlay();
+                }
+            }
+        }
+        catch (Exception ex)
         {
-            StartAutoPlay();
+            Console.WriteLine($"[Index.OnInitializedAsync] Error cargando carruseles: {ex.Message}");
+            isLoading = false;
+            carouselItems = new List<CarouselItem>();
         }
     }
 
@@ -154,12 +151,18 @@
 
     private void NextSlide()
     {
-        currentSlide = (currentSlide + 1) % carouselImages.Length;
+        if (carouselItems != null && carouselItems.Count > 0)
+        {
+            currentSlide = (currentSlide + 1) % carouselItems.Count;
+        }
     }
 
     private void PreviousSlide()
     {
-        currentSlide = (currentSlide - 1 + carouselImages.Length) % carouselImages.Length;
+        if (carouselItems != null && carouselItems.Count > 0)
+        {
+            currentSlide = (currentSlide - 1 + carouselItems.Count) % carouselItems.Count;
+        }
     }
 
     private void GoToSlide(int index)
@@ -177,15 +180,5 @@
     public void Dispose()
     {
         autoPlayTimer?.Dispose();
-    }
-
-    private class CarouselItem
-    {
-        public string ImageUrl { get; set; }
-        public string Alt { get; set; }
-        public string Title { get; set; }
-        public string Subtitle { get; set; }
-        public string ButtonText { get; set; }
-        public string ButtonLink { get; set; }
     }
 }

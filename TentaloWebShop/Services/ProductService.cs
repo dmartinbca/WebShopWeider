@@ -159,4 +159,24 @@ public class ProductService
         var all = await GetAllAsync();
         return all.Where(p => p.EsNovedad).ToList();
     }
+    public async Task<List<Stock>> GetStockByProductoAsync(string almacen, string productNo)
+    {
+        try
+        {
+            var stocks = await _rest.GetStockProductoAsync(almacen, productNo);
+
+            if (stocks != null && stocks.Any())
+            {
+                Console.WriteLine($"[ProductService.GetStockByProductoAsync] Se obtuvieron {stocks.Count} lotes");
+                return stocks;
+            }
+
+            return new List<Stock>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ProductService.GetStockByProductoAsync] Error: {ex.Message}");
+            return new List<Stock>();
+        }
+    }
 }

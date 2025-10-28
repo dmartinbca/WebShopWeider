@@ -2,7 +2,7 @@
 @inject ProductService Products
 @inject CartService Cart
 @inject CategoryService Categories
-
+@inject AuthService Auth
 @if (product is null)
 {
     <div class="p-5 text-center">
@@ -80,22 +80,89 @@ else
                     @(hasStock ? "Añadir al Carrito" : "No Disponible")
                 </button>
             </div>
+            @if (Auth.CurrentUser?.Tipo == "Sales Team" && product != null)
+            {
+                <div class="inventory-section">
+                    <!-- INVENTARIO 100 -->
+                    <div class="inventory-info">
+                        <h6>Almacén 001</h6>
+                        <p class="inventory-value">
+                            @if (product.inventario100 > 0)
+                            {
+                                <span class="badge bg-success">@product.inventario100 unidades</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Sin stock</span>
+                            }
+                        </p>
+                    </div>
 
+                    <!-- INVENTARIO NO 100 -->
+                    <div class="inventory-info">
+                        <h6>Resto Almacenes</h6>
+                        <p class="inventory-value">
+                            @if (product.inventarioNo100 > 0)
+                            {
+                                <span class="badge bg-info">@product.inventarioNo100 unidades</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">Sin stock</span>
+                            }
+                        </p>
+                    </div>
+
+                    <!-- LOTES -->
+                    @if (productStocks.Any())
+                    {
+                        <div class="lotes-section">
+                            <h6>Lotes Disponibles</h6>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Lote</th>
+                                        <th>Caducidad</th>
+                                        <th>Cantidad</th>
+                                      
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var lote in productStocks)
+                                    {
+                                        <tr>
+                                            <td>@lote.lotNo</td>
+                                            <td>
+                                                @if (lote.expirationDate != DateTime.MinValue)
+                                                {
+                                                    <span class="@(lote.expirationDate < DateTime.Now ? "text-danger" : "text-success")">
+                                                        @lote.expirationDate.ToString("dd/MM/yyyy")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">S/D</span>
+                                                }
+                                            </td>
+                                            <td>@lote.remainingQuantity</td>
+                                            <td>@lote.No</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else if (!loadingStock && productStocks.Count == 0)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            No hay lotes disponibles para este producto
+                        </div>
+                    }
+                </div>
+            }
             <!-- Características destacadas -->
-            <div class="product-features mt-3">
-                <div class="feature-item">
-                    <i class="bi bi-shield-check"></i>
-                    <span>Producto Original</span>
-                </div>
-                <div class="feature-item">
-                    <i class="bi bi-truck"></i>
-                    <span>Envío Rápido</span>
-                </div>
-                <div class="feature-item">
-                    <i class="bi bi-award"></i>
-                    <span>Calidad Garantizada</span>
-                </div>
-            </div>
+         
         </div>
     </div>
 
@@ -508,10 +575,18 @@ else
     private Product? product;
     private int qty = 1;
     private string activeTab = "description";
+    private List<Stock> productStocks = new List<Stock>();
+    private bool loadingStock = false;
 
     protected override async Task OnParametersSetAsync()
     {
         product = (await Products.GetAllAsync()).FirstOrDefault(p => p.Slug == slug);
+        if (Auth.CurrentUser?.Tipo == "Sales Team" && !string.IsNullOrEmpty(product.Itemno))
+        {
+            loadingStock = true;
+            productStocks = await Products.GetStockByProductoAsync("001", product.Itemno);
+            loadingStock = false;
+        }
     }
 
     private async Task Add()
@@ -521,4 +596,5 @@ else
             await Cart.Add(product, qty);
         }
     }
+     
 }
