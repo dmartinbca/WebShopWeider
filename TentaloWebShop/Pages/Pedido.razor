@@ -913,9 +913,10 @@
 
                     if (product != null)
                     {
+                        
                         // Agregar con descuento si existe
                         decimal descuentoProducto = (decimal)(line.Line_Discount_Percent);
-                        await CartService.Add(product, (int)line.Quantity, descuentoProducto);
+                        await CartService.Add(product, (int)line.Quantity/product.Presentation_Qty, descuentoProducto);
                         addedCount++;
                     }
                     else
