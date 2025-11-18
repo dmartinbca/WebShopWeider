@@ -105,7 +105,7 @@ namespace TentaloWebShop.Services
 
                 };
                 string token = string.Empty;
-                var tokenResponse = await _httpClient.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _httpClient.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 

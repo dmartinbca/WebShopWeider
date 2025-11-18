@@ -68,7 +68,7 @@ namespace TentaloWebShop.Services
             {
                 Console.WriteLine(request1);
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -126,7 +126,7 @@ namespace TentaloWebShop.Services
                 var requestToken = new { tenant = _apiSettings.Tenant };
                 string token = string.Empty;
 
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", requestToken);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
@@ -190,7 +190,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -249,7 +249,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -313,7 +313,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -388,7 +388,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", requestToken);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
@@ -481,7 +481,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", requestToken);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
@@ -531,7 +531,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -588,7 +588,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -673,7 +673,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
@@ -802,7 +802,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
@@ -868,7 +868,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -926,7 +926,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
@@ -991,7 +991,7 @@ namespace TentaloWebShop.Services
                 };
 
                 string token = string.Empty;
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", request1);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
@@ -1082,7 +1082,7 @@ namespace TentaloWebShop.Services
                 var requestToken = new { tenant = _apiSettings.Tenant };
                 string token = string.Empty;
 
-                var tokenResponse = await _http.PostAsJsonAsync("https://bca.bca-365.com:441/TentaloAuth/api/token", requestToken);
+                var tokenResponse = await _http.PostAsJsonAsync("https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token", requestToken);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                     var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
