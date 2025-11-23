@@ -706,7 +706,7 @@ namespace TentaloWebShop.Services
                     Almacen = "001",
                     Articulo = p.Product.Itemno,
                     Descripcion = p.Product.Name,
-                    Cantidad = p.Quantity,
+                    Cantidad = p.Quantity * p.Product.Presentation_Qty,
                     Tipo_Pedido = "WebShop",
                     Cliente = cliente,
                     EnviadaHacienda = false,
@@ -718,7 +718,7 @@ namespace TentaloWebShop.Services
                     Notificacion = false,
                     Obervaciones = Observaciones,
                     Pedido = nuevoNumeroPedido,
-                    Precio = Convert.ToDouble(p.Product.PriceFrom),
+                    Precio = (p.Product.Presentation_Price / p.Product.Presentation_Qty),
                     ProcesadaFactura = false,
                     ProcesadoPedido = false,
                     Proveedor = "",
@@ -1141,6 +1141,95 @@ namespace TentaloWebShop.Services
 
             return resultado;
         }
+        // ============================================================================
+        // MÉTODO A AGREGAR EN RestDataService.cs
+        // Agregar este método después de GetCarruselesAPICloud
+        // ============================================================================
 
+        /// <summary>
+        /// Obtiene las ofertas/promociones activas para un cliente desde Business Central
+        /// </summary>
+        /// <param name="customerNo">Número de cliente. Si está vacío, usa el cliente del contexto</param>
+        /// <returns>Lista de promociones activas con sus líneas de detalle</returns>
+        public async Task<List<PromoHeader>> GetPromocionesAPICloud(string customerNo = "")
+        {
+            var resultado = new List<PromoHeader>();
+
+            try
+            {
+                // 1. Obtener token OAuth2
+                var requestToken = new { tenant = _apiSettings.Tenant };
+                string token = string.Empty;
+
+                var tokenResponse = await _http.PostAsJsonAsync(
+                    "https://tentaloauth-bcguh5c9feg7e7g7.canadacentral-01.azurewebsites.net/api/token",
+                    requestToken);
+
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    Console.WriteLine("[GetPromocionesAPICloud] No se pudo obtener token");
+                    return resultado;
+                }
+
+                // 2. Determinar qué customerNo usar
+                string efectiveCustomerNo = customerNo;
+                if (string.IsNullOrWhiteSpace(efectiveCustomerNo))
+                {
+                    var saved = await _store.GetAsync<User>(KEY_USER);
+                    efectiveCustomerNo = saved?.CustomerNo ?? "";
+                }
+
+                // 3. Construir la URL del endpoint de promociones
+                // NOTA: Ajusta el nombre del endpoint según tu API en Business Central
+                // Ejemplo: ApiPromocionesWebShop, ApiOfertasActivas, etc.
+                var baseUrl = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})";
+
+                // Filtrar por cliente y que esté activa
+                var url = $"{baseUrl}/salesOfferPacks?$filter=customerPriceGroup eq '{efectiveCustomerNo}' and active eq true&$expand=salesOfferPackLines";
+
+                // 4. Crear petición con cabeceras OAuth2 e Isolation
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Remove("Isolation");
+                request.Headers.Add("Isolation", "snapshot");
+
+                // 5. Ejecutar llamada
+                var response = await _http.SendAsync(request);
+
+                // 6. Procesar respuesta
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var data = System.Text.Json.JsonSerializer.Deserialize<PromoHeaderJson>(content, options);
+
+                    if (data?.Value != null)
+                    {
+                        // Filtrar solo promociones válidas (activas y dentro del rango de fechas)
+                        resultado.AddRange(data.Value.Where(p => p.IsValid));
+                        Console.WriteLine($"[GetPromocionesAPICloud] Se obtuvieron {resultado.Count} promociones activas");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[GetPromocionesAPICloud] Error: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[GetPromocionesAPICloud] Error detail: {errorContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetPromocionesAPICloud] Error: {ex.Message}");
+            }
+
+            return resultado;
+        }
     }
 }

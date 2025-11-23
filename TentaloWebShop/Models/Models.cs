@@ -562,6 +562,8 @@ namespace TentaloWebShop.Models
         public decimal DescPP { get; set; }
 
 
+
+
     }
     public class CustomerJson
     {

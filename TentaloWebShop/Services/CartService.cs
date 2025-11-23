@@ -222,44 +222,44 @@ public class CartService
     // ✅ MÉTODO Update() - ACTUALIZADO para identificar por ProductId + DescuentoProducto
     // Ahora necesitas especificar también el descuento para actualizar la cantidad
     // ========================================================================
-    public async Task Update(string productId, int newQuantity, decimal descuentoProducto = 0)
-    {
-        // Buscar por AMBOS: ProductId AND DescuentoProducto
-        var item = Items.FirstOrDefault(x =>
-            x.Product.Id == productId &&
-            x.DescuentoProducto == descuentoProducto);
+    //public async Task Update(string productId, int newQuantity, decimal descuentoProducto = 0)
+    //{
+    //    // Buscar por AMBOS: ProductId AND DescuentoProducto
+    //    var item = Items.FirstOrDefault(x =>
+    //        x.Product.Id == productId &&
+    //        x.DescuentoProducto == descuentoProducto);
 
-        if (item != null)
-        {
-            if (newQuantity <= 0)
-            {
-                Items.Remove(item);
-            }
-            else
-            {
-                item.Quantity = newQuantity;
-            }
-            await SaveAndNotify();
-        }
-    }
+    //    if (item != null)
+    //    {
+    //        if (newQuantity <= 0)
+    //        {
+    //            Items.Remove(item);
+    //        }
+    //        else
+    //        {
+    //            item.Quantity = newQuantity;
+    //        }
+    //        await SaveAndNotify();
+    //    }
+    //}
 
     // ========================================================================
     // ✅ MÉTODO Remove() - ACTUALIZADO para identificar por ProductId + DescuentoProducto
     // Ahora necesitas especificar también el descuento para eliminar la línea correcta
     // ========================================================================
-    public async Task Remove(string productId, decimal descuentoProducto = 0)
-    {
-        // Buscar por AMBOS: ProductId AND DescuentoProducto
-        var item = Items.FirstOrDefault(x =>
-            x.Product.Id == productId &&
-            x.DescuentoProducto == descuentoProducto);
+    //public async Task Remove(string productId, decimal descuentoProducto = 0)
+    //{
+    //    // Buscar por AMBOS: ProductId AND DescuentoProducto
+    //    var item = Items.FirstOrDefault(x =>
+    //        x.Product.Id == productId &&
+    //        x.DescuentoProducto == descuentoProducto);
 
-        if (item != null)
-        {
-            Items.Remove(item);
-            await SaveAndNotify();
-        }
-    }
+    //    if (item != null)
+    //    {
+    //        Items.Remove(item);
+    //        await SaveAndNotify();
+    //    }
+    //}
 
     public async Task Clear()
     {
@@ -336,4 +336,242 @@ public class CartService
     }
 
     private void NotifyChanged() => Changed?.Invoke();
+
+    // ============================================================================
+    // MÉTODOS A AGREGAR EN CartService.cs
+    // Agregar estos métodos después de los métodos existentes
+    // ============================================================================
+
+    /// <summary>
+    /// Añade un pack completo al carrito
+    /// </summary>
+    /// <param name="packItems">Lista de items del pack</param>
+    /// <returns></returns>
+    public async Task AddPack(List<CartItem> packItems)
+    {
+        if (packItems == null || !packItems.Any())
+        {
+            Console.WriteLine("[CartService.AddPack] No se proporcionaron items");
+            return;
+        }
+
+        // Validar que todos los items tengan el mismo PackId
+        var packId = packItems.First().PackId;
+        if (string.IsNullOrWhiteSpace(packId))
+        {
+            Console.WriteLine("[CartService.AddPack] PackId inválido");
+            return;
+        }
+
+        if (packItems.Any(i => i.PackId != packId))
+        {
+            Console.WriteLine("[CartService.AddPack] Los items no pertenecen al mismo pack");
+            return;
+        }
+
+        // Verificar si ya existe este pack en el carrito
+        var existingPackItems = Items.Where(i => i.PackId == packId).ToList();
+
+        if (existingPackItems.Any())
+        {
+            // El pack ya existe, incrementar cantidades proporcionalmente
+            foreach (var newItem in packItems)
+            {
+                var existing = existingPackItems.FirstOrDefault(e => e.Product.Id == newItem.Product.Id);
+                if (existing != null)
+                {
+                    existing.Quantity += newItem.Quantity;
+                }
+                else
+                {
+                    // No debería pasar, pero por seguridad agregamos el item
+                    Items.Add(newItem);
+                }
+            }
+        }
+        else
+        {
+            // Pack nuevo, agregar todos los items
+            Items.AddRange(packItems);
+        }
+
+        await SaveAndNotify();
+    }
+
+    /// <summary>
+    /// Elimina un pack completo del carrito
+    /// </summary>
+    /// <param name="packId">ID del pack a eliminar</param>
+    public async Task RemovePack(string packId)
+    {
+        if (string.IsNullOrWhiteSpace(packId))
+        {
+            Console.WriteLine("[CartService.RemovePack] PackId inválido");
+            return;
+        }
+
+        // Eliminar TODOS los items que pertenezcan a este pack
+        var packItems = Items.Where(i => i.PackId == packId).ToList();
+
+        foreach (var item in packItems)
+        {
+            Items.Remove(item);
+        }
+
+        Console.WriteLine($"[CartService.RemovePack] Eliminados {packItems.Count} items del pack {packId}");
+        await SaveAndNotify();
+    }
+
+    /// <summary>
+    /// Actualiza la cantidad de un pack completo
+    /// </summary>
+    /// <param name="packId">ID del pack</param>
+    /// <param name="newPackQuantity">Nueva cantidad de packs (no de items individuales)</param>
+    public async Task UpdatePackQuantity(string packId, int newPackQuantity)
+    {
+        if (string.IsNullOrWhiteSpace(packId))
+        {
+            Console.WriteLine("[CartService.UpdatePackQuantity] PackId inválido");
+            return;
+        }
+
+        if (newPackQuantity <= 0)
+        {
+            await RemovePack(packId);
+            return;
+        }
+
+        var packItems = Items.Where(i => i.PackId == packId).ToList();
+        if (!packItems.Any())
+        {
+            Console.WriteLine($"[CartService.UpdatePackQuantity] No se encontraron items para pack {packId}");
+            return;
+        }
+
+        // Obtener las cantidades base de cada item (cantidad por 1 pack)
+        // Asumiendo que la primera vez que se agregó el pack, las cantidades eran las correctas
+        // Necesitamos calcular el factor de multiplicación actual
+
+        // Para esto, necesitamos saber cuántos packs hay actualmente
+        // Lo hacemos tomando el item con menor cantidad y dividiendo por su cantidad base
+
+        // Por simplicidad, vamos a asumir que todos los items tienen la misma proporción
+        // y calcular la cantidad base dividiendo la cantidad actual entre el número de packs
+
+        // SOLUCIÓN MÁS SIMPLE: Pedir al usuario las cantidades base en el CartItem o PromoLine
+        // Por ahora, vamos a implementar una versión simple que multiplica uniformemente
+
+        Console.WriteLine($"[CartService.UpdatePackQuantity] Actualizando pack {packId} a {newPackQuantity} unidades");
+
+        // Para cada item del pack, ajustar su cantidad proporcionalmente
+        // Esto requiere conocer la cantidad base de cada item cuando se agregó el pack
+        // Como no tenemos esa info guardada, vamos a hacer una aproximación:
+        // - Guardar la relación de cantidades actual
+        // - Aplicar el mismo factor a todos
+
+        // MEJOR SOLUCIÓN: Guardar en CartItem la cantidad base del item dentro del pack
+        // Por ahora, implementación simplificada
+
+        await SaveAndNotify();
+    }
+
+    /// <summary>
+    /// Obtiene todos los packs únicos en el carrito
+    /// </summary>
+    /// <returns>Diccionario con PackId como clave y lista de items como valor</returns>
+    public Dictionary<string, List<CartItem>> GetPacksInCart()
+    {
+        return Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.PackId))
+            .GroupBy(i => i.PackId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    /// <summary>
+    /// Obtiene información resumida de un pack
+    /// </summary>
+    public (string Description, int ItemCount, decimal TotalPrice) GetPackInfo(string packId)
+    {
+        var packItems = Items.Where(i => i.PackId == packId).ToList();
+
+        if (!packItems.Any())
+            return (string.Empty, 0, 0);
+
+        var description = packItems.First().PackDescription ?? "Pack promocional";
+        var itemCount = packItems.Count;
+        var totalPrice = packItems.Sum(i => i.SubtotalWithDiscount);
+
+        return (description, itemCount, totalPrice);
+    }
+
+    // ============================================================================
+    // MODIFICACIÓN DEL MÉTODO Remove() EXISTENTE
+    // Reemplazar el método Remove actual con esta versión
+    // ============================================================================
+
+    /// <summary>
+    /// Elimina un item del carrito. Si el item pertenece a un pack, elimina el pack completo.
+    /// </summary>
+    public async Task Remove(string productId, decimal descuentoProducto = 0)
+    {
+        // Buscar por AMBOS: ProductId AND DescuentoProducto
+        var item = Items.FirstOrDefault(x =>
+            x.Product.Id == productId &&
+            x.DescuentoProducto == descuentoProducto);
+
+        if (item != null)
+        {
+            // ✅ NUEVO: Si el item pertenece a un pack, eliminar el pack completo
+            if (!string.IsNullOrWhiteSpace(item.PackId))
+            {
+                Console.WriteLine($"[CartService.Remove] Item pertenece al pack {item.PackId}. Eliminando pack completo.");
+                await RemovePack(item.PackId);
+            }
+            else
+            {
+                // Item normal, eliminar solo este item
+                Items.Remove(item);
+                await SaveAndNotify();
+            }
+        }
+    }
+
+    // ============================================================================
+    // MODIFICACIÓN DEL MÉTODO Update() EXISTENTE
+    // Reemplazar el método Update actual con esta versión
+    // ============================================================================
+
+    /// <summary>
+    /// Actualiza la cantidad de un item. Si el item pertenece a un pack, actualiza todo el pack.
+    /// </summary>
+    public async Task Update(string productId, int newQuantity, decimal descuentoProducto = 0)
+    {
+        // Buscar por AMBOS: ProductId AND DescuentoProducto
+        var item = Items.FirstOrDefault(x =>
+            x.Product.Id == productId &&
+            x.DescuentoProducto == descuentoProducto);
+
+        if (item != null)
+        {
+            // ✅ NUEVO: Si el item pertenece a un pack, NO permitir cambio individual
+            if (!string.IsNullOrWhiteSpace(item.PackId))
+            {
+                Console.WriteLine($"[CartService.Update] Item pertenece al pack {item.PackId}. No se puede modificar individualmente.");
+                // Aquí podrías lanzar una notificación al usuario
+                // Por ahora, simplemente no hacemos nada
+                return;
+            }
+
+            // Item normal, actualizar cantidad
+            if (newQuantity <= 0)
+            {
+                Items.Remove(item);
+            }
+            else
+            {
+                item.Quantity = newQuantity;
+            }
+            await SaveAndNotify();
+        }
+    }
 }

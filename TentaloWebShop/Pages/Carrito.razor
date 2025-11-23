@@ -7,7 +7,7 @@
 @implements IAsyncDisposable
 @using TentaloWebShop.Models
 @using System.Globalization
-
+@inject IJSRuntime JS
 <h1>Carrito de Compra</h1>
 
 @if (!Cart.Items.Any())
@@ -87,67 +87,153 @@ else
     <div class="row g-4">
         <div class="col-12 col-lg-8">
             <!-- Lista de productos -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    @foreach (var item in Cart.Items)
-                    {
-                        <div class="cart-item">
-                            <!-- Imagen del producto -->
-                            <img src="@item.Product.ImageUrl"
-                                 class="cart-item-image"
-                                 alt="@item.Product.Name"
-                                 onerror="this.src='/images/placeholder.png'">
-
-                            <!-- Contenido del producto -->
-                            <div class="cart-item-content">
-                                <!-- Información del producto -->
-                                <div class="cart-item-info">
-                                    <a href="@($"/producto/{item.Product.Slug}")" class="cart-item-name">
-                                        @item.Product.Name
-                                    </a>
-                                    <div class="cart-item-details">
-                                        <!-- ✅ PRECIO CON DESCUENTO -->
-                                        @if (item.DescuentoProducto > 0)
-                                        {
-                                            <span style="text-decoration: line-through; color: #999; font-size: 0.9em;">
-                                                @item.Product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
-                                            </span>
-                                            <span style="color: var(--primary); font-weight: 600;">
-                                                @item.PriceWithDiscount.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
-                                            </span>
-                                            <span class="badge bg-danger ms-2">-@item.DescuentoProducto.ToString("0.##")%</span>
-                                        }
-                                        else
-                                        {
-                                            <span>@item.Product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
-                                        }
-                                        <span class="mx-1">×</span>
-                                        <span>@item.Product.Presentation_Unit</span>
-                                    </div>
-                                </div>
-
-                                <!-- Precio y cantidad (móvil: en la misma línea) -->
-                                <div class="cart-item-price-section">
-                                    <div class="cart-item-price">
-                                        <!-- ✅ SUBTOTAL CON DESCUENTO -->
-                                        @item.SubtotalWithDiscount.ToString("0.00") €
-                                    </div>
-                                    <div class="cart-item-quantity">
-                                        <QuantityStepper Value="item.Quantity" ValueChanged="(v) => Change(item, v)" />
-                                    </div>
-                                </div>
-
-                                <!-- Botón eliminar (móvil: pegado a la izquierda) -->
-                                <div class="cart-item-actions">
-                                    <button class="btn btn-link btn-sm text-danger p-0" @onclick="(() => Remove(item))">
-                                        Eliminar
-                                    </button>
-                                </div>
-                            </div>
+            @{
+                var packGroups = GetPackGroups();
+                if (packGroups.Any())
+                {
+                    <div class="card mb-4 border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-gift-fill me-2"></i>
+                                Packs Promocionales
+                            </h5>
                         </div>
-                    }
-                </div>
-            </div>
+                        <div class="card-body p-0">
+                            @foreach (var packGroup in packGroups)
+                            {
+                                var firstItem = packGroup.Value.First();
+                                var packTotal = packGroup.Value.Sum(i => i.SubtotalWithDiscount);
+
+                                <div class="pack-group">
+                                    <!-- Cabecera del pack -->
+                                    <div class="pack-header">
+                                        <div class="pack-info">
+                                            <i class="bi bi-box-seam me-2"></i>
+                                            <strong>@firstItem.PackDescription</strong>
+                                            <span class="badge bg-danger ms-2">PACK</span>
+                                        </div>
+                                        <div class="pack-actions">
+                                            <span class="pack-total me-3">@packTotal.ToString("0.00") €</span>
+                                            <button class="btn btn-link btn-sm text-danger p-0"
+                                                    @onclick="(() => RemovePackConfirm(packGroup.Key, firstItem.PackDescription))">
+                                                <i class="bi bi-trash"></i> Eliminar Pack
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Items del pack -->
+                                    <div class="pack-items">
+                                        @foreach (var item in packGroup.Value)
+                                        {
+                                            <div class="pack-item-row">
+                                                <img src="@item.Product.ImageUrl"
+                                                     class="pack-item-image"
+                                                     alt="@item.Product.Name"
+                                                     onerror="this.src='/images/placeholder.png'">
+
+                                                <div class="pack-item-details">
+                                                    <span class="pack-item-name">@item.Product.Name</span>
+                                                    <span class="pack-item-type">
+                                                        @if (item.IsPackGift)
+                                                        {
+                                                            <span class="badge bg-success">REGALO</span>
+                                                        }
+                                                        else if (item.DescuentoProducto > 0)
+                                                        {
+                                                            <span class="badge bg-warning">DESCUENTO @item.DescuentoProducto.ToString("0")%</span>
+                                                        }
+                                                    </span>
+                                                </div>
+
+                                                <div class="pack-item-pricing">
+                                                    <span class="item-quantity">@item.Quantity x</span>
+                                                    @if (item.DescuentoProducto > 0)
+                                                    {
+                                                        <span class="text-muted text-decoration-line-through me-1" style="font-size: 0.9em;">
+                                                            @item.Product.PriceFrom.ToString("0.00")€
+                                                        </span>
+                                                    }
+                                                    <span class="item-price">@item.PriceWithDiscount.ToString("0.00")€</span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <!-- ✅ PRODUCTOS NORMALES (sin pack) -->
+            @{
+                var normalItems = GetNormalItems();
+                if (normalItems.Any())
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-cart me-2"></i>
+                                Productos
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @foreach (var item in normalItems)
+                            {
+                                <div class="cart-item">
+                                    <!-- Tu código existente para mostrar items normales -->
+                                    <img src="@item.Product.ImageUrl"
+                                         class="cart-item-image"
+                                         alt="@item.Product.Name"
+                                         onerror="this.src='/images/placeholder.png'">
+
+                                    <div class="cart-item-content">
+                                        <div class="cart-item-info">
+                                            <a href="@($"/producto/{item.Product.Slug}")" class="cart-item-name">
+                                                @item.Product.Name
+                                            </a>
+                                            <div class="cart-item-details">
+                                                @if (item.DescuentoProducto > 0)
+                                                {
+                                                    <span style="text-decoration: line-through; color: #999; font-size: 0.9em;">
+                                                        @item.Product.PriceFrom.ToString("N2") €
+                                                    </span>
+                                                    <span style="color: var(--primary); font-weight: 600;">
+                                                        @item.PriceWithDiscount.ToString("N2") €
+                                                    </span>
+                                                    <span class="badge bg-danger ms-2">-@item.DescuentoProducto.ToString("0.##")%</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@item.Product.PriceFrom.ToString("N2") €</span>
+                                                }
+                                                <span class="mx-1">×</span>
+                                                <span>@item.Product.Presentation_Unit</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="cart-item-price-section">
+                                            <div class="cart-item-price">
+                                                @item.SubtotalWithDiscount.ToString("0.00") €
+                                            </div>
+                                            <div class="cart-item-quantity">
+                                                <QuantityStepper Value="item.Quantity" ValueChanged="(v) => Change(item, v)" />
+                                            </div>
+                                        </div>
+
+                                        <div class="cart-item-actions">
+                                            <button class="btn btn-link btn-sm text-danger p-0" @onclick="(() => Remove(item))">
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
 
             <!-- Dirección de envío -->
             <div class="card shipping-address-card">
@@ -336,24 +422,171 @@ else
         </div>
     </div>
 }
+<style>
+    /* ... estilos existentes ... */
 
+    /* ✅ NUEVOS ESTILOS PARA PACKS */
+    .pack-group {
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .pack-group:last-child {
+            border-bottom: none;
+        }
+
+    .pack-header {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #dc3545;
+    }
+
+    .pack-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+        color: #2c3e50;
+    }
+
+    .pack-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .pack-total {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #dc3545;
+    }
+
+    .pack-items {
+        padding: 1rem;
+        background: #fafafa;
+    }
+
+    .pack-item-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+        .pack-item-row:last-child {
+            margin-bottom: 0;
+        }
+
+    .pack-item-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+
+    .pack-item-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .pack-item-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+    }
+
+    .pack-item-pricing {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    .item-quantity {
+        color: #6c757d;
+    }
+
+    .item-price {
+        color: #dc3545;
+        font-size: 1.1rem;
+    }
+
+    /* Responsive para packs */
+    @@media (max-width: 768px) {
+        .pack-header
+
+    {
+        flex-direction: column;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+    .pack-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .pack-item-row {
+        flex-wrap: wrap;
+    }
+
+    .pack-item-details {
+        width: 100%;
+    }
+
+    .pack-item-pricing {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    }
+</style>
 @code {
     private string selectedAddressId = "";
     private bool isProcessingOrder = false;
     private bool orderCompleted = false;
     private bool orderSuccess = false;
     private string orderErrorMessage = "";
-
+    private bool IsPartOfPack(CartItem item) => !string.IsNullOrWhiteSpace(item.PackId);
     private bool CanProceedToCheckout =>
         Auth.CurrentUser?.CustomerAddres?.Any() != true ||
         !string.IsNullOrEmpty(selectedAddressId);
-
+    private Dictionary<string, List<CartItem>> GetPackGroups()
+    {
+        return Cart.Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.PackId))
+            .GroupBy(i => i.PackId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+    private List<CartItem> GetNormalItems()
+    {
+        return Cart.Items
+            .Where(i => string.IsNullOrWhiteSpace(i.PackId))
+            .ToList();
+    }
     protected override async Task OnInitializedAsync()
     {
         // ✅ Suscribirse al evento de cambio de cliente
         Auth.OnCustomerChanged += OnCustomerChanged;
     }
+    private async Task RemovePackConfirm(string packId, string packDescription)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm",
+            $"¿Estás seguro de que deseas eliminar el pack '{packDescription}' completo?");
 
+        if (confirmed)
+        {
+            await Cart.RemovePack(packId);
+        }
+    }
     // ✅ Handler para cuando cambia el cliente
     private async Task OnCustomerChanged()
     {
@@ -370,9 +603,36 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-    async Task Change(CartItem item, int qty) => await Cart.Update(item.Product.Id, qty, item.DescuentoProducto);
-    async Task Remove(CartItem item) => await Cart.Remove(item.Product.Id,item.DescuentoProducto);
+    async Task Change(CartItem item, int qty)
+    {
+        if (IsPartOfPack(item))
+        {
+            // No permitir cambio de cantidad en items de pack
+            await JS.InvokeVoidAsync("showToast", "warning", "Pack Promocional",
+                "No se puede cambiar la cantidad de productos individuales en un pack. Elimina el pack completo si deseas ajustar las cantidades.");
+            return;
+        }
 
+        await Cart.Update(item.Product.Id, qty, item.DescuentoProducto);
+    }
+    async Task Remove(CartItem item)
+    {
+        if (IsPartOfPack(item))
+        {
+            // Mostrar confirmación antes de eliminar el pack completo
+            var confirmed = await JS.InvokeAsync<bool>("confirm",
+                $"Este producto pertenece al pack '{item.PackDescription}'. ¿Deseas eliminar el pack completo?");
+
+            if (confirmed)
+            {
+                await Cart.RemovePack(item.PackId);
+            }
+        }
+        else
+        {
+            await Cart.Remove(item.Product.Id, item.DescuentoProducto);
+        }
+    }
     async Task Checkout()
     {
         isProcessingOrder = true;
@@ -413,6 +673,7 @@ else
         if (!string.IsNullOrEmpty(address.Name2))
             displayText += $" {address.Name2}";
         displayText += $" - {address.City}";
+        displayText += $" - {address.Code}";
 
         if (!string.IsNullOrEmpty(address.AddressType))
             displayText += $" ({address.AddressType})";

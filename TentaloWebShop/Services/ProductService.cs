@@ -36,6 +36,7 @@ public class ProductService
         Console.WriteLine("[ProductService.OnClientSelectionChanged] Limpiando caché");
         ClearCache();
     }
+
     /// <summary>
     /// Obtiene un producto específico por su ID (Itemno)
     /// </summary>
@@ -55,6 +56,26 @@ public class ProductService
             return null;
         }
     }
+
+    /// <summary>
+    /// Obtiene un producto por su código de artículo (ItemNo)
+    /// </summary>
+    public async Task<Product?> GetByItemNoAsync(string itemNo)
+    {
+        try
+        {
+            // Primero intentar obtener de caché
+            var allProducts = await GetAllAsync();
+            return allProducts.FirstOrDefault(p =>
+                p.Itemno.Equals(itemNo, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR GetByItemNoAsync] {ex.Message}");
+            return null;
+        }
+    }
+
     public async Task<List<Product>> GetAllAsync()
     {
         // Determinar qué número de cliente usar
@@ -111,6 +132,11 @@ public class ProductService
                 }
             }
         }
+
+        // ✅ FILTRAR: Solo productos con precio mayor a 0
+        list = list.Where(p => p.PriceFrom > 0).ToList();
+
+        Console.WriteLine($"[ProductService.GetAllAsync] Total productos (precio > 0): {list.Count}");
 
         _cache = list;
         return list;
@@ -178,6 +204,7 @@ public class ProductService
         var all = await GetAllAsync();
         return all.Where(p => p.EsNovedad).ToList();
     }
+
     public async Task<List<Stock>> GetStockByProductoAsync(string almacen, string productNo)
     {
         try
