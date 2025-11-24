@@ -3,105 +3,115 @@
 @inject AuthService Auth
 @implements IAsyncDisposable
 
-<div class="container-fluid px-3 px-lg-4 py-4">
+<div class="ofertas-page">
     <!-- Header Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex align-items-center gap-3 mb-2">
-                <i class="bi bi-tag-fill text-danger fs-2"></i>
-                <h1 class="mb-0 fw-bold text-dark">Ofertas y Promociones</h1>
+    <div class="ofertas-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-tag-fill"></i>
             </div>
-            <p class="text-muted mb-0">
-                Packs especiales con los mejores descuentos en suplementación deportiva
-            </p>
+            <div class="header-text">
+                <h1 class="page-title">Ofertas y Promociones</h1>
+                <p class="page-subtitle">
+                    Packs especiales con los mejores descuentos en suplementación deportiva
+                </p>
+            </div>
         </div>
     </div>
 
     @if (isLoading)
     {
-        <div class="text-center py-5">
-            <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+        <div class="loading-container">
+            <div class="spinner-border text-danger loading-spinner" role="status">
                 <span class="visually-hidden">Cargando ofertas...</span>
             </div>
-            <p class="mt-3 text-muted">Cargando ofertas especiales...</p>
+            <p class="loading-text">Cargando ofertas especiales...</p>
         </div>
     }
     else if (!promos.Any())
     {
-        <div class="row">
-            <div class="col-12 col-md-8 col-lg-6 mx-auto">
-                <div class="alert alert-info d-flex align-items-start p-4" role="alert">
-                    <i class="bi bi-info-circle-fill me-3 fs-3"></i>
-                    <div class="flex-grow-1">
-                        <h5 class="alert-heading mb-2">No hay ofertas disponibles</h5>
-                        <p class="mb-2">
-                            En este momento no hay promociones activas para tu cuenta.
-                            Pronto tendremos nuevas ofertas especiales.
-                        </p>
-                        <hr>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a href="/catalogo" class="btn btn-primary">
-                                <i class="bi bi-grid me-2"></i>
-                                Explorar Catálogo
-                            </a>
-                            <a href="/novedades" class="btn btn-outline-primary">
-                                <i class="bi bi-star me-2"></i>
-                                Ver Novedades
-                            </a>
-                        </div>
-                    </div>
+        <div class="empty-state-container">
+            <div class="empty-state-card">
+                <div class="empty-icon-wrapper">
+                    <i class="bi bi-tag"></i>
+                </div>
+                <h3 class="empty-title">No hay ofertas disponibles</h3>
+                <p class="empty-description">
+                    En este momento no hay promociones activas para tu cuenta.
+                    Pronto tendremos nuevas ofertas especiales.
+                </p>
+                <div class="empty-actions">
+                    <a href="/catalogo" class="btn btn-primary btn-action">
+                        <i class="bi bi-grid me-2"></i>
+                        Explorar Catálogo
+                    </a>
+                    <a href="/novedades" class="btn btn-outline-primary btn-action">
+                        <i class="bi bi-star me-2"></i>
+                        Ver Novedades
+                    </a>
                 </div>
             </div>
         </div>
     }
     else
     {
-        <!-- Stats Badge -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <span class="badge bg-danger fs-6 px-3 py-2">
-                        <i class="bi bi-tag-fill me-2"></i>
-                        @promos.Count @(promos.Count == 1 ? "oferta" : "ofertas") disponible@(promos.Count == 1 ? "" : "s")
+        <!-- Stats Badges -->
+        <div class="stats-section">
+            <div class="stats-badges">
+                <span class="stat-badge stat-count">
+                    <i class="bi bi-tag-fill"></i>
+                    <span class="stat-text">@promos.Count @(promos.Count == 1 ? "oferta" : "ofertas")</span>
+                </span>
+                @if (totalSavings > 0)
+                {
+                    <span class="stat-badge stat-savings">
+                        <i class="bi bi-piggy-bank"></i>
+                        <span class="stat-text">Ahorra hasta @totalSavings.ToString("0.00")€</span>
                     </span>
-                    @if (totalSavings > 0)
-                    {
-                        <span class="badge bg-success fs-6 px-3 py-2">
-                            <i class="bi bi-piggy-bank me-2"></i>
-                            Ahorra hasta @totalSavings.ToString("0.00")€
-                        </span>
-                    }
-                </div>
+                }
             </div>
         </div>
 
         <!-- Promos Cards Grid -->
-        <div class="row g-4">
+        <div class="promos-grid">
             @foreach (var promo in promos)
             {
-                <div class="col-12 col-md-6 col-xl-4">
+                <div class="promo-card-wrapper">
                     <PromoPackCard Promo="@promo" />
                 </div>
             }
         </div>
 
         <!-- Info Footer -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="info-card">
-                    <div class="info-icon">
-                        <i class="bi bi-info-circle-fill"></i>
-                    </div>
-                    <div class="info-content">
-                        <h6 class="info-title">Información sobre los packs promocionales</h6>
-                        <ul class="info-list">
-                            <li>Los packs son conjuntos de productos con descuentos especiales</li>
-                            <li>Al añadir un pack al carrito, se incluyen automáticamente todos los productos</li>
-                            <li>Los packs no se pueden dividir: si eliminas un producto, se elimina el pack completo</li>
-                            <li>Puedes añadir múltiples unidades del mismo pack</li>
-                            <li>Los descuentos y regalos se aplican automáticamente</li>
-                        </ul>
-                    </div>
+        <div class="info-section">
+            <div class="info-card">
+                <div class="info-icon-wrapper">
+                    <i class="bi bi-info-circle-fill"></i>
+                </div>
+                <div class="info-content">
+                    <h6 class="info-title">Información sobre los packs promocionales</h6>
+                    <ul class="info-list">
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Los packs son conjuntos de productos con descuentos especiales</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Al añadir un pack al carrito, se incluyen automáticamente todos los productos</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Los packs no se pueden dividir: si eliminas un producto, se elimina el pack completo</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Puedes añadir múltiples unidades del mismo pack</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Los descuentos y regalos se aplican automáticamente</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -157,18 +167,221 @@
 }
 
 <style>
-    .info-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 12px;
-        padding: 2rem;
-        display: flex;
-        gap: 1.5rem;
-        align-items: start;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    /* ========================================
+           PAGE CONTAINER
+           ======================================== */
+    .ofertas-page {
+        padding: 1rem;
+        max-width: 1600px;
+        margin: 0 auto;
     }
 
-    .info-icon {
+    /* ========================================
+           HEADER SECTION
+           ======================================== */
+    .ofertas-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-icon {
         flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    .header-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .page-title {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        line-height: 1.2;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+
+    /* ========================================
+           LOADING STATE
+           ======================================== */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        text-align: center;
+    }
+
+    .loading-spinner {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .loading-text {
+        margin-top: 1rem;
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    /* ========================================
+           EMPTY STATE
+           ======================================== */
+    .empty-state-container {
+        display: flex;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .empty-state-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef;
+    }
+
+    .empty-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+        color: #adb5bd;
+    }
+
+    .empty-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .empty-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn-action {
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+
+    /* ========================================
+           STATS SECTION
+           ======================================== */
+    .stats-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .stats-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .stat-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+        .stat-badge i {
+            font-size: 1rem;
+        }
+
+    .stat-count {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.25);
+    }
+
+    .stat-savings {
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.25);
+    }
+
+    /* ========================================
+           PROMOS GRID
+           ======================================== */
+    .promos-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .promo-card-wrapper {
+        width: 100%;
+    }
+
+    /* ========================================
+           INFO SECTION
+           ======================================== */
+    .info-section {
+        margin-top: 2rem;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-icon-wrapper {
         width: 48px;
         height: 48px;
         background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
@@ -178,70 +391,268 @@
         justify-content: center;
         color: white;
         font-size: 1.5rem;
+        flex-shrink: 0;
+        margin: 0 auto;
     }
 
     .info-content {
-        flex-grow: 1;
+        flex: 1;
     }
 
     .info-title {
         font-weight: 700;
         color: #2c3e50;
         margin-bottom: 1rem;
-        font-size: 1.1rem;
+        font-size: 1rem;
+        text-align: center;
     }
 
     .info-list {
         margin: 0;
-        padding-left: 1.5rem;
-        color: #495057;
+        padding: 0;
+        list-style: none;
     }
 
         .info-list li {
-            margin-bottom: 0.5rem;
-            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            color: #495057;
+            font-size: 0.875rem;
+            line-height: 1.5;
         }
 
-            .info-list li:last-child {
-                margin-bottom: 0;
+            .info-list li i {
+                color: #28a745;
+                font-size: 0.875rem;
+                flex-shrink: 0;
+                margin-top: 0.125rem;
             }
 
-    @@media (max-width: 768px) {
-        .info-card {
-            flex-direction: column;
+            .info-list li span {
+                flex: 1;
+            }
+
+    /* ========================================
+           RESPONSIVE - TABLETS (≥576px)
+           ======================================== */
+    @@media (min-width: 576px) {
+        .ofertas-page {
             padding: 1.5rem;
-            gap: 1rem;
         }
 
-        .info-icon {
-            margin: 0 auto;
+        .header-icon {
+            width: 56px;
+            height: 56px;
+            font-size: 1.75rem;
         }
 
-        .info-content {
+        .page-title {
+            font-size: 1.75rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+        }
+
+        .empty-actions {
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .promos-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .info-card {
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 1.75rem;
+        }
+
+        .info-icon-wrapper {
+            margin: 0;
+        }
+
+        .info-title {
+            text-align: left;
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - TABLETS GRANDES (≥768px)
+           ======================================== */
+    @@media (min-width: 768px) {
+        .ofertas-page {
+            padding: 2rem;
+        }
+
+        .ofertas-header {
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            gap: 1.25rem;
+        }
+
+        .header-icon {
+            width: 64px;
+            height: 64px;
+            font-size: 2rem;
+            border-radius: 16px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .stats-section {
+            margin-bottom: 2rem;
+        }
+
+        .stat-badge {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        .promos-grid {
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            padding: 2rem;
+            gap: 1.5rem;
+        }
+
+        .info-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            font-size: 1.75rem;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+        }
+
+        .info-list li {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - DESKTOP (≥992px)
+           ======================================== */
+    @@media (min-width: 992px) {
+        .ofertas-page {
+            padding: 2rem 3rem;
+        }
+
+        .promos-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - DESKTOP GRANDE (≥1200px)
+           ======================================== */
+    @@media (min-width: 1200px) {
+        .ofertas-page {
+            padding: 2rem 4rem;
+        }
+
+        .page-title {
+            font-size: 2.25rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .promos-grid {
+            gap: 2rem;
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - EXTRA GRANDE (≥1400px)
+           ======================================== */
+    @@media (min-width: 1400px) {
+        .promos-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* ========================================
+           RESPONSIVE - MÓVILES PEQUEÑOS (≤360px)
+           ======================================== */
+    @@media (max-width: 360px) {
+        .ofertas-page {
+            padding: 0.75rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: center;
             text-align: center;
         }
 
-        .info-list {
-            text-align: left;
-            padding-left: 1rem;
+        .header-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 1.25rem;
+        }
+
+        .page-title {
+            font-size: 1.25rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.85rem;
+        }
+
+        .stats-badges {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .stat-badge {
+            justify-content: center;
+        }
+
+        .empty-state-card {
+            padding: 1.5rem 1rem;
+        }
+
+        .empty-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            font-size: 2rem;
+        }
+
+        .info-card {
+            padding: 1.25rem;
+        }
+
+        .info-list li {
+            font-size: 0.8rem;
         }
     }
 
-    .pack-image-container {
-        position: relative;
-        width: 100%;
-        height: 250px; /* ✅ Altura fija en lugar de padding-top */
-        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-        overflow: hidden;
-        border-radius: 12px 12px 0 0; /* ✅ Bordes redondeados arriba */
+    /* ========================================
+           ACCESIBILIDAD
+           ======================================== */
+    @@media (prefers-reduced-motion: reduce) {
+        .btn-action,
+        .stat-badge {
+            transition: none;
+        }
     }
 
-    .pack-image {
-        width: 100%;
-        height: 100%;
-        object-fit: contain; /* ✅ CAMBIADO: contain en lugar de cover */
-        object-position: center; /* ✅ Centrado */
-        padding: 1rem; /* ✅ Espacio interno */
-        background: white; /* ✅ Fondo blanco */
+    /* Focus visible para navegación por teclado */
+    .btn-action:focus-visible {
+        outline: 2px solid #0d6efd;
+        outline-offset: 2px;
     }
 </style>
