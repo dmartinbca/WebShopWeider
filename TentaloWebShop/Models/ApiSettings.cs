@@ -11,6 +11,7 @@
         public string APIPublisher { get; set; } = string.Empty;
         public string APIGroup { get; set; } = string.Empty;
         public string APIVersion { get; set; } = string.Empty;
+        public decimal LimitePedido { get; set; } = 0; // ✅ NUEVO: Límite mínimo de pedido
     }
 
 }
