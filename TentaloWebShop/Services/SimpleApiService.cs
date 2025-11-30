@@ -105,7 +105,7 @@ namespace TentaloWebShop.Services
 
                 };
                 string token = string.Empty;
-                var tokenResponse = await _httpClient.PostAsJsonAsync("https://tentaloatenticator-f9gvcxh9f9evcmbq.canadacentral-01.azurewebsites.net/api/token", request1);
+                var tokenResponse = await _httpClient.PostAsJsonAsync("https://authenticator.tentalo.com:441/api/token", request1);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
 
