@@ -1060,6 +1060,8 @@ namespace TentaloWebShop.Services
                     if (data?.Value != null)
                     {
                         resultado.AddRange(data.Value);
+                        Console.WriteLine($"[GetProductosAPICloud] Productos obtenidos: {data.Value.Count}");
+                        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(data.Value, new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
                     }
                 }
             }

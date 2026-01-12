@@ -133,8 +133,8 @@ public class ProductService
             }
         }
 
-        // ✅ FILTRAR: Solo productos con precio mayor a 0
-        list = list.Where(p => p.PriceFrom > 0).ToList();
+        // ✅ FILTRAR: Solo productos con precio mayor a 0 (excepto familia MATERIAL PROM)
+        list = list.Where(p => p.PriceFrom > 0 || p.FamilySlug.Equals("MATERIALPROM", StringComparison.OrdinalIgnoreCase)).ToList();
 
         Console.WriteLine($"[ProductService.GetAllAsync] Total productos (precio > 0): {list.Count}");
 
