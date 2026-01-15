@@ -3,17 +3,19 @@
 @inject AuthService Auth
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
+@inject LocalizationService L
 @using System.Text.Json
 @using TentaloWebShop.Models
+@implements IDisposable
 
-<PageTitle>Mis Facturas</PageTitle>
+<PageTitle>@L.T("invoices_title")</PageTitle>
 
 <!-- Header fijo arriba -->
 <div class="facturas-header-fixed">
     <div class="facturas-header-content">
         <h1>
             <i class="bi bi-receipt"></i>
-            Mis Facturas
+            @L.T("invoices_title")
         </h1>
         <button class="btn-refresh" @onclick="RefreshInvoices" disabled="@isLoading">
             <i class="bi bi-arrow-clockwise"></i>
@@ -27,9 +29,9 @@
     {
         <div class="text-center py-5">
             <div class="spinner-border text-success" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">@L.T("loading")</span>
             </div>
-            <p class="mt-3 text-muted">Cargando facturas...</p>
+            <p class="mt-3 text-muted">@L.T("invoices_loading")</p>
         </div>
     }
     else if (!invoices.Any())
@@ -38,11 +40,11 @@
             <div class="empty-icon">
                 <i class="bi bi-receipt-cutoff"></i>
             </div>
-            <h3>No hay facturas</h3>
-            <p class="text-muted">Aún no tienes facturas registradas.</p>
+            <h3>@L.T("invoices_no_invoices")</h3>
+            <p class="text-muted">@L.T("invoices_no_invoices_text")</p>
             <a href="/pedidos" class="btn btn-primary">
                 <i class="bi bi-bag-check me-2"></i>
-                Ver Pedidos
+                @L.T("invoices_view_orders")
             </a>
         </div>
     }
@@ -59,7 +61,7 @@
                         <div class="invoice-info">
                             <div class="invoice-number">
                                 <i class="bi bi-receipt"></i>
-                                Factura #@invoice.No
+                                @L.T("invoices_invoice") #@invoice.No
                             </div>
                             <div class="invoice-date">
                                 @DateTime.TryParse(invoice.Order_Date, out var invoiceDate)
@@ -78,16 +80,16 @@
                         <div class="invoice-summary">
                             <div class="summary-item">
                                 <i class="bi bi-box"></i>
-                                <span>@InvoiceService.GetOrderLineCount(invoice) artículos</span>
+                                <span>@InvoiceService.GetOrderLineCount(invoice) @L.T("orders_items")</span>
                             </div>
                             <div class="summary-item">
                                 <i class="bi bi-geo-alt"></i>
-                                <span>@(!string.IsNullOrEmpty(invoice.Sell_to_City) ? invoice.Sell_to_City : "Dirección no especificada")</span>
+                                <span>@(!string.IsNullOrEmpty(invoice.Sell_to_City) ? invoice.Sell_to_City : L.T("orders_address_not_specified"))</span>
                             </div>
                         </div>
 
                         <div class="invoice-amount">
-                            <div class="amount-label">Total</div>
+                            <div class="amount-label">@L.T("cart_total")</div>
                             <div class="amount-value">@invoice.Amount_Including_VAT.ToString("N2") €</div>
                         </div>
                     </div>
@@ -96,7 +98,7 @@
                     <div class="invoice-footer">
                         <button class="btn btn-outline-primary" @onclick="() => ViewInvoice(invoice.No)">
                             <i class="bi bi-eye me-2"></i>
-                            Ver Detalle
+                            @L.T("orders_view_detail")
                         </button>
                         <button class="btn btn-outline-success"
                                 @onclick:stopPropagation="true"
@@ -105,12 +107,12 @@
                             @if (isDownloadingThis)
                             {
                                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                <span>Descargando...</span>
+                                <span>@L.T("orders_downloading")</span>
                             }
                             else
                             {
                                 <i class="bi bi-download me-2"></i>
-                                <span>Descargar</span>
+                                <span>@L.T("orders_download")</span>
                             }
                         </button>
                     </div>
@@ -125,7 +127,7 @@
                 <div class="toast show" role="alert">
                     <div class="toast-header @(downloadSuccess ? "bg-success" : "bg-danger") text-white">
                         <i class="bi @(downloadSuccess ? "bi-check-circle" : "bi-exclamation-triangle") me-2"></i>
-                        <strong class="me-auto">@(downloadSuccess ? "Éxito" : "Error")</strong>
+                        <strong class="me-auto">@(downloadSuccess ? L.T("orders_success") : L.T("orders_error"))</strong>
                         <button type="button" class="btn-close btn-close-white" @onclick="ClearDownloadMessage"></button>
                     </div>
                     <div class="toast-body">
@@ -690,12 +692,27 @@
     {
         return status?.ToLower() switch
         {
-            "open" => "Abierta",
-            "released" => "Liberada",
-            "paid" => "Pagada",
-            "cancelled" => "Cancelada",
-            "overdue" => "Vencida",
-            _ => "Abierta"
+            "open" => L.T("invoices_status_open"),
+            "released" => L.T("invoices_status_released"),
+            "paid" => L.T("invoices_status_paid"),
+            "cancelled" => L.T("invoices_status_cancelled"),
+            "overdue" => L.T("invoices_status_overdue"),
+            _ => L.T("invoices_status_open")
         };
+    }
+
+    protected override void OnInitialized()
+    {
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

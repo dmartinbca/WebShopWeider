@@ -1,17 +1,37 @@
 @* Footer.razor *@
+@inject LocalizationService L
+@implements IDisposable
+
 <footer class="footer py-4 border-top bg-white mt-4">
     <div class="container footer-container">
         <!-- Logo y Copyright siempre juntos -->
         <div class="footer-brand">
-            <img src="/images/Weiderlogo.png" alt="Tentalo Logo" class="footer-logo" />
-            <span class="footer-copyright">© 2025 WEIDER NUTRITION SL </span>
+            <img src="/images/Weiderlogo.png" alt="Weider Logo" class="footer-logo" />
+            <span class="footer-copyright">@L.T("footer_copyright")</span>
         </div>
         <!-- Enlaces de navegación -->
         <div class="footer-nav">
-            <a href="/catalogo" class="footer-link">Catálogo</a>
-            <a href="/ofertas" class="footer-link">Ofertas</a>
-            <a href="/novedades" class="footer-link">Novedades</a>
-            <a href="/politica-privacidad" class="footer-link">Política de Privacidad</a>
+            <a href="/catalogo" class="footer-link">@L.T("nav_catalog")</a>
+            <a href="/ofertas" class="footer-link">@L.T("nav_offers")</a>
+            <a href="/novedades" class="footer-link">@L.T("nav_news")</a>
+            <a href="/politica-privacidad" class="footer-link">@L.T("footer_privacy")</a>
         </div>
     </div>
 </footer>
+
+@code {
+    protected override void OnInitialized()
+    {
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
+    }
+}

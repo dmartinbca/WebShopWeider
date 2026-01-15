@@ -2,32 +2,32 @@
 @inject NavigationManager Nav
 @inject ProductService Products
 @inject AuthService Auth
+@inject LocalizationService L
 @implements IDisposable
 
-<h1 class="mb-3">Resultados de búsqueda</h1>
+<h1 class="mb-3">@L.T("search_title")</h1>
 
 @if (items is null)
 {
     <div class="text-center p-5">
         <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
+            <span class="visually-hidden">@L.T("loading")</span>
         </div>
-        <p class="mt-2">Cargando resultados...</p>
+        <p class="mt-2">@L.T("search_loading")</p>
     </div>
 }
 else if (!items.Any())
 {
     <div class="alert alert-info">
         <i class="bi bi-search me-2"></i>
-        Sin resultados para <strong>@q</strong>
+        @L.T("search_no_results") <strong>@q</strong>
     </div>
 }
 else
 {
     <div class="search-results-info mb-3">
         <p class="text-muted">
-            <strong>@items.Count()</strong> resultado@(items.Count() != 1 ? "s" : "") encontrado@(items.Count() != 1 ? "s" : "")
-            para "<strong>@q</strong>"
+            @L.T("search_results_count", items.Count()) "<strong>@q</strong>"
         </p>
     </div>
 
@@ -44,6 +44,12 @@ else
     {
         // Suscribirse al evento de cambio de cliente
         Auth.OnCustomerChanged += OnCustomerChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -98,5 +104,6 @@ else
     public void Dispose()
     {
         Auth.OnCustomerChanged -= OnCustomerChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

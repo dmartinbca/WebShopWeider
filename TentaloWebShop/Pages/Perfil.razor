@@ -1,9 +1,10 @@
 @page "/perfil"
 @inject AuthService Auth
 @inject EstadisticasService EstadisticasService
+@inject LocalizationService L
 @using System.Globalization
 @using Syncfusion.Blazor
- 
+
 @using Syncfusion.Blazor.Charts
 @implements IAsyncDisposable
 @if (!Auth.IsAuthenticated)
@@ -11,8 +12,8 @@
     <div class="alert alert-warning d-flex align-items-center">
         <i class="bi bi-exclamation-triangle me-3"></i>
         <div>
-            <strong>Acceso requerido</strong><br>
-            Debes iniciar sesión para ver tu perfil.
+            <strong>@L.T("profile_access_required")</strong><br>
+            @L.T("profile_login_required")
         </div>
     </div>
 }
@@ -26,7 +27,7 @@ else
                     <div class="perfil-header">
                         <h5 class="perfil-title">
                             <i class="bi bi-person-lines-fill me-2"></i>
-                            Información del Cliente
+                            @L.T("profile_customer_info")
                         </h5>
                     </div>
                     <div class="perfil-body">
@@ -37,7 +38,7 @@ else
                                         <div class="info-icon">
                                             <i class="bi bi-person-fill"></i>
                                         </div>
-                                        <span>Cliente</span>
+                                        <span>@L.T("profile_customer")</span>
                                     </div>
                                     <div class="info-value">@Auth.CurrentCustomer?.Name</div>
                                 </div>
@@ -49,7 +50,7 @@ else
                                         <div class="info-icon">
                                             <i class="bi bi-hash"></i>
                                         </div>
-                                        <span>Código de Cliente</span>
+                                        <span>@L.T("profile_customer_code")</span>
                                     </div>
                                     <div class="info-value">@Auth.CurrentCustomer?.CustNo</div>
                                 </div>
@@ -61,7 +62,7 @@ else
                                         <div class="info-icon">
                                             <i class="bi bi-telephone-fill"></i>
                                         </div>
-                                        <span>Teléfono</span>
+                                        <span>@L.T("profile_phone")</span>
                                     </div>
                                     <div class="info-value">
                                         @if (!string.IsNullOrEmpty(Auth.CurrentCustomer?.PhoneNo))
@@ -70,7 +71,7 @@ else
                                         }
                                         else
                                         {
-                                            <span class="no-data">No especificado</span>
+                                            <span class="no-data">@L.T("profile_not_specified")</span>
                                         }
                                     </div>
                                 </div>
@@ -82,7 +83,7 @@ else
                                         <div class="info-icon">
                                             <i class="bi bi-envelope-fill"></i>
                                         </div>
-                                        <span>Email</span>
+                                        <span>@L.T("profile_email")</span>
                                     </div>
                                     <div class="info-value">@Auth.CurrentUser?.Email</div>
                                 </div>
@@ -94,7 +95,7 @@ else
                                         <div class="info-icon">
                                             <i class="bi bi-card-text"></i>
                                         </div>
-                                        <span>CIF/NIF</span>
+                                        <span>@L.T("profile_vat")</span>
                                     </div>
                                     <div class="info-value">@Auth.CurrentCustomer?.vatRegistrationNo</div>
                                 </div>
@@ -106,7 +107,7 @@ else
                                         <div class="info-icon">
                                             <i class="bi bi-geo-alt-fill"></i>
                                         </div>
-                                        <span>Ciudad</span>
+                                        <span>@L.T("profile_city")</span>
                                     </div>
                                     <div class="info-value">@Auth.CurrentCustomer?.City</div>
                                 </div>
@@ -118,7 +119,7 @@ else
                                         <div class="info-icon">
                                             <i class="bi bi-map"></i>
                                         </div>
-                                        <span>Dirección Completa</span>
+                                        <span>@L.T("profile_full_address")</span>
                                     </div>
                                     <div class="info-value address-value">
                                         @Auth.CurrentCustomer?.Address<br />
@@ -138,7 +139,7 @@ else
                     <div class="perfil-header">
                         <h5 class="perfil-title">
                             <i class="bi bi-wallet2 me-2"></i>
-                            Resumen Financiero
+                            @L.T("profile_financial_summary")
                         </h5>
                     </div>
                     <div class="perfil-body">
@@ -147,7 +148,7 @@ else
                                 <div class="financial-icon">
                                     <i class="bi bi-currency-euro"></i>
                                 </div>
-                                <span>Saldo</span>
+                                <span>@L.T("profile_balance")</span>
                             </div>
                             <div class="financial-value @(Auth.CurrentCustomer?.netChange >= 0 ? "positive" : "negative")">
                                 @Eur(Auth.CurrentCustomer?.netChange)
@@ -159,7 +160,7 @@ else
                                 <div class="financial-icon">
                                     <i class="bi bi-exclamation-triangle"></i>
                                 </div>
-                                <span>Saldo Vencido</span>
+                                <span>@L.T("profile_overdue_balance")</span>
                             </div>
                             <div class="financial-value @(Auth.CurrentCustomer?.balanceDue > 0 ? "negative" : "positive")">
                                 @Eur(Auth.CurrentCustomer?.balanceDue)
@@ -171,7 +172,7 @@ else
                                 <div class="financial-icon">
                                     <i class="bi bi-credit-card"></i>
                                 </div>
-                                <span>Límite de Crédito</span>
+                                <span>@L.T("profile_credit_limit")</span>
                             </div>
                             <div class="financial-value neutral">@Eur(Auth.CurrentCustomer?.creditLimitLCY)</div>
                         </div>
@@ -181,7 +182,7 @@ else
                                 <div class="financial-icon">
                                     <i class="bi bi-percent"></i>
                                 </div>
-                                <span>Descuento General</span>
+                                <span>@L.T("profile_general_discount")</span>
                             </div>
                             <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.Desgeneral)</div>
                         </div>
@@ -191,7 +192,7 @@ else
                                 <div class="financial-icon">
                                     <i class="bi bi-tag"></i>
                                 </div>
-                                <span>Descuento Punto Pronto</span>
+                                <span>@L.T("profile_prompt_payment")</span>
                             </div>
                             <div class="financial-value highlight">@Pct(Auth.CurrentCustomer?.DescPP)</div>
                         </div>
@@ -207,14 +208,14 @@ else
                     <div class="perfil-header">
                         <h5 class="perfil-title">
                             <i class="bi bi-bar-chart me-2"></i>
-                            Evolución de Ventas Mensuales
+                            @L.T("profile_sales_evolution")
                         </h5>
                     </div>
                     <div class="perfil-body chart-body">
                         @if (Sales != null && Sales.Any())
                         {
                             <div class="chart-container">
-                                <SfChart Title="Evolución de Ventas Mensuales" Width="100%">
+                                <SfChart Title="@L.T("profile_sales_evolution")" Width="100%">
                                     <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
                                     <ChartMargin Bottom="12"></ChartMargin>
                                     <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category">
@@ -224,11 +225,11 @@ else
                                  
                                     <ChartTooltipSettings Enable="true" Format="${point.x}th Over : <b>${point.y} Runs</b>" EnableHighlight="true"></ChartTooltipSettings>
                                     <ChartSeriesCollection>
-                                        <ChartSeries DataSource="@Sales" 
-                                                     XName="Nombre" 
-                                                     YName="VentasAA" 
-                                                     Opacity="1" 
-                                                     Name="Ventas Año Anterior" 
+                                        <ChartSeries DataSource="@Sales"
+                                                     XName="Nombre"
+                                                     YName="VentasAA"
+                                                     Opacity="1"
+                                                     Name="@L.T("profile_previous_year")"
                                                      Fill="@ChartPalettes[0]" 
                                                      Width="2" 
                                                      ColumnSpacing="0.1" 
@@ -240,11 +241,11 @@ else
                                                 </ChartDataLabel>
                                             </ChartMarker>
                                         </ChartSeries>
-                                        <ChartSeries DataSource="@Sales" 
-                                                     XName="Nombre" 
-                                                     YName="Ventas" 
-                                                     Opacity="1" 
-                                                     Name="Ventas Año Actual" 
+                                        <ChartSeries DataSource="@Sales"
+                                                     XName="Nombre"
+                                                     YName="Ventas"
+                                                     Opacity="1"
+                                                     Name="@L.T("profile_current_year")"
                                                      Fill="@ChartPalettes[1]" 
                                                      Width="2" 
                                                      ColumnSpacing="0.1" 
@@ -265,7 +266,7 @@ else
                         {
                             <div class="alert alert-info" role="alert">
                                 <i class="bi bi-info-circle me-2"></i>
-                                No hay datos de ventas disponibles para este cliente.
+                                @L.T("profile_no_sales_data")
                             </div>
                         }
                     </div>
@@ -589,9 +590,15 @@ else
     {
         // ✅ Suscribirse al evento de cambio de cliente
         Auth.OnCustomerChanged += OnCustomerChangedAsync;
-        
+        L.OnLanguageChanged += OnLanguageChanged;
+
         // Cargar datos iniciales
         await LoadProfileData();
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     // ✅ Handler que se dispara cuando cambia el cliente
@@ -615,6 +622,7 @@ else
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         Auth.OnCustomerChanged -= OnCustomerChangedAsync;
+        L.OnLanguageChanged -= OnLanguageChanged;
         await ValueTask.CompletedTask;
     }
 

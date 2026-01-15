@@ -5,21 +5,23 @@
 @inject NavigationManager Nav
 @layout AuthLayout
 @inject BusyService Busy
+@inject LocalizationService L
+@implements IDisposable
 
 <div class="login-wrapper">
     <div class="login-content-wrapper">
         <div class="login-header">
-            <h1>Acceder</h1>
-            <img src="/images/entradaweider.png" alt="Logo Tentalo" class="login-logo" />
+            <h1>@L.T("login_title")</h1>
+            <img src="/images/entradaweider.png" alt="Logo Weider" class="login-logo" />
         </div>
         <div class="card" style="max-width:480px">
             <div class="card-body">
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">@L.T("login_email")</label>
                     <input class="form-control" @bind="email" autocomplete="username" />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Contraseña</label>
+                    <label class="form-label">@L.T("login_password")</label>
                     <input type="password" class="form-control" @bind="password" autocomplete="current-password" />
                 </div>
                 <button type="button"
@@ -32,7 +34,7 @@
                         <span class="spinner-border spinner-border-sm align-middle"
                               role="status" aria-hidden="true"></span>
                     }
-                    <span>@(isBusy ? "Accediendo…" : "Acceder")</span>
+                    <span>@(isBusy ? L.T("login_loading") : L.T("login_button"))</span>
                 </button>
                 @if (!string.IsNullOrEmpty(error))
                 {
@@ -164,11 +166,21 @@
     string? error;
     bool isBusy;
 
+    protected override void OnInitialized()
+    {
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     private async Task DoLogin()
     {
         error = null;
         isBusy = true;
-        Busy?.Show("Conectando…");
+        Busy?.Show(L.T("login_connecting"));
         try
         {
             var ok = await Auth.LoginAsync(email, password);
@@ -178,17 +190,22 @@
             }
             else
             {
-                error = "Credenciales inválidas";
+                error = L.T("login_error_credentials");
             }
         }
         catch (Exception ex)
         {
-            error = "Error de conexión. Inténtalo de nuevo.";
+            error = L.T("login_error_connection");
         }
         finally
         {
             isBusy = false;
             Busy?.Hide();
         }
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

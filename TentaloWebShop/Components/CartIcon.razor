@@ -1,18 +1,35 @@
 @inject CartService Cart
+@inject LocalizationService L
+@implements IDisposable
 
 <a href="/carrito" class="btn btn-outline-danger position-relative cart-button">
     <i class="bi bi-cart3"></i>
-    <span class="cart-text d-none d-md-inline ms-1">Carrito</span>
+    <span class="cart-text d-none d-md-inline ms-1">@L.T("cart_title_short")</span>
     @if (Cart.TotalQuantity > 0)
     {
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
             @Cart.TotalQuantity
-            <span class="visually-hidden">productos en el carrito</span>
+            <span class="visually-hidden">@L.T("cart_products_in_cart")</span>
         </span>
     }
 </a>
 
 
 @code {
-    protected override void OnInitialized() => Cart.Changed += StateHasChanged;
+    protected override void OnInitialized()
+    {
+        Cart.Changed += StateHasChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Cart.Changed -= StateHasChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
+    }
 }

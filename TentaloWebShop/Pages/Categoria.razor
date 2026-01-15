@@ -5,17 +5,18 @@
 @inject ProductService Products
 @inject NavigationManager Nav
 @inject AuthService Auth
+@inject LocalizationService L
 @implements IDisposable
 @if (familyModel is null)
 {
-    <div class="p-4">Cargando…</div>
+    <div class="p-4">@L.T("loading")</div>
 }
 else if (string.IsNullOrWhiteSpace(sub))
 {
     @* Vista de FAMILIA: productos de toda la familia con filtros *@
     <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
                               {
-                                  ("Catálogo","/catalogo",false),
+                                  (L.T("catalog_title"),"/catalogo",false),
                                   (familyModel!.Name,$"/categoria/{familyModel!.Slug}",true)
                               })" />
 
@@ -33,7 +34,7 @@ else if (string.IsNullOrWhiteSpace(sub))
                     <!-- Botón "Todos" activo cuando no hay subfamilia seleccionada -->
                     <button class="filter-chip active">
                         <i class="bi bi-grid-3x3-gap-fill me-1"></i>
-                        Todos
+                        @L.T("category_all")
                     </button>
 
                     <!-- Botones de cada Subcategoría -->
@@ -53,7 +54,7 @@ else if (string.IsNullOrWhiteSpace(sub))
         {
             <div class="products-count text-muted mb-3">
                 <i class="bi bi-box-seam"></i>
-                <strong>@items.Count</strong> producto@(items.Count != 1 ? "s" : "") en total
+                @L.T("category_products_total", items.Count)
             </div>
         }
     </div>
@@ -63,16 +64,16 @@ else if (string.IsNullOrWhiteSpace(sub))
     {
         <div class="p-4 text-center">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">@L.T("loading")</span>
             </div>
-            <p class="mt-2">Cargando productos...</p>
+            <p class="mt-2">@L.T("category_loading_products")</p>
         </div>
     }
     else if (items.Count == 0)
     {
         <div class="alert alert-info">
             <i class="bi bi-info-circle me-2"></i>
-            No hay productos en esta familia.
+            @L.T("category_no_products_family")
         </div>
     }
     else
@@ -88,7 +89,7 @@ else
     @* Vista de SUBFAMILIA: productos filtrados *@
     <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
                               {
-                                  ("Catálogo","/catalogo",false),
+                                  (L.T("catalog_title"),"/catalogo",false),
                                   (familyModel!.Name,$"/categoria/{familyModel!.Slug}",false),
                                   (subModel?.Name ?? sub!,$"/categoria/{familyModel!.Slug}/{sub}",true)
                               })" />
@@ -99,7 +100,7 @@ else
         <h1 class="category-title mb-0">@subModel?.Name</h1>
         <a href="@($"/categoria/{familyModel!.Slug}")" class="btn btn-outline-secondary">
             <i class="bi bi-grid me-1"></i>
-            Ver todos en @familyModel.Name
+            @L.T("category_view_all_in", familyModel.Name)
         </a>
     </div>
 
@@ -111,7 +112,7 @@ else
                     <!-- Botón "Todos" -->
                     <button class="filter-chip" @onclick='() => Nav.NavigateTo($"/categoria/{familyModel!.Slug}")'>
                         <i class="bi bi-grid-3x3-gap-fill me-1"></i>
-                        Todos
+                        @L.T("category_all")
                     </button>
 
                     <!-- Botones de cada Subcategoría -->
@@ -132,7 +133,7 @@ else
         {
             <div class="products-count text-muted mb-3">
                 <i class="bi bi-box-seam"></i>
-                <strong>@items.Count</strong> producto@(items.Count != 1 ? "s" : "") en esta subcategoría
+                @L.T("category_products_subcategory", items.Count)
             </div>
         }
     </div>
@@ -142,16 +143,16 @@ else
     {
         <div class="p-4 text-center">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">@L.T("loading")</span>
             </div>
-            <p class="mt-2">Cargando productos...</p>
+            <p class="mt-2">@L.T("category_loading_products")</p>
         </div>
     }
     else if (items.Count == 0)
     {
         <div class="alert alert-info">
             <i class="bi bi-info-circle me-2"></i>
-            No hay productos en esta subfamilia.
+            @L.T("category_no_products_subfamily")
         </div>
     }
     else
@@ -176,6 +177,12 @@ else
     {
         // ✅ Ahora sin wrapper, directo porque el evento es Func<Task>
         Auth.OnCustomerChanged += OnCustomerChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -223,5 +230,6 @@ else
     public void Dispose()
     {
         Auth.OnCustomerChanged -= OnCustomerChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

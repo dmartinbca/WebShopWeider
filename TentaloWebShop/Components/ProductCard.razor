@@ -1,5 +1,7 @@
 @inject CartService Cart
 @inject NavigationManager Nav
+@inject LocalizationService L
+@implements IDisposable
 
 <div class="card product-card h-100 @(Product.inventario100 <= 0 ? "out-of-stock" : "")">
     <div class="product-media" @onclick="Open" role="button" tabindex="0"
@@ -20,14 +22,14 @@
         {
             <div class="stock-badge available">
                 <i class="bi bi-check-circle-fill"></i>
-                <span>Disponible</span>
+                <span>@L.T("product_available")</span>
             </div>
         }
         else
         {
             <div class="stock-badge unavailable">
                 <i class="bi bi-x-circle-fill"></i>
-                <span>No disponible temporalmente</span>
+                <span>@L.T("product_unavailable")</span>
             </div>
         }
 
@@ -61,7 +63,7 @@
             <div class="fecha-disponibilidad mb-2">
                 <small class="d-flex align-items-center gap-1">
                     <i class="bi bi-calendar-event"></i>
-                    <strong>Disponible a partir de:</strong> @FormatDateToSpanish(Product.FechaCompra)
+                    <strong>@L.T("product_available_from"):</strong> @FormatDateToSpanish(Product.FechaCompra)
                 </small>
             </div>
         }
@@ -75,16 +77,16 @@
                 <button class="btn btn-danger btn-add-cart @(isAdding ? "adding" : "")"
                         @onclick="Add"
                         disabled="@(isAdding || Product.inventario100 <= 0)"
-                        aria-label="Añadir @Product.Name al carrito">
+                        aria-label="@L.T("product_add_aria", Product.Name)">
                     @if (isAdding)
                     {
                         <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        <span>Añadiendo...</span>
+                        <span>@L.T("product_adding")</span>
                     }
                     else
                     {
                         <i class="bi @(Product.inventario100 > 0 ? "bi-cart-plus" : "bi-cart-x") me-1"></i>
-                        <span class="d-none d-sm-inline">@(Product.inventario100 > 0 ? "Añadir" : "Agotado")</span>
+                        <span class="d-none d-sm-inline">@(Product.inventario100 > 0 ? L.T("product_add_to_cart") : L.T("product_out_of_stock"))</span>
                         <span class="d-sm-none">@(Product.inventario100 > 0 ? "+" : "X")</span>
                     }
                 </button>
@@ -198,6 +200,16 @@
     private bool isAdding = false;
     private readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
 
+    protected override void OnInitialized()
+    {
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     private async Task Add()
     {
         if (Product.inventario100 <= 0) return;
@@ -245,5 +257,10 @@
         }
 
         return "";
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

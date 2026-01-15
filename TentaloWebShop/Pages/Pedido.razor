@@ -3,11 +3,13 @@
 @inject AuthService Auth
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
+@inject LocalizationService L
 
 @using System.Text.Json
 @using TentaloWebShop.Models
+@implements IDisposable
 
-<PageTitle>Pedido #@OrderId</PageTitle>
+<PageTitle>@L.T("order_title") #@OrderId</PageTitle>
 
 <style>
     /* ========================================
@@ -636,11 +638,11 @@
                 <div class="empty-icon">
                     <i class="bi bi-exclamation-triangle"></i>
                 </div>
-                <h3>Pedido no encontrado</h3>
-                <p style="color: #6c757d; margin-bottom: 1.5rem;">El pedido solicitado no existe o no tienes acceso a él.</p>
+                <h3>@L.T("order_not_found")</h3>
+                <p style="color: #6c757d; margin-bottom: 1.5rem;">@L.T("order_not_found_text")</p>
                 <a href="/pedidos" class="acciones" style="display: inline-block; margin: 0;">
                     <button class="btn btn-primary" style="width: auto; padding: 0.75rem 1.5rem;">
-                        <i class="bi bi-arrow-left me-2"></i>Volver a Pedidos
+                        <i class="bi bi-arrow-left me-2"></i>@L.T("order_back_to_orders")
                     </button>
                 </a>
             </div>
@@ -650,13 +652,13 @@
             <!-- Header -->
             <div class="pedido-header">
                 <div class="pedido-breadcrumb">
-                    <a href="/pedidos">Pedidos</a> / Pedido #@order.No
+                    <a href="/pedidos">@L.T("nav_orders")</a> / @L.T("order_title") #@order.No
                 </div>
                 <div class="pedido-titulo-fila">
                     <div class="pedido-titulo">
                         <h1>
                             <i class="bi bi-receipt"></i>
-                            Pedido #@order.No
+                            @L.T("order_title") #@order.No
                         </h1>
                     </div>
                     <div class="pedido-estado">
@@ -675,30 +677,30 @@
                     <div class="card-resumen">
                         <div class="card-header">
                             <i class="bi bi-calculator"></i>
-                            Resumen del Pedido
+                            @L.T("order_summary")
                         </div>
                         <div class="card-body">
                             @if (order.Invoice_Discount_Value > 0)
                             {
                                 <div class="resumen-fila">
-                                    <span class="resumen-label">Subtotal sin descuento:</span>
+                                    <span class="resumen-label">@L.T("order_subtotal_no_discount"):</span>
                                     <span class="resumen-valor">@(CalculateSubtotalBeforeDiscount().ToString("N2")) €</span>
                                 </div>
                                 <div class="resumen-fila descuento">
-                                    <span class="resumen-label">Descuento (@order.Invoice_Discount_Value.ToString("N1")%):</span>
+                                    <span class="resumen-label">@L.T("order_discount") (@order.Invoice_Discount_Value.ToString("N1")%):</span>
                                     <span class="resumen-valor valor">-@(CalculateInvoiceDiscountAmount().ToString("N2")) €</span>
                                 </div>
                             }
                             <div class="resumen-fila">
-                                <span class="resumen-label">Base imponible:</span>
+                                <span class="resumen-label">@L.T("order_tax_base"):</span>
                                 <span class="resumen-valor">@(order.Amount.ToString("N2")) €</span>
                             </div>
                             <div class="resumen-fila">
-                                <span class="resumen-label">IVA:</span>
+                                <span class="resumen-label">@L.T("order_vat"):</span>
                                 <span class="resumen-valor">@(order.VAT_Amount.ToString("N2")) €</span>
                             </div>
                             <div class="resumen-fila total">
-                                <span class="resumen-label">Total:</span>
+                                <span class="resumen-label">@L.T("order_total"):</span>
                                 <span class="resumen-valor">@(order.Amount_Including_VAT.ToString("N2")) €</span>
                             </div>
                         </div>
@@ -707,12 +709,12 @@
                         <i class="bi bi-arrow-repeat"></i>
                         @if (isRepeating)
                         {
-                            <span>Agregando al carrito...</span>
+                            <span>@L.T("order_adding_to_cart")</span>
                         }
                         else
                         {
 
-                            <span>Repetir Pedido</span>
+                            <span>@L.T("order_repeat")</span>
                         }
                     </button>
 
@@ -727,11 +729,11 @@
                         <button class="btn btn-primary" @onclick="DownloadOrder" disabled="@isDownloading">
                             @if (isDownloading)
                             {
-                                <span>⏳ Generando PDF...</span>
+                                <span>⏳ @L.T("order_generating_pdf")</span>
                             }
                             else
                             {
-                                <span><i class="bi bi-download"></i> Descargar PDF</span>
+                                <span><i class="bi bi-download"></i> @L.T("order_download_pdf")</span>
                             }
                         </button>
                         @if (order.Status?.ToLower() == "open")
@@ -739,11 +741,11 @@
                             <button class="btn btn-outline" @onclick="CancelOrder" disabled="@isCanceling">
                                 @if (isCanceling)
                                 {
-                                    <span>⏳ Cancelando...</span>
+                                    <span>⏳ @L.T("order_canceling")</span>
                                 }
                                 else
                                 {
-                                    <span><i class="bi bi-x-circle"></i> Cancelar Pedido</span>
+                                    <span><i class="bi bi-x-circle"></i> @L.T("order_cancel")</span>
                                 }
                             </button>
                         }
@@ -770,24 +772,24 @@
                     <div class="card-resumen">
                         <div class="card-header">
                             <i class="bi bi-info-circle"></i>
-                            Información del Pedido
+                            @L.T("order_info")
                         </div>
                         <div class="card-body">
                             <div class="info-grid">
                                 <div class="info-item">
-                                    <span class="info-label"><i class="bi bi-calendar"></i> Fecha de Pedido</span>
+                                    <span class="info-label"><i class="bi bi-calendar"></i> @L.T("order_date")</span>
                                     <span class="info-valor">
                                         @(DateTime.TryParse(order.Order_Date, out var orderDate) ? orderDate.ToString("dd/MM/yyyy") : order.Order_Date)
                                     </span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label"><i class="bi bi-calendar-check"></i> Fecha de Entrega</span>
+                                    <span class="info-label"><i class="bi bi-calendar-check"></i> @L.T("order_delivery_date")</span>
                                     <span class="info-valor">
                                         @(DateTime.TryParse(order.Expected_Receipt_Date, out var receiptDate) ? receiptDate.ToString("dd/MM/yyyy") : order.Expected_Receipt_Date)
                                     </span>
                                 </div>
                                 <div class="info-item full">
-                                    <span class="info-label"><i class="bi bi-geo-alt"></i> Dirección de Entrega</span>
+                                    <span class="info-label"><i class="bi bi-geo-alt"></i> @L.T("order_delivery_address")</span>
                                     <span class="info-valor">
                                         @order.Sell_to_Address<br />
                                         @order.Sell_to_County<br />
@@ -802,7 +804,7 @@
                     <div class="card-resumen">
                         <div class="card-header">
                             <i class="bi bi-list-ul"></i>
-                            Artículos del Pedido
+                            @L.T("order_items")
                         </div>
                         <div class="card-body">
                             @if (GetOrderLines().Any())
@@ -812,12 +814,12 @@
                                     <table class="tabla-articulos">
                                         <thead>
                                             <tr>
-                                                <th>Código</th>
-                                                <th>Descripción</th>
-                                                <th>Cantidad</th>
-                                                <th>% Desc.</th>
-                                                <th>Precio</th>
-                                                <th>Total</th>
+                                                <th>@L.T("order_code")</th>
+                                                <th>@L.T("order_description")</th>
+                                                <th>@L.T("order_qty")</th>
+                                                <th>@L.T("order_disc_pct")</th>
+                                                <th>@L.T("order_price")</th>
+                                                <th>@L.T("order_total")</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -847,8 +849,8 @@
                                             </div>
                                             <div class="articulo-desc">@line.Description</div>
                                             <div class="articulo-detalles">
-                                                <span><strong>@line.Quantity</strong> unidad(es)</span>
-                                                <span>@(line.Unit_Price.ToString("N2")) € c/u</span>
+                                                <span><strong>@line.Quantity</strong> @L.T("order_units")</span>
+                                                <span>@(line.Unit_Price.ToString("N2")) € @L.T("order_each")</span>
                                             </div>
                                         </div>
                                     }
@@ -856,7 +858,7 @@
                             }
                             else
                             {
-                                <p style="color: #6c757d; text-align: center;">No hay artículos en este pedido.</p>
+                                <p style="color: #6c757d; text-align: center;">@L.T("order_no_items")</p>
                             }
                         </div>
                     </div>
@@ -884,7 +886,13 @@
     private bool repeatSuccess = false;
     protected override async Task OnInitializedAsync()
     {
+        L.OnLanguageChanged += OnLanguageChanged;
         await LoadOrder();
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
     private async Task RepeatOrder()
     {
@@ -896,7 +904,7 @@
             var lines = GetOrderLines();
             if (!lines.Any())
             {
-                repeatMessage = "✗ No hay artículos para repetir";
+                repeatMessage = L.T("order_no_items_to_repeat");
                 repeatSuccess = false;
                 return;
             }
@@ -913,7 +921,7 @@
 
                     if (product != null)
                     {
-                        
+
                         // Agregar con descuento si existe
                         decimal descuentoProducto = (decimal)(line.Line_Discount_Percent);
                         await CartService.Add(product, (int)line.Quantity/product.Presentation_Qty, descuentoProducto);
@@ -932,7 +940,7 @@
 
             if (addedCount > 0)
             {
-                repeatMessage = $"✓ {addedCount} artículo(s) agregado(s). Redirigiendo al carrito...";
+                repeatMessage = L.T("order_items_added", addedCount);
                 repeatSuccess = true;
 
                 await Task.Delay(1500);
@@ -940,14 +948,14 @@
             }
             else
             {
-                repeatMessage = "✗ No se pudo agregar ningún artículo. Inténtalo de nuevo.";
+                repeatMessage = L.T("order_no_items_added");
                 repeatSuccess = false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[RepeatOrder] Error: {ex.Message}");
-            repeatMessage = "✗ Error al repetir el pedido.";
+            repeatMessage = L.T("order_repeat_error");
             repeatSuccess = false;
         }
         finally
@@ -1101,11 +1109,11 @@
 
     private string GetStatusText(string status) => status?.ToLower() switch
     {
-        "open" => "Abierto",
-        "released" => "Liberado",
-        "closed" => "Cerrado",
-        "cancelled" => "Cancelado",
-        _ => status ?? "Desconocido"
+        "open" => L.T("orders_status_open"),
+        "released" => L.T("orders_status_released"),
+        "closed" => L.T("orders_status_closed"),
+        "cancelled" => L.T("orders_status_cancelled"),
+        _ => status ?? L.T("orders_status_unknown")
     };
 
     private string GetStatusBgColor(string status) => status?.ToLower() switch
@@ -1125,4 +1133,9 @@
         "cancelled" => "#721c24",
         _ => "#495057"
     };
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
+    }
 }

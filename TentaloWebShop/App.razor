@@ -1,6 +1,7 @@
 ﻿@using TentaloWebShop.Shared
 @inject AuthService Auth
 @inject CartService Cart
+@inject LocalizationService Localization
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         @if (!Auth.IsAuthenticated
@@ -29,6 +30,7 @@
     {
         if (firstRender)
         {
+            await Localization.InitializeAsync();
             await Auth.InitializeAsync();
             await Cart.InitializeAsync();
             StateHasChanged();

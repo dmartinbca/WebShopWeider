@@ -8,13 +8,14 @@
 @using Microsoft.Extensions.Options
 @using System.Globalization
 @inject IJSRuntime JS
+@inject LocalizationService L
 
-<h1>Carrito de Compra</h1>
+<h1>@L.T("cart_title")</h1>
 
 @if (!Cart.Items.Any())
 {
-    <div class="alert alert-info">Tu carrito está vacío.</div>
-    <a class="btn btn-danger" href="/catalogo">Ir al Catálogo</a>
+    <div class="alert alert-info">@L.T("cart_empty")</div>
+    <a class="btn btn-danger" href="/catalogo">@L.T("cart_go_to_catalog")</a>
 }
 else
 {
@@ -25,11 +26,11 @@ else
             <div class="processing-modal">
                 <div class="spinner-container">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
+                        <span class="visually-hidden">@L.T("loading")</span>
                     </div>
                 </div>
-                <h4 class="processing-title">Procesando su pedido...</h4>
-                <p class="processing-text">Por favor, espere mientras tramitamos su solicitud</p>
+                <h4 class="processing-title">@L.T("cart_processing")</h4>
+                <p class="processing-text">@L.T("cart_processing_wait")</p>
             </div>
         </div>
     }
@@ -45,21 +46,21 @@ else
                         <div class="result-icon success-icon">
                             <i class="bi bi-check-circle-fill"></i>
                         </div>
-                        <h3 class="result-title">¡Pedido Confirmado!</h3>
+                        <h3 class="result-title">@L.T("cart_order_confirmed")</h3>
                         <p class="result-message">
-                            Su pedido ha sido procesado correctamente.<br />
-                            En breve recibirá un email con los detalles de su compra.
+                            @L.T("cart_order_success_text")<br />
+                            @L.T("cart_order_email_text")
                         </p>
                         <div class="result-summary">
                             <div class="summary-item">
-                                <strong>Total: @Cart.ImporteTotal.ToString("0.00") €</strong>
+                                <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
                             </div>
                             <div class="summary-item">
-                                Artículos: @Cart.TotalQuantity
+                                @L.T("cart_items"): @Cart.TotalQuantity
                             </div>
                         </div>
                         <button class="btn btn-success btn-lg w-100" @onclick="ReturnToCatalog">
-                            <i class="bi bi-arrow-left me-2"></i>Volver al Catálogo
+                            <i class="bi bi-arrow-left me-2"></i>@L.T("cart_return_catalog")
                         </button>
                     </div>
                 }
@@ -69,14 +70,14 @@ else
                         <div class="result-icon error-icon">
                             <i class="bi bi-x-circle-fill"></i>
                         </div>
-                        <h3 class="result-title">Error en el Pedido</h3>
+                        <h3 class="result-title">@L.T("cart_order_error")</h3>
                         <p class="result-message">@orderErrorMessage</p>
                         <div class="result-buttons">
                             <button class="btn btn-primary me-2" @onclick="RetryOrder">
-                                <i class="bi bi-arrow-clockwise me-2"></i>Reintentar
+                                <i class="bi bi-arrow-clockwise me-2"></i>@L.T("cart_retry")
                             </button>
                             <button class="btn btn-outline-secondary" @onclick="ReturnToCatalog">
-                                <i class="bi bi-arrow-left me-2"></i>Volver al Catálogo
+                                <i class="bi bi-arrow-left me-2"></i>@L.T("cart_return_catalog")
                             </button>
                         </div>
                     </div>
@@ -96,7 +97,7 @@ else
                     <div class="card-header bg-danger text-white">
                         <h5 class="mb-0">
                             <i class="bi bi-gift-fill me-2"></i>
-                            Packs Promocionales
+                            @L.T("cart_promo_packs")
                         </h5>
                     </div>
                     <div class="card-body p-0">
@@ -111,13 +112,13 @@ else
                                     <div class="pack-info">
                                         <i class="bi bi-box-seam me-2"></i>
                                         <strong>@firstItem.PackDescription</strong>
-                                        <span class="badge bg-danger ms-2">PACK</span>
+                                        <span class="badge bg-danger ms-2">@L.T("cart_pack")</span>
                                     </div>
                                     <div class="pack-actions">
                                         <span class="pack-total me-3">@packTotal.ToString("0.00") €</span>
                                         <button class="btn btn-link btn-sm text-danger p-0"
                                                 @onclick="(() => RemovePackConfirm(packGroup.Key, firstItem.PackDescription))">
-                                            <i class="bi bi-trash"></i> Eliminar Pack
+                                            <i class="bi bi-trash"></i> @L.T("cart_remove_pack")
                                         </button>
                                     </div>
                                 </div>
@@ -137,7 +138,7 @@ else
                                                 <span class="pack-item-type">
                                                     @if (item.IsPackGift)
                                                     {
-                                                        <span class="badge bg-success">REGALO</span>
+                                                        <span class="badge bg-success">@L.T("cart_gift")</span>
                                                     }
                                                     else if (item.DescuentoProducto > 0)
                                                     {
@@ -172,7 +173,7 @@ else
                     <div class="card-header">
                         <h5 class="mb-0">
                             <i class="bi bi-cart me-2"></i>
-                            Productos
+                            @L.T("cart_products")
                         </h5>
                     </div>
                     <div class="card-body">
@@ -220,7 +221,7 @@ else
 
                                     <div class="cart-item-actions">
                                         <button class="btn btn-link btn-sm text-danger p-0" @onclick="(() => Remove(item))">
-                                            <i class="bi bi-trash me-1"></i>Eliminar
+                                            <i class="bi bi-trash me-1"></i>@L.T("cart_remove")
                                         </button>
                                     </div>
                                 </div>
@@ -235,16 +236,16 @@ else
                 <div class="card-header">
                     <h5 class="card-title mb-0">
                         <i class="bi bi-truck me-2"></i>
-                        Dirección de Envío
+                        @L.T("cart_shipping_address")
                     </h5>
                 </div>
                 <div class="card-body">
                     @if (Auth.CurrentUser?.CustomerAddres?.Any() == true)
                     {
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Selecciona la dirección de envío:</label>
+                            <label class="form-label fw-semibold">@L.T("cart_select_address")</label>
                             <select class="form-select" @bind="selectedAddressId" @bind:after="OnAddressSelectionChanged">
-                                <option value="">-- Selecciona una dirección --</option>
+                                <option value="">@L.T("cart_select_address_placeholder")</option>
                                 @foreach (var address in Auth.CurrentUser.CustomerAddres)
                                 {
                                     <option value="@address.Code">
@@ -294,8 +295,8 @@ else
                                 <i class="bi bi-info-circle"></i>
                             </div>
                             <div class="notice-text">
-                                <strong>Sin direcciones registradas</strong>
-                                <p class="mb-0 text-muted">No tienes direcciones de envío registradas. El pedido se tramitará con la dirección por defecto.</p>
+                                <strong>@L.T("cart_no_addresses")</strong>
+                                <p class="mb-0 text-muted">@L.T("cart_no_addresses_text")</p>
                             </div>
                         </div>
                     }
@@ -307,18 +308,18 @@ else
                 <div class="card-header">
                     <h5 class="card-title mb-0">
                         <i class="bi bi-chat-left-text me-2"></i>
-                        Observaciones del Pedido
+                        @L.T("cart_observations")
                     </h5>
                 </div>
                 <div class="card-body">
                     <textarea class="form-control"
                               rows="4"
-                              placeholder="Indica aquí cualquier observación o instrucción especial para tu pedido..."
+                              placeholder="@L.T("cart_observations_placeholder")"
                               @bind="Cart.Observaciones"
                               style="resize: vertical;"></textarea>
                     <small class="form-text text-muted mt-2 d-block">
                         <i class="bi bi-info-circle me-1"></i>
-                        Opcional. Usa este espacio para agregar instrucciones especiales de entrega.
+                        @L.T("cart_observations_hint")
                     </small>
                 </div>
             </div>
@@ -328,17 +329,17 @@ else
         <div class="col-12 col-lg-4">
             <div class="card sticky-lg-top" style="top: 100px;">
                 <div class="card-body">
-                    <h5 class="mb-3">Resumen del Pedido</h5>
+                    <h5 class="mb-3">@L.T("cart_summary")</h5>
 
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Artículos</span>
+                        <span>@L.T("cart_items")</span>
                         <strong>@Cart.TotalQuantity</strong>
                     </div>
 
                     <hr class="my-2">
 
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Base Imponible (con descuentos)</span>
+                        <span>@L.T("cart_subtotal")</span>
                         <span>@Cart.BaseImponible.ToString("0.00") €</span>
                     </div>
 
@@ -347,7 +348,7 @@ else
                         <div class="d-flex justify-content-between mb-2 text-danger">
                             <span>
                                 <i class="bi bi-tag-fill me-1"></i>
-                                Descuentos por Producto
+                                @L.T("cart_product_discounts")
                             </span>
                             <span>-@Cart.DescuentoProductos.ToString("0.00") €</span>
                         </div>
@@ -358,26 +359,26 @@ else
                         <div class="d-flex justify-content-between mb-2 text-success">
                             <span>
                                 <i class="bi bi-tag-fill me-1"></i>
-                                Descuento (@Auth.CurrentUser.DescuentoFactura.ToString("0.##")%)
+                                @L.T("cart_discount") (@Auth.CurrentUser.DescuentoFactura.ToString("0.##")%)
                             </span>
                             <span>-@Cart.DescuentoFactura.ToString("0.00") €</span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="fw-semibold">Subtotal</span>
+                            <span class="fw-semibold">@L.T("cart_subtotal_after_discount")</span>
                             <span class="fw-semibold">@Cart.BaseImponibleConDescuento.ToString("0.00") €</span>
                         </div>
                     }
 
                     <div class="d-flex justify-content-between mb-3">
-                        <span>IVA</span>
+                        <span>@L.T("cart_vat")</span>
                         <span>@Cart.TotalVat.ToString("0.00") €</span>
                     </div>
 
                     <hr class="my-3">
 
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="h5 mb-0">Total</span>
+                        <span class="h5 mb-0">@L.T("cart_total")</span>
                         <strong class="h4 text-danger mb-0">@Cart.ImporteTotal.ToString("0.00") €</strong>
                     </div>
 
@@ -387,7 +388,7 @@ else
                         <div class="minimum-order-warning mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="small text-warning-emphasis">
-                                    <i class="bi bi-info-circle me-1"></i>Pedido mínimo
+                                    <i class="bi bi-info-circle me-1"></i>@L.T("cart_minimum_order")
                                 </span>
                                 <span class="small fw-semibold">
                                     @Cart.ImporteTotal.ToString("0.00") € / @LimitePedido.ToString("0.00") €
@@ -404,7 +405,7 @@ else
                             </div>
                             <div class="text-center mt-2 small text-warning-emphasis">
                                 <i class="bi bi-cart-plus me-1"></i>
-                                Te faltan <strong>@AmountToMinimum.ToString("0.00") €</strong>
+                                @L.T("cart_missing_amount", AmountToMinimum.ToString("0.00"))
                             </div>
                         </div>
                     }
@@ -413,7 +414,7 @@ else
                             @onclick="Checkout"
                             disabled="@(!CanProceedToCheckout)">
                         <i class="bi bi-cart-check me-2"></i>
-                        Tramitar pedido
+                        @L.T("cart_process_order")
                     </button>
 
                     <div class="form-text mt-2 text-center">
@@ -421,14 +422,14 @@ else
                         {
                             <span class="text-danger small">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
-                                El pedido mínimo es de @LimitePedido.ToString("0.00") €
+                                @L.T("cart_minimum_warning", LimitePedido.ToString("0.00"))
                             </span>
                         }
                         else if (!CanProceedToCheckout && Auth.CurrentUser?.CustomerAddres?.Any() == true)
                         {
                             <span class="text-warning small">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
-                                Selecciona una dirección de envío para continuar
+                                @L.T("cart_select_address_warning")
                             </span>
                         }
                     </div>
@@ -445,16 +446,16 @@ else
                             {
                                 <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
                                 <div>
-                                    <h6 class="mb-0 text-success">Pedido Mínimo Alcanzado</h6>
-                                    <small class="text-muted">Tu pedido supera el mínimo de @LimitePedido.ToString("0.00") €</small>
+                                    <h6 class="mb-0 text-success">@L.T("cart_minimum_reached")</h6>
+                                    <small class="text-muted">@L.T("cart_minimum_exceeded", LimitePedido.ToString("0.00"))</small>
                                 </div>
                             }
                             else
                             {
                                 <i class="bi bi-exclamation-triangle-fill text-warning fs-4 me-3"></i>
                                 <div>
-                                    <h6 class="mb-0 text-warning">Pedido Mínimo No Alcanzado</h6>
-                                    <small class="text-muted">Añade @AmountToMinimum.ToString("0.00") € más para tramitar</small>
+                                    <h6 class="mb-0 text-warning">@L.T("cart_minimum_not_reached")</h6>
+                                    <small class="text-muted">@L.T("cart_add_more", AmountToMinimum.ToString("0.00"))</small>
                                 </div>
                             }
                         </div>
@@ -470,9 +471,9 @@ else
                         <div class="d-flex align-items-center">
                             <i class="bi bi-percent text-success fs-4 me-3"></i>
                             <div>
-                                <h6 class="mb-0">Descuento Aplicado</h6>
+                                <h6 class="mb-0">@L.T("cart_discount_applied")</h6>
                                 <small class="text-muted">
-                                    Tienes un @Auth.CurrentUser.DescuentoFactura.ToString("0.##")% de descuento en todos tus pedidos
+                                    @L.T("cart_discount_info", Auth.CurrentUser.DescuentoFactura.ToString("0.##"))
                                 </small>
                             </div>
                         </div>
@@ -719,6 +720,12 @@ else
     protected override async Task OnInitializedAsync()
     {
         Auth.OnCustomerChanged += OnCustomerChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     // Handler cuando cambia el cliente (para usuarios del equipo comercial)
@@ -737,7 +744,7 @@ else
     private async Task RemovePackConfirm(string packId, string? packDescription)
     {
         var confirmed = await JS.InvokeAsync<bool>("confirm",
-            $"¿Estás seguro de que deseas eliminar el pack '{packDescription ?? "Promocional"}' completo?");
+            L.T("cart_confirm_remove_pack", packDescription ?? "Promocional"));
 
         if (confirmed)
         {
@@ -750,8 +757,8 @@ else
     {
         if (IsPartOfPack(item))
         {
-            await JS.InvokeVoidAsync("showToast", "warning", "Pack Promocional",
-                "No se puede cambiar la cantidad de productos individuales en un pack.");
+            await JS.InvokeVoidAsync("showToast", "warning", L.T("cart_pack"),
+                L.T("cart_pack_warning"));
             return;
         }
 
@@ -764,7 +771,7 @@ else
         if (IsPartOfPack(item))
         {
             var confirmed = await JS.InvokeAsync<bool>("confirm",
-                $"Este producto pertenece al pack '{item.PackDescription}'. ¿Deseas eliminar el pack completo?");
+                L.T("cart_confirm_remove_from_pack", item.PackDescription ?? ""));
 
             if (confirmed)
             {
@@ -783,8 +790,8 @@ else
         // Validación adicional del límite mínimo
         if (!MeetsMinimumOrder)
         {
-            await JS.InvokeVoidAsync("showToast", "error", "Pedido Mínimo",
-                $"El pedido mínimo es de {LimitePedido:0.00} €. Te faltan {AmountToMinimum:0.00} € para poder tramitar tu pedido.");
+            await JS.InvokeVoidAsync("showToast", "error", L.T("cart_minimum_order"),
+                L.T("cart_minimum_warning", LimitePedido.ToString("0.00")));
             return;
         }
 
@@ -852,6 +859,7 @@ else
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         Auth.OnCustomerChanged -= OnCustomerChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
         await ValueTask.CompletedTask;
     }
 }

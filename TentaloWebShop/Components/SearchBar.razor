@@ -1,5 +1,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager Nav
+@inject LocalizationService L
+@implements IDisposable
 
 <div class="search-container">
     <div class="input-group search-input-group">
@@ -9,7 +11,7 @@
             </span>
         </div>
         <input class="form-control search-input"
-               placeholder="@GetPlaceholder()"
+               placeholder="@L.T("search_placeholder")"
                @bind="term"
                @bind:event="oninput"
                @onkeydown="KeyDown"
@@ -22,8 +24,8 @@
                     @onclick="Go"
                     type="button"
                     disabled="@(string.IsNullOrWhiteSpace(term))"
-                    aria-label="Buscar productos">
-                <span class="d-none d-sm-inline">Buscar</span>
+                    aria-label="@L.T("search_button")">
+                <span class="d-none d-sm-inline">@L.T("search_button")</span>
                 <i class="bi bi-arrow-right d-sm-none"></i>
             </button>
         </div>
@@ -33,17 +35,17 @@
             <button class="btn btn-clear"
                     @onclick="Clear"
                     type="button"
-                    aria-label="Limpiar búsqueda">
+                    aria-label="@L.T("search_clear")">
                 <i class="bi bi-x"></i>
             </button>
         }
     </div>
 
-    <!-- Sugerencias rápidas (opcional) -->
+    <!-- Sugerencias rÃ¡pidas (opcional) -->
     @if (isFocused && string.IsNullOrWhiteSpace(term))
     {
         <div class="search-suggestions">
-            <div class="suggestion-header">Búsquedas populares</div>
+            <div class="suggestion-header">@L.T("search_popular")</div>
             @foreach (var suggestion in popularSearches)
             {
                 <button class="suggestion-item" @onclick="() => SearchSuggestion(suggestion)">
@@ -69,15 +71,14 @@
         "Vegan"
     };
 
-    private string GetPlaceholder()
+    protected override void OnInitialized()
     {
-        return isMobile() ? "Buscar..." : "Buscar productos, marcas, categorías...";
+        L.OnLanguageChanged += OnLanguageChanged;
     }
 
-    private bool isMobile()
+    private void OnLanguageChanged()
     {
-        // Simplificado - en producción podrías usar JS para detectar el tamaño de pantalla
-        return true; // Para este ejemplo
+        InvokeAsync(StateHasChanged);
     }
 
     private void Go()
@@ -127,5 +128,10 @@
             isFocused = false;
             InvokeAsync(StateHasChanged);
         });
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

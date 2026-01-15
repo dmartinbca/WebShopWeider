@@ -2,6 +2,8 @@
 @inject NavigationManager Nav
 @inject CartService Cart
 @inject IJSRuntime JS
+@inject LocalizationService L
+@implements IDisposable
 <!-- Nuevo menú móvil tipo drawer - Solo accesible en móvil (< 992px) -->
 <!-- El componente se renderiza pero el botón para abrirlo solo aparece en móvil -->
 <MobileMenu IsOpen="@mobileMenuOpen" IsOpenChanged="@((value) => mobileMenuOpen = value)" />
@@ -9,9 +11,9 @@
 <nav class="navbar navbar-expand-lg border-bottom sticky-top">
     <div class="container-fluid">
         <!-- Botón de menú hamburguesa para móvil (a la izquierda) -->
-        <button class="btn btn-menu-toggle d-lg-none" 
+        <button class="btn btn-menu-toggle d-lg-none"
                 @onclick="OpenMobileMenu"
-                aria-label="Abrir menú">
+                aria-label="@L.T("nav_open_menu")">
             <i class="bi bi-list fs-4"></i>
         </button>
 
@@ -37,23 +39,23 @@
                         <li><hr class="dropdown-divider" /></li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="/perfil">
-                                <i class="bi bi-person me-2"></i> Cliente
+                                <i class="bi bi-person me-2"></i> @L.T("nav_customer")
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="/pedidos">
-                                <i class="bi bi-bag me-2"></i> Pedidos
+                                <i class="bi bi-bag me-2"></i> @L.T("nav_orders")
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="/facturas">
-                                <i class="bi bi-receipt me-2"></i> Facturas
+                                <i class="bi bi-receipt me-2"></i> @L.T("nav_invoices")
                             </a>
                         </li>
                         <li><hr class="dropdown-divider" /></li>
                         <li>
                             <button class="dropdown-item d-flex align-items-center text-danger" @onclick="Logout">
-                                <i class="bi bi-box-arrow-right me-2"></i> Salir
+                                <i class="bi bi-box-arrow-right me-2"></i> @L.T("nav_logout")
                             </button>
                         </li>
                     </ul>
@@ -76,10 +78,9 @@
 
             <!-- Enlaces de navegación -->
             <ul class="navbar-nav align-items-center gap-1 me-3">
-                <li class="nav-item"><a class="nav-link" href="/catalogo">Catálogo</a></li>
-            @*     <li class="nav-item"><a class="nav-link" href="/packs">Packs</a></li> *@
-                <li class="nav-item"><a class="nav-link" href="/ofertas">Ofertas</a></li>
-                <li class="nav-item"><a class="nav-link" href="/novedades">Novedades</a></li>
+                <li class="nav-item"><a class="nav-link" href="/catalogo">@L.T("nav_catalog")</a></li>
+                <li class="nav-item"><a class="nav-link" href="/ofertas">@L.T("nav_offers")</a></li>
+                <li class="nav-item"><a class="nav-link" href="/novedades">@L.T("nav_news")</a></li>
             </ul>
           @*   @if (Auth.CurrentUser?.Tipo == "Sales Team")
             {
@@ -90,8 +91,11 @@
                     </button>
                 </li>
             } *@
-            <!-- Desktop: Sección del carrito y usuario -->
+            <!-- Desktop: Sección del carrito, idioma y usuario -->
             <div class="desktop-actions d-flex align-items-center gap-3">
+                <!-- Selector de idioma -->
+                <LanguageSelector />
+
                 <!-- Carrito -->
                 <CartIcon />
 
@@ -110,23 +114,23 @@
                             <li><hr class="dropdown-divider" /></li>
                             <li>
                                 <a class="dropdown-item d-flex align-items-center" href="/perfil">
-                                    <i class="bi bi-person me-2"></i>CLiente
+                                    <i class="bi bi-person me-2"></i>@L.T("nav_customer")
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item d-flex align-items-center" href="/pedidos">
-                                    <i class="bi bi-bag me-2"></i> Pedidos
+                                    <i class="bi bi-bag me-2"></i> @L.T("nav_orders")
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item d-flex align-items-center" href="/facturas">
-                                    <i class="bi bi-receipt me-2"></i> Facturas
+                                    <i class="bi bi-receipt me-2"></i> @L.T("nav_invoices")
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider" /></li>
                             <li>
                                 <button class="dropdown-item d-flex align-items-center text-danger" @onclick="Logout">
-                                    <i class="bi bi-box-arrow-right me-2"></i> Salir
+                                    <i class="bi bi-box-arrow-right me-2"></i> @L.T("nav_logout")
                                 </button>
                             </li>
                         </ul>
@@ -135,8 +139,7 @@
                 else
                 {
                     <div class="d-flex gap-2">
-                        <a class="btn btn-outline-secondary btn-sm" href="/login">Acceder</a>
-                       
+                        <a class="btn btn-outline-secondary btn-sm" href="/login">@L.T("nav_login")</a>
                     </div>
                 }
             </div>
@@ -147,7 +150,16 @@
 @code {
     private bool mobileMenuOpen = false;
 
-    protected override void OnInitialized() => Cart.Changed += StateHasChanged;
+    protected override void OnInitialized()
+    {
+        Cart.Changed += StateHasChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
 
     private void OpenMobileMenu()
     {
@@ -159,6 +171,7 @@
         await Auth.LogoutAsync();
         Nav.NavigateTo("/");
     }
+
     private async Task OpenClientSelector()
     {
         await JS.InvokeVoidAsync("eval", "$('#clientSelectorModal').modal('show')");
@@ -168,6 +181,12 @@
     {
         var fullName = Auth.CurrentUser?.FullName ?? "";
         var parts = fullName.Split(' ');
-        return parts.Length > 0 ? parts[0] : "Usuario";
+        return parts.Length > 0 ? parts[0] : L.T("nav_customer");
+    }
+
+    public void Dispose()
+    {
+        Cart.Changed -= StateHasChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

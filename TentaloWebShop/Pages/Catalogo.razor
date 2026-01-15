@@ -1,4 +1,23 @@
 @page "/catalogo"
+@inject LocalizationService L
+@implements IDisposable
 
-<h1 class="mb-3">Todos los Productos</h1>
+<h1 class="mb-3">@L.T("catalog_title")</h1>
 <ProductGrid />
+
+@code {
+    protected override void OnInitialized()
+    {
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
+    }
+}

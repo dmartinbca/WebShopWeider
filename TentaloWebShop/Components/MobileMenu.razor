@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject LocalizationService L
 
 <!-- Overlay oscuro cuando el menú está abierto -->
 @if (IsOpen)
@@ -13,8 +14,8 @@
 <!-- Menú lateral deslizable -->
 <div class="mobile-menu @(IsOpen ? "open" : "")">
     <div class="mobile-menu-header">
-        <h5 class="mb-0 fw-bold">Menú</h5>
-        <button class="btn-close-menu" @onclick="Close" aria-label="Cerrar menú">
+        <h5 class="mb-0 fw-bold">@L.T("nav_open_menu")</h5>
+        <button class="btn-close-menu" @onclick="Close" aria-label="@L.T("close")">
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
@@ -29,14 +30,14 @@
         <div class="mobile-menu-section">
             <div class="section-title">
                 <i class="bi bi-grid-3x3-gap me-2"></i>
-                CATEGORÍAS
+                @L.T("category_sidebar_title").ToUpper()
             </div>
 
             <div class="category-list">
                 <!-- Todos los productos -->
                 <a class="category-item" href="/catalogo" @onclick="Close">
                     <i class="bi bi-grid me-2"></i>
-                    <span>Todos los Productos</span>
+                    <span>@L.T("catalog_title")</span>
                 </a>
 
                 <!-- Lista de familias con subfamilias -->
@@ -73,22 +74,14 @@
 
         <!-- Enlaces rápidos -->
         <div class="mobile-menu-section">
-            <div class="section-title">
-                <i class="bi bi-bookmark me-2"></i>
-                ACCESOS RÁPIDOS
-            </div>
             <div class="quick-links">
-                <a class="quick-link-item" href="/packs" @onclick="Close">
-                    <i class="bi bi-box-seam me-2"></i>
-                    Packs
-                </a>
                 <a class="quick-link-item" href="/ofertas" @onclick="Close">
                     <i class="bi bi-tags me-2"></i>
-                    Ofertas
+                    @L.T("nav_offers")
                 </a>
                 <a class="quick-link-item" href="/novedades" @onclick="Close">
                     <i class="bi bi-star me-2"></i>
-                    Novedades
+                    @L.T("nav_news")
                 </a>
             </div>
         </div>
@@ -101,15 +94,15 @@
                 {
                     <a class="more-item" href="/perfil" @onclick="Close">
                         <i class="bi bi-person me-2"></i>
-                        Cliente
+                        @L.T("nav_customer")
                     </a>
                     <a class="more-item" href="/pedidos" @onclick="Close">
                         <i class="bi bi-bag me-2"></i>
-                        Pedidos
+                        @L.T("nav_orders")
                     </a>
                     <a class="more-item" href="/facturas" @onclick="Close">
                         <i class="bi bi-receipt me-2"></i>
-                        Facturas
+                        @L.T("nav_invoices")
                     </a>
                     <hr class="my-2" />
                 }
@@ -117,7 +110,7 @@
                 {
                     <a class="more-item" href="/login" @onclick="Close">
                         <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Iniciar sesión
+                        @L.T("nav_login")
                     </a>
                     <hr class="my-2" />
                 }
@@ -127,7 +120,7 @@
                     <button class="more-item text-danger border-0 bg-transparent w-100 text-start"
                             @onclick="HandleLogout">
                         <i class="bi bi-box-arrow-right me-2"></i>
-                        Cerrar sesión
+                        @L.T("nav_logout")
                     </button>
                 }
             </div>
@@ -144,7 +137,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        L.OnLanguageChanged += OnLanguageChanged;
         families = await Categories.GetFamilies();
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private void ToggleFamily(string familySlug)
@@ -173,6 +172,7 @@
 
     public async ValueTask DisposeAsync()
     {
-        // Cleanup si es necesario
+        L.OnLanguageChanged -= OnLanguageChanged;
+        await ValueTask.CompletedTask;
     }
 }

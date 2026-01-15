@@ -1,0 +1,194 @@
+@inject LocalizationService Localization
+@implements IDisposable
+
+<div class="language-selector">
+    <div class="dropdown">
+        <button class="btn btn-language dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                title="@Localization.GetCurrentLanguageInfo().Name">
+            <span class="flag-icon">@GetFlagSvg(Localization.CurrentLanguage)</span>
+            <span class="d-none d-md-inline ms-1">@Localization.GetCurrentLanguageInfo().Name</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            @foreach (var lang in LocalizationService.SupportedLanguages)
+            {
+                <li>
+                    <button class="dropdown-item d-flex align-items-center gap-2 @(lang.Key == Localization.CurrentLanguage ? "active" : "")"
+                            @onclick="() => ChangeLanguage(lang.Key)">
+                        <span class="flag-icon">@GetFlagSvg(lang.Key)</span>
+                        <span>@lang.Value.Name</span>
+                        @if (lang.Key == Localization.CurrentLanguage)
+                        {
+                            <i class="bi bi-check2 ms-auto text-primary"></i>
+                        }
+                    </button>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<style>
+    .language-selector {
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-language {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.75rem;
+        background: transparent;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        color: #495057;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-language:hover {
+        background: #f8f9fa;
+        border-color: #adb5bd;
+    }
+
+    .btn-language:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+        border-color: #dc3545;
+    }
+
+    .btn-language .flag-icon {
+        width: 24px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .btn-language .flag-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .dropdown-menu {
+        min-width: 160px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 0.5rem 0;
+    }
+
+    .dropdown-item {
+        padding: 0.625rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #495057;
+        transition: all 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+        background: #f8f9fa;
+        color: #212529;
+    }
+
+    .dropdown-item.active {
+        background: #fff5f5;
+        color: #dc3545;
+    }
+
+    .dropdown-item .flag-icon {
+        width: 24px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-item .flag-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Responsive */
+    @@media (max-width: 767.98px) {
+        .btn-language {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .btn-language .flag-icon {
+            width: 22px;
+            height: 16px;
+        }
+    }
+</style>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Localization.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private async Task ChangeLanguage(string languageCode)
+    {
+        await Localization.SetLanguageAsync(languageCode);
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Localization.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    private MarkupString GetFlagSvg(string langCode)
+    {
+        var svg = langCode switch
+        {
+            "es" => @"<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 750 500"">
+                <rect width=""750"" height=""500"" fill=""#c60b1e""/>
+                <rect width=""750"" height=""250"" y=""125"" fill=""#ffc400""/>
+            </svg>",
+
+            "en" => @"<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 60 30"">
+                <clipPath id=""s""><path d=""M0,0 v30 h60 v-30 z""/></clipPath>
+                <clipPath id=""t""><path d=""M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z""/></clipPath>
+                <g clip-path=""url(#s)"">
+                    <path d=""M0,0 v30 h60 v-30 z"" fill=""#012169""/>
+                    <path d=""M0,0 L60,30 M60,0 L0,30"" stroke=""#fff"" stroke-width=""6""/>
+                    <path d=""M0,0 L60,30 M60,0 L0,30"" clip-path=""url(#t)"" stroke=""#C8102E"" stroke-width=""4""/>
+                    <path d=""M30,0 v30 M0,15 h60"" stroke=""#fff"" stroke-width=""10""/>
+                    <path d=""M30,0 v30 M0,15 h60"" stroke=""#C8102E"" stroke-width=""6""/>
+                </g>
+            </svg>",
+
+            "fr" => @"<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 900 600"">
+                <rect width=""900"" height=""600"" fill=""#ED2939""/>
+                <rect width=""600"" height=""600"" fill=""#fff""/>
+                <rect width=""300"" height=""600"" fill=""#002395""/>
+            </svg>",
+
+            "it" => @"<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 1500 1000"">
+                <rect fill=""#009246"" width=""500"" height=""1000""/>
+                <rect fill=""#fff"" x=""500"" width=""500"" height=""1000""/>
+                <rect fill=""#ce2b37"" x=""1000"" width=""500"" height=""1000""/>
+            </svg>",
+
+            _ => @"<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 100 60"">
+                <rect width=""100"" height=""60"" fill=""#ccc""/>
+            </svg>"
+        };
+
+        return new MarkupString(svg);
+    }
+}

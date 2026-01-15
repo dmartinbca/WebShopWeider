@@ -4,6 +4,7 @@
 @inject IJSRuntime JS
 @inject ProductService Products
 @inject LoadingService Loading
+@inject LocalizationService L
 @implements IDisposable
 
 @if (Auth.CurrentUser?.Tipo == "Sales Team")
@@ -16,22 +17,22 @@
                     @if (ClientSelection.SelectedClient != null)
                     {
                         <div>
-                            <span class="fw-semibold">Cliente seleccionado:</span>
+                            <span class="fw-semibold">@L.T("client_selected"):</span>
                             <span class="ms-2">@ClientSelection.SelectedClient.Name</span>
-                            <span class="text-muted ms-2">(Cód: @ClientSelection.SelectedClient.CustNo)</span>
+                            <span class="text-muted ms-2">(@L.T("client_code"): @ClientSelection.SelectedClient.CustNo)</span>
                         </div>
                     }
                     else
                     {
                         <span class="text-warning">
                             <i class="bi bi-exclamation-triangle me-2"></i>
-                            No hay cliente seleccionado
+                            @L.T("client_not_selected")
                         </span>
                     }
                 </div>
                 <button class="btn btn-sm btn-outline-light" @onclick="OpenClientModal" disabled="@Loading.IsLoading">
                     <i class="bi bi-search me-2"></i>
-                    @(ClientSelection.SelectedClient != null ? "Cambiar Cliente" : "Seleccionar Cliente")
+                    @(ClientSelection.SelectedClient != null ? L.T("client_change") : L.T("client_select"))
                 </button>
             </div>
         </div>
@@ -45,9 +46,9 @@
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="bi bi-people me-2"></i>
-                    Seleccionar Cliente
+                    @L.T("client_select")
                 </h5>
-                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Cerrar" disabled="@Loading.IsLoading"></button>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="@L.T("close")" disabled="@Loading.IsLoading"></button>
             </div>
             <div class="modal-body">
                 <!-- Barra de búsqueda -->
@@ -58,7 +59,7 @@
                         </span>
                         <input type="text"
                                class="form-control"
-                               placeholder="Buscar por nombre o código de cliente..."
+                               placeholder="@L.T("client_search_placeholder")"
                                @bind="searchTerm"
                                @bind:event="oninput"
                                disabled="@Loading.IsLoading" />
@@ -76,16 +77,16 @@
                 {
                     <div class="text-center py-5">
                         <div class="spinner-border text-danger" role="status">
-                            <span class="visually-hidden">Cargando...</span>
+                            <span class="visually-hidden">@L.T("loading")</span>
                         </div>
-                        <p class="mt-3 text-muted">Cargando clientes...</p>
+                        <p class="mt-3 text-muted">@L.T("client_loading")</p>
                     </div>
                 }
                 else if (clients == null || clients.Count == 0)
                 {
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-2"></i>
-                        No se encontraron clientes
+                        @L.T("client_not_found")
                     </div>
                 }
                 else
@@ -112,7 +113,7 @@
                                     @if (client.balanceDue > 0)
                                     {
                                         <div class="client-balance mt-2">
-                                            <small class="text-muted">Saldo pendiente: @client.balanceDue.ToString("N2") €</small>
+                                            <small class="text-muted">@L.T("client_pending_balance"): @client.balanceDue.ToString("N2") €</small>
                                         </div>
                                     }
                                 </div>
@@ -126,12 +127,12 @@
                 }
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="CloseModal" disabled="@Loading.IsLoading">Cancelar</button>
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal" disabled="@Loading.IsLoading">@L.T("cancel")</button>
                 @if (ClientSelection.SelectedClient != null)
                 {
                     <button type="button" class="btn btn-outline-danger" @onclick="ClearClientSelection" disabled="@Loading.IsLoading">
                         <i class="bi bi-x-circle me-2"></i>
-                        Quitar Selección
+                        @L.T("client_remove_selection")
                     </button>
                 }
                 <button type="button"
@@ -141,12 +142,12 @@
                     @if (Loading.IsLoading)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        <span>Procesando...</span>
+                        <span>@L.T("client_processing")</span>
                     }
                     else
                     {
                         <i class="bi bi-check-lg me-2"></i>
-                        <span>Confirmar Selección</span>
+                        <span>@L.T("client_confirm")</span>
                     }
                 </button>
             </div>
@@ -247,6 +248,7 @@
     {
         await ClientSelection.InitializeAsync();
         ClientSelection.OnClientChanged += OnClientChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
 
         if (Auth.CurrentUser?.Tipo == "Sales Team")
         {
@@ -258,6 +260,11 @@
     {
         // Refrescar la UI cuando cambia el cliente
         StateHasChanged();
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadClients()
@@ -354,5 +361,6 @@
     public void Dispose()
     {
         ClientSelection.OnClientChanged -= OnClientChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

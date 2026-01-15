@@ -2,8 +2,11 @@
 @using TentaloWebShop.Shared
 @inject AuthService Auth
 @inject NavigationManager Nav
+@inject LocalizationService L
 @layout AuthLayout
-<h1>Registrar</h1>
+@implements IDisposable
+
+<h1>@L.T("register_title")</h1>
 
 @if (!string.IsNullOrEmpty(error))
 {
@@ -14,23 +17,23 @@
   <div class="card-body">
     <div class="row g-2">
       <div class="col-12 col-md-6">
-        <label class="form-label">Nombre</label>
+        <label class="form-label">@L.T("register_name")</label>
         <input class="form-control" @bind="first" />
       </div>
       <div class="col-12 col-md-6">
-        <label class="form-label">Apellidos</label>
+        <label class="form-label">@L.T("register_surname")</label>
         <input class="form-control" @bind="last" />
       </div>
     </div>
     <div class="mb-3 mt-2">
-      <label class="form-label">Email</label>
+      <label class="form-label">@L.T("login_email")</label>
       <input class="form-control" @bind="email" />
     </div>
     <div class="mb-3">
-      <label class="form-label">Contraseña</label>
+      <label class="form-label">@L.T("login_password")</label>
       <input type="password" class="form-control" @bind="password" />
     </div>
-    <button class="btn btn-danger w-100" @onclick="DoRegister">Crear cuenta</button>
+    <button class="btn btn-danger w-100" @onclick="DoRegister">@L.T("register_create_account")</button>
   </div>
 </div>
 
@@ -41,19 +44,28 @@
     string password = "";
     string? error;
 
+    protected override void OnInitialized()
+    {
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     private async Task DoRegister()
     {
         error = null;
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            error = "Email y contraseña son obligatorios.";
+            error = L.T("register_error_required");
             return;
         }
-        //var ok = Auth.Register(new User{ FirstName = first, LastName = last, Email = email }, password);
-        // if (ok)
-        // {
-        //     await Auth.Login(email, password);
-        //     Nav.NavigateTo("/");
-        // }
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

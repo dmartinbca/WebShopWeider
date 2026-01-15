@@ -3,11 +3,14 @@
 @inject CartService Cart
 @inject CategoryService Categories
 @inject AuthService Auth
+@inject LocalizationService L
+@implements IDisposable
+
 @if (product is null)
 {
     <div class="p-5 text-center">
         <div class="spinner-border text-danger" role="status">
-            <span class="visually-hidden">Cargando...</span>
+            <span class="visually-hidden">@L.T("loading")</span>
         </div>
     </div>
 }
@@ -19,9 +22,9 @@ else
 
     <Breadcrumbs Crumbs="@(new List<(string,string,bool)>
                                            {
-                                               ("Catálogo","/catalogo",false),
-                                               (fam?.Name ?? "Familia",$"/categoria/{fam?.Slug}", false),
-                                               (sub?.Name ?? "Subfamilia",$"/categoria/{fam?.Slug}/{sub?.Slug}", true)
+                                               (L.T("catalog_title"),"/catalogo",false),
+                                               (fam?.Name ?? L.T("product_family"),$"/categoria/{fam?.Slug}", false),
+                                               (sub?.Name ?? L.T("product_subfamily"),$"/categoria/{fam?.Slug}/{sub?.Slug}", true)
                                            })" />
 
 <div class="row g-4">
@@ -37,13 +40,13 @@ else
             @if (hasStock)
                 {
                     <div class="stock-badge-detail available">
-                        <i class="bi bi-check-circle-fill"></i> Disponible
+                        <i class="bi bi-check-circle-fill"></i> @L.T("product_available")
                     </div>
                 }
                 else
                 {
                     <div class="stock-badge-detail unavailable">
-                        <i class="bi bi-x-circle-fill"></i> No disponible temporalmente
+                        <i class="bi bi-x-circle-fill"></i> @L.T("product_unavailable_temp")
                     </div>
                 }
             </div>
@@ -81,7 +84,7 @@ else
                     <div class="alert alert-info d-flex align-items-center mt-3" role="alert">
                         <i class="bi bi-calendar-event me-2"></i>
                         <div>
-                            <strong>Disponible a partir de:</strong> <span class="fecha-disponible ms-1">@FormatDateToSpanish(product.FechaCompra)</span>
+                            <strong>@L.T("product_available_from"):</strong> <span class="fecha-disponible ms-1">@FormatDateToSpanish(product.FechaCompra)</span>
                         </div>
                     </div>
                 }
@@ -90,7 +93,7 @@ else
                     <div class="alert alert-warning d-flex align-items-center mt-3" role="alert">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
                         <div>
-                            <strong>Producto no disponible temporalmente.</strong> Este producto está agotado en este momento.
+                            <strong>@L.T("product_unavailable_temp").</strong> @L.T("product_out_of_stock_message")
                         </div>
                     </div>
                 }
@@ -100,7 +103,7 @@ else
             {
                 <div class="descuento-product-container">
                     <label class="form-label">
-                        <i class="bi bi-percent"></i>Descuento por Producto (%)
+                        <i class="bi bi-percent"></i>@L.T("product_discount_label")
                     </label>
                     <div class="input-group">
                         <input type="number"
@@ -114,7 +117,7 @@ else
                         <span class="input-group-text">%</span>
                     </div>
                     <small class="form-text">
-                        Precio final: <strong>@CalculatePriceWithDiscount(product.PriceFrom, descuentoProducto).ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</strong>
+                        @L.T("product_final_price"): <strong>@CalculatePriceWithDiscount(product.PriceFrom, descuentoProducto).ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</strong>
                     </small>
                 </div>
             }
@@ -127,7 +130,7 @@ else
                         @onclick="Add"
                         disabled="@(!hasStock)">
                     <i class="bi @(hasStock ? "bi-cart-plus" : "bi-cart-x") me-2"></i>
-                    @(hasStock ? "Añadir al Carrito" : "No Disponible")
+                    @(hasStock ? L.T("product_add_to_cart") : L.T("product_out_of_stock"))
                 </button>
             </div>
             @if (Auth.CurrentUser?.Tipo == "Sales Team" && product != null)
@@ -135,30 +138,30 @@ else
                 <div class="inventory-section">
                     <!-- INVENTARIO 100 -->
                     <div class="inventory-info">
-                        <h6>Almacén 001</h6>
+                        <h6>@L.T("product_warehouse_main")</h6>
                         <p class="inventory-value">
                             @if (product.inventario100 > 0)
                             {
-                                <span class="badge bg-success">@product.inventario100 unidades</span>
+                                <span class="badge bg-success">@product.inventario100 @L.T("product_units")</span>
                             }
                             else
                             {
-                                <span class="badge bg-danger">Sin stock</span>
+                                <span class="badge bg-danger">@L.T("product_no_stock")</span>
                             }
                         </p>
                     </div>
 
                     <!-- INVENTARIO NO 100 -->
                     <div class="inventory-info">
-                        <h6>Resto Almacenes</h6>
+                        <h6>@L.T("product_warehouse_others")</h6>
                         <p class="inventory-value">
                             @if (product.inventarioNo100 > 0)
                             {
-                                <span class="badge bg-info">@product.inventarioNo100 unidades</span>
+                                <span class="badge bg-info">@product.inventarioNo100 @L.T("product_units")</span>
                             }
                             else
                             {
-                                <span class="badge bg-warning">Sin stock</span>
+                                <span class="badge bg-warning">@L.T("product_no_stock")</span>
                             }
                         </p>
                     </div>
@@ -167,14 +170,14 @@ else
                     @if (productStocks.Any())
                     {
                         <div class="lotes-section">
-                            <h6>Lotes Disponibles</h6>
+                            <h6>@L.T("product_available_batches")</h6>
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Lote</th>
-                                        <th>Caducidad</th>
-                                        <th>Cantidad</th>
-                                      
+                                        <th>@L.T("product_batch")</th>
+                                        <th>@L.T("product_expiration")</th>
+                                        <th>@L.T("product_quantity")</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -206,7 +209,7 @@ else
                     {
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle"></i>
-                            No hay lotes disponibles para este producto
+                            @L.T("product_no_batches")
                         </div>
                     }
                 </div>
@@ -226,7 +229,7 @@ else
                             type="button"
                             role="tab">
                         <i class="bi bi-file-text me-2"></i>
-                        Descripción
+                        @L.T("product_description")
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -235,7 +238,7 @@ else
                             type="button"
                             role="tab">
                         <i class="bi bi-list-check me-2"></i>
-                        Ingredientes
+                        @L.T("product_ingredients")
                     </button>
                 </li>
                 @* <li class="nav-item" role="presentation">
@@ -256,10 +259,10 @@ else
                         <div class="content-card">
                             <h3 class="content-title">
                                 <i class="bi bi-file-text text-primary me-2"></i>
-                                Descripción del Producto
+                                @L.T("product_description_title")
                             </h3>
                             <p class="content-text">
-                                @(string.IsNullOrWhiteSpace(product.DescProducto) ? "Sin descripción disponible" : product.DescProducto)
+                                @(string.IsNullOrWhiteSpace(product.DescProducto) ? L.T("product_no_description") : product.DescProducto)
                             </p>
                         </div>
                     </div>
@@ -270,16 +273,16 @@ else
                         <div class="content-card">
                             <h3 class="content-title">
                                 <i class="bi bi-list-check text-success me-2"></i>
-                                Composición e Ingredientes
+                                @L.T("product_ingredients_title")
                             </h3>
                             <div class="ingredients-content">
                                 <p class="content-text">
-                                    @(string.IsNullOrWhiteSpace(product.Description) ? "Sin información de ingredientes disponible" : product.Description)
+                                    @(string.IsNullOrWhiteSpace(product.Description) ? L.T("product_no_ingredients") : product.Description)
                                 </p>
                                 <div class="alert alert-info mt-3 d-flex align-items-start">
                                     <i class="bi bi-info-circle me-2 mt-1"></i>
                                     <div>
-                                        <strong>Importante:</strong> Consulte la etiqueta del producto para información nutricional detallada y alérgenos.
+                                        <strong>@L.T("product_important"):</strong> @L.T("product_check_label")
                                     </div>
                                 </div>
                             </div>
@@ -685,6 +688,17 @@ else
     private List<Stock> productStocks = new List<Stock>();
     private bool loadingStock = false;
     private decimal descuentoProducto = 0;
+
+    protected override void OnInitialized()
+    {
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         product = (await Products.GetAllAsync()).FirstOrDefault(p => p.Slug == slug);
@@ -748,5 +762,10 @@ else
         }
 
         return "";
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

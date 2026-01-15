@@ -1,15 +1,17 @@
 @inject CategoryService Categories
 @inject NavigationManager Nav
+@inject LocalizationService L
 @using Microsoft.AspNetCore.Components.Routing
 @using System.Text.RegularExpressions
+@implements IDisposable
 
 <div class="card category-sidebar">
     <div class="card-header">
-        <span>Catálogo</span>
+        <span>@L.T("catalog_title")</span>
         <button class="btn btn-sm btn-catalog-toggle d-lg-none"
                 type="button"
                 @onclick="ToggleMobileMenu"
-                aria-label="Alternar categorías">
+                aria-label="@L.T("category_toggle")">
             <div class="catalog-toggle-icon @(showMobileMenu ? "open" : "")">
                 <span></span>
                 <span></span>
@@ -23,7 +25,7 @@
         <a class="list-group-item list-group-item-action @(IsAllProductsActive() ? "active" : "")"
            href="/catalogo">
             <i class="bi bi-grid me-2"></i>
-            Todos los Productos
+            @L.T("catalog_title")
         </a>
 
         <!-- Familias y Subfamilias -->
@@ -49,7 +51,7 @@
                                 @onclick="() => Toggle(fam.Slug)"
                                 @onclick:stopPropagation="true"
                                 aria-expanded="@isOpen"
-                                aria-label="@(isOpen ? "Colapsar" : "Expandir") subfamilias">
+                                aria-label="@(isOpen ? L.T("category_collapse") : L.T("category_expand"))">
                             <i class="bi bi-chevron-@(isOpen ? "down" : "right")"></i>
                         </button>
                     }
@@ -88,6 +90,12 @@
         families = await Categories.GetFamilies();
         ExpandActiveFromUri(Nav.Uri);
         Nav.LocationChanged += OnLocationChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private void Toggle(string slug)
@@ -132,5 +140,6 @@
     public void Dispose()
     {
         Nav.LocationChanged -= OnLocationChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

@@ -1,6 +1,7 @@
 @page "/"
 @inject AuthService Auth
 @inject CarouselService CarouselSvc
+@inject LocalizationService L
 @implements IDisposable
 
 <!-- ✅ CARRUSEL SOLO PARA CLIENTES DIRECTOS (NO para Sales Team) -->
@@ -45,7 +46,7 @@
                     <button class="indicator @(currentSlide == index ? "active" : "")"
                             @onclick="() => GoToSlide(index)"
                             @onclick:stopPropagation="true"
-                            aria-label="Ir a slide @(index + 1)">
+                            aria-label="@L.T("home_go_to_slide", index + 1)">
                     </button>
                 }
             </div>
@@ -54,14 +55,14 @@
             <button class="carousel-control prev"
                     @onclick="PreviousSlide"
                     @onclick:stopPropagation="true"
-                    aria-label="Anterior"
+                    aria-label="@L.T("home_prev")"
                     style="pointer-events: auto;">
                 <i class="bi bi-chevron-left"></i>
             </button>
             <button class="carousel-control next"
                     @onclick="NextSlide"
                     @onclick:stopPropagation="true"
-                    aria-label="Siguiente"
+                    aria-label="@L.T("home_next")"
                     style="pointer-events: auto;">
                 <i class="bi bi-chevron-right"></i>
             </button>
@@ -71,7 +72,7 @@
     {
         <div class="hero-carousel" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando carrusel...</span>
+                <span class="visually-hidden">@L.T("home_loading_carousel")</span>
             </div>
         </div>
     }
@@ -79,7 +80,7 @@
     {
         <div class="alert alert-warning container my-4" role="alert">
             <i class="bi bi-exclamation-triangle me-2"></i>
-            No hay carruseles disponibles en este momento.
+            @L.T("home_no_carousel")
         </div>
     }
 }
@@ -91,8 +92,8 @@
         <div class="alert alert-info d-flex align-items-center" role="alert">
             <i class="bi bi-info-circle me-3 fs-4"></i>
             <div>
-                <strong>¡Bienvenido, @Auth.CurrentUser?.FirstName!</strong>
-                <p class="mb-0 mt-2">Accede al catálogo de productos o selecciona un cliente para empezar.</p>
+                <strong>@L.T("home_welcome", Auth.CurrentUser?.FirstName ?? "")</strong>
+                <p class="mb-0 mt-2">@L.T("home_access_catalog")</p>
             </div>
         </div>
     </div>
@@ -100,7 +101,7 @@
 
 <!-- Catálogo de productos -->
 <div class="container py-4">
-    <h1 class="mb-3">Nuestros Productos</h1>
+    <h1 class="mb-3">@L.T("home_our_products")</h1>
     <ProductGrid />
 </div>
 
@@ -113,6 +114,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        L.OnLanguageChanged += OnLanguageChanged;
+
         try
         {
             // ✅ Cargar carruseles desde Business Central Cloud
@@ -135,6 +138,11 @@
             isLoading = false;
             carouselItems = new List<CarouselItem>();
         }
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private void StartAutoPlay()
@@ -179,6 +187,7 @@
 
     public void Dispose()
     {
+        L.OnLanguageChanged -= OnLanguageChanged;
         autoPlayTimer?.Dispose();
     }
 }
