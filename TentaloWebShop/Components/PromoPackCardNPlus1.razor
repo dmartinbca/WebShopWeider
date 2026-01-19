@@ -1,0 +1,614 @@
+@using TentaloWebShop.Models
+@inject CartService Cart
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject ProductService ProductService
+
+<div class="promo-pack-card nplus1">
+    <div class="pack-card-inner">
+        <!-- Imagen del pack -->
+        <div class="pack-image-container">
+            @if (!string.IsNullOrWhiteSpace(Promo.ImageBase64))
+            {
+                <img src="@Promo.ImageUrl"
+                     alt="@Promo.Description"
+                     class="pack-image" />
+            }
+            else
+            {
+                <div class="pack-image-placeholder">
+                    <i class="bi bi-box-seam fs-1 text-muted"></i>
+                    <p class="text-muted mb-0 mt-2 small">Pack sin imagen</p>
+                </div>
+            }
+
+            <div class="pack-badge-type">
+                <i class="bi bi-stars me-1"></i>
+                @Promo.QuantityN + 1 GRATIS
+            </div>
+        </div>
+
+        <!-- Contenido del pack -->
+        <div class="pack-content">
+            <h3 class="pack-title">@Promo.Description</h3>
+
+            @if (Promo.EndDate.HasValue)
+            {
+                <div class="pack-validity">
+                    <i class="bi bi-clock me-1"></i>
+                    <small class="text-muted">
+                        Válido hasta @Promo.EndDate.Value.ToString("dd/MM/yyyy")
+                    </small>
+                </div>
+            }
+
+            <!-- Instrucciones -->
+            <div class="pack-instructions alert alert-info py-2 mt-2">
+                <i class="bi bi-info-circle me-1"></i>
+                <small>Elige <strong>@Promo.QuantityN productos</strong> y selecciona <strong>1 regalo</strong></small>
+            </div>
+
+            <!-- Selector de productos -->
+            <div class="pack-details mt-3">
+                <div class="pack-section">
+                    <h6 class="pack-section-title">
+                        <i class="bi bi-cart-check me-1"></i>
+                        Selecciona tus productos:
+                        <span class="badge @(TotalSelected == Promo.QuantityN ? "bg-success" : "bg-warning") ms-2">
+                            @TotalSelected / @Promo.QuantityN
+                        </span>
+                    </h6>
+
+                    <div class="product-selectors">
+                        @foreach (var line in Promo.Lines)
+                        {
+                            var catalogPrice = GetCatalogPrice(line.ItemNo);
+                            var currentQty = GetSelectedQuantity(line.ItemNo);
+
+                            <div class="product-selector-item">
+                                <div class="product-info">
+                                    <span class="product-name">@line.Description</span>
+                                    <span class="product-price">
+                                        @if (catalogPrice > 0)
+                                        {
+                                            @catalogPrice.ToString("0.00")@:€
+                                        }
+                                        else
+                                        {
+                                            @line.UnitPrice.ToString("0.00")@:€
+                                        }
+                                    </span>
+                                </div>
+                                <div class="quantity-controls">
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            @onclick="() => DecreaseQuantity(line.ItemNo)"
+                                            disabled="@(currentQty <= 0)">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <span class="quantity-value">@currentQty</span>
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            @onclick="() => IncreaseQuantity(line.ItemNo)"
+                                            disabled="@(TotalSelected >= Promo.QuantityN)">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Selector de regalo -->
+                <div class="pack-section pack-gifts mt-3">
+                    <h6 class="pack-section-title text-danger">
+                        <i class="bi bi-gift me-1"></i>
+                        Elige tu regalo:
+                        @if (!string.IsNullOrEmpty(selection.GiftItemNo))
+                        {
+                            <span class="badge bg-success ms-2">
+                                <i class="bi bi-check"></i>
+                            </span>
+                        }
+                    </h6>
+
+                    <div class="gift-options">
+                        @foreach (var line in Promo.Lines)
+                        {
+                            var isSelected = selection.GiftItemNo == line.ItemNo;
+                            var catalogPrice = GetCatalogPrice(line.ItemNo);
+
+                            <div class="gift-option @(isSelected ? "selected" : "")"
+                                 @onclick="() => SelectGift(line.ItemNo)">
+                                <div class="gift-radio">
+                                    <i class="bi @(isSelected ? "bi-check-circle-fill text-success" : "bi-circle")"></i>
+                                </div>
+                                <div class="gift-info">
+                                    <span class="gift-name">@line.Description</span>
+                                    <span class="gift-value">
+                                        Valor:
+                                        @if (catalogPrice > 0)
+                                        {
+                                            @catalogPrice.ToString("0.00")@:€
+                                        }
+                                        else
+                                        {
+                                            @line.UnitPrice.ToString("0.00")@:€
+                                        }
+                                    </span>
+                                </div>
+                                <span class="badge bg-danger">GRATIS</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer con precio y botón -->
+            <div class="pack-footer mt-auto">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-warning py-2 mb-2">
+                        <small><i class="bi bi-exclamation-triangle me-1"></i>@errorMessage</small>
+                    </div>
+                }
+
+                <div class="pack-pricing">
+                    @{
+                        var totalPrice = CalculateTotalPrice();
+                        var giftValue = GetGiftValue();
+                    }
+
+                    @if (giftValue > 0)
+                    {
+                        <div class="price-breakdown">
+                            <small class="text-muted">
+                                Total productos: @totalPrice.ToString("0.00")€
+                            </small>
+                            <small class="text-success">
+                                Regalo: -@giftValue.ToString("0.00")€
+                            </small>
+                        </div>
+                    }
+
+                    <div class="price-final">
+                        <strong class="fs-4 text-danger">
+                            @((totalPrice).ToString("0.00"))€
+                        </strong>
+                        @if (giftValue > 0)
+                        {
+                            <span class="badge bg-success ms-2">
+                                +1 GRATIS (@giftValue.ToString("0.00")€)
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <button class="btn btn-danger btn-lg w-100 mt-3"
+                        @onclick="AddToCart"
+                        disabled="@(!IsSelectionComplete || isAdding)">
+                    @if (isAdding)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Agregando...</span>
+                    }
+                    else if (!IsSelectionComplete)
+                    {
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        <span>Completa tu selección</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-cart-plus me-2"></i>
+                        <span>Añadir Pack al Carrito</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public PromoHeader Promo { get; set; } = default!;
+
+    [Inject]
+    public PromoService PromoService { get; set; } = default!;
+
+    private bool isAdding = false;
+    private string errorMessage = string.Empty;
+    private List<Product> catalogProducts = new();
+    private NPlusOneSelection selection = new();
+
+    private int TotalSelected => selection.TotalSelected;
+    private bool IsSelectionComplete => TotalSelected == Promo.QuantityN && !string.IsNullOrEmpty(selection.GiftItemNo);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            catalogProducts = await ProductService.GetAllAsync();
+
+            // Inicializar el diccionario de cantidades
+            foreach (var line in Promo.Lines)
+            {
+                selection.SelectedQuantities[line.ItemNo] = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PromoPackCardNPlus1] Error cargando catálogo: {ex.Message}");
+            catalogProducts = new List<Product>();
+        }
+    }
+
+    private int GetSelectedQuantity(string itemNo)
+    {
+        return selection.SelectedQuantities.GetValueOrDefault(itemNo, 0);
+    }
+
+    private void IncreaseQuantity(string itemNo)
+    {
+        if (TotalSelected < Promo.QuantityN)
+        {
+            selection.SelectedQuantities[itemNo] = GetSelectedQuantity(itemNo) + 1;
+            errorMessage = string.Empty;
+        }
+    }
+
+    private void DecreaseQuantity(string itemNo)
+    {
+        var current = GetSelectedQuantity(itemNo);
+        if (current > 0)
+        {
+            selection.SelectedQuantities[itemNo] = current - 1;
+            errorMessage = string.Empty;
+        }
+    }
+
+    private void SelectGift(string itemNo)
+    {
+        selection.GiftItemNo = itemNo;
+        errorMessage = string.Empty;
+    }
+
+    private decimal GetCatalogPrice(string itemNo)
+    {
+        if (string.IsNullOrWhiteSpace(itemNo) || !catalogProducts.Any())
+            return 0;
+
+        var product = catalogProducts.FirstOrDefault(p =>
+            p.Itemno.Equals(itemNo, StringComparison.OrdinalIgnoreCase));
+
+        return product?.PriceFrom ?? 0;
+    }
+
+    private decimal CalculateTotalPrice()
+    {
+        decimal total = 0;
+        foreach (var kvp in selection.SelectedQuantities)
+        {
+            if (kvp.Value <= 0) continue;
+
+            var catalogPrice = GetCatalogPrice(kvp.Key);
+            var line = Promo.Lines.FirstOrDefault(l => l.ItemNo == kvp.Key);
+            var price = catalogPrice > 0 ? catalogPrice : (line?.UnitPrice ?? 0);
+
+            total += price * kvp.Value;
+        }
+        return total;
+    }
+
+    private decimal GetGiftValue()
+    {
+        if (string.IsNullOrEmpty(selection.GiftItemNo)) return 0;
+
+        var catalogPrice = GetCatalogPrice(selection.GiftItemNo);
+        if (catalogPrice > 0) return catalogPrice;
+
+        var line = Promo.Lines.FirstOrDefault(l => l.ItemNo == selection.GiftItemNo);
+        return line?.UnitPrice ?? 0;
+    }
+
+    private async Task AddToCart()
+    {
+        errorMessage = string.Empty;
+        isAdding = true;
+        StateHasChanged();
+
+        try
+        {
+            // Validar selección
+            var validation = PromoService.ValidateNPlusOneSelection(Promo, selection);
+            if (!validation.IsValid)
+            {
+                errorMessage = validation.ErrorMessage;
+                return;
+            }
+
+            // Validar que los productos existan
+            var promoValidation = await PromoService.ValidatePromo(Promo);
+            if (!promoValidation.IsValid)
+            {
+                errorMessage = promoValidation.ErrorMessage;
+                return;
+            }
+
+            // Convertir a CartItems
+            var packItems = await PromoService.ConvertNPlusOneToCartItems(Promo, selection);
+
+            if (!packItems.Any())
+            {
+                errorMessage = "No se pudieron convertir los items del pack";
+                return;
+            }
+
+            await Cart.AddPack(packItems);
+
+            Console.WriteLine($"[PromoPackCardNPlus1] Pack N+1 '{Promo.Description}' añadido correctamente");
+
+            Nav.NavigateTo("/carrito");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PromoPackCardNPlus1] Error al añadir pack: {ex.Message}");
+            errorMessage = "Error al añadir el pack al carrito";
+        }
+        finally
+        {
+            isAdding = false;
+            StateHasChanged();
+        }
+    }
+}
+
+<style>
+    .promo-pack-card.nplus1 {
+        height: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .promo-pack-card.nplus1:hover {
+        transform: translateY(-5px);
+    }
+
+    .promo-pack-card.nplus1 .pack-card-inner {
+        height: 100%;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s ease;
+        border: 2px solid #198754;
+    }
+
+    .promo-pack-card.nplus1:hover .pack-card-inner {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .pack-badge-type {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: linear-gradient(135deg, #198754 0%, #157347 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+        z-index: 10;
+    }
+
+    .pack-instructions {
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+
+    .product-selectors {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .product-selector-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+
+    .product-selector-item:hover {
+        background: #e9ecef;
+    }
+
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .product-name {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .product-price {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quantity-value {
+        min-width: 30px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .gift-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .gift-option {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #fff5f5;
+        border: 2px solid #fee;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .gift-option:hover {
+        background: #fee;
+        border-color: #fcc;
+    }
+
+    .gift-option.selected {
+        background: #d4edda;
+        border-color: #198754;
+    }
+
+    .gift-radio {
+        font-size: 1.25rem;
+    }
+
+    .gift-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .gift-name {
+        font-weight: 500;
+    }
+
+    .gift-value {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .price-breakdown {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .pack-pricing {
+        text-align: center;
+    }
+
+    .price-final {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    /* Estilos heredados del componente original */
+    .pack-image-container {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        background: white;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 2px solid #198754;
+    }
+
+    .pack-image {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        object-position: center;
+        padding: 1rem;
+    }
+
+    .pack-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .pack-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .pack-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+
+    .pack-validity {
+        margin-bottom: 0.5rem;
+    }
+
+    .pack-section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.75rem;
+    }
+
+    .pack-gifts .pack-section-title {
+        color: #dc3545;
+    }
+
+    .pack-footer {
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    @@media (max-width: 768px) {
+        .pack-image-container {
+            height: 180px;
+        }
+
+        .pack-content {
+            padding: 1rem;
+        }
+
+        .pack-title {
+            font-size: 1.1rem;
+        }
+
+        .product-selector-item {
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: center;
+        }
+
+        .product-info {
+            align-items: center;
+        }
+    }
+</style>

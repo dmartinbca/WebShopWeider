@@ -31,11 +31,33 @@ public class PromoHeader
     [JsonPropertyName("customerNo")]
     public string CustomerNo { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Tipo de descuento: "x+1" (lógica actual fija) o "N+1" (usuario elige combinación)
+    /// </summary>
+    [JsonPropertyName("discountType")]
+    public string DiscountType { get; set; } = "x+1";
+
+    /// <summary>
+    /// Cantidad N para ofertas N+1: número de unidades que el usuario debe elegir
+    /// </summary>
+    [JsonPropertyName("nQuantity")]
+    public int QuantityN { get; set; }
+
     [JsonPropertyName("salesOfferPackLines")]
     public List<PromoLine> Lines { get; set; } = new();
 
     // Propiedades calculadas
-    public bool IsValid => Active ;
+    public bool IsValid => Active;
+
+    /// <summary>
+    /// Indica si es una oferta tipo N+1 (usuario elige combinación)
+    /// </summary>
+    public bool IsNPlusOne => DiscountType?.Equals("N+1", StringComparison.OrdinalIgnoreCase) == true;
+
+    /// <summary>
+    /// Indica si es una oferta tipo x+1 (combinación fija)
+    /// </summary>
+    public bool IsXPlusOne => !IsNPlusOne;
 
     public string ImageUrl => string.IsNullOrWhiteSpace(ImageBase64)
         ? "/images/image.png"
@@ -155,4 +177,30 @@ public class CartPackInfo
     /// Cantidad de packs (por si se añade el mismo pack múltiples veces)
     /// </summary>
     public int PackQuantity { get; set; } = 1;
+}
+
+/// <summary>
+/// Selección del usuario para una oferta N+1
+/// </summary>
+public class NPlusOneSelection
+{
+    /// <summary>
+    /// Cantidades seleccionadas por producto (ItemNo -> Cantidad)
+    /// </summary>
+    public Dictionary<string, int> SelectedQuantities { get; set; } = new();
+
+    /// <summary>
+    /// ItemNo del producto seleccionado como regalo
+    /// </summary>
+    public string? GiftItemNo { get; set; }
+
+    /// <summary>
+    /// Total de unidades seleccionadas
+    /// </summary>
+    public int TotalSelected => SelectedQuantities.Values.Sum();
+
+    /// <summary>
+    /// Verifica si la selección es válida para una cantidad N dada
+    /// </summary>
+    public bool IsValid(int quantityN) => TotalSelected == quantityN && !string.IsNullOrEmpty(GiftItemNo);
 }

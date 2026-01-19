@@ -123,6 +123,84 @@ public class PromoService
     }
 
     /// <summary>
+    /// Convierte una selección N+1 del usuario a CartItems
+    /// </summary>
+    /// <param name="promo">Promoción N+1</param>
+    /// <param name="selection">Selección del usuario (cantidades + regalo)</param>
+    /// <returns>Lista de CartItems con la información del pack</returns>
+    public async Task<List<CartItem>> ConvertNPlusOneToCartItems(PromoHeader promo, NPlusOneSelection selection)
+    {
+        var cartItems = new List<CartItem>();
+        var packId = Guid.NewGuid().ToString();
+
+        // Obtener todos los productos para poder mapearlos
+        var allProducts = await _productService.GetAllAsync();
+
+        // Procesar productos seleccionados (líneas de venta)
+        foreach (var kvp in selection.SelectedQuantities)
+        {
+            if (kvp.Value <= 0) continue;
+
+            var itemNo = kvp.Key;
+            var quantity = kvp.Value;
+
+            // Buscar el producto correspondiente
+            var product = allProducts.FirstOrDefault(p =>
+                p.Itemno.Equals(itemNo, StringComparison.OrdinalIgnoreCase));
+
+            if (product == null)
+            {
+                Console.WriteLine($"[PromoService] Producto no encontrado: {itemNo}");
+                continue;
+            }
+
+            // Buscar la línea de la promo para obtener el precio
+            var promoLine = promo.Lines.FirstOrDefault(l =>
+                l.ItemNo.Equals(itemNo, StringComparison.OrdinalIgnoreCase));
+
+            var cartItem = new CartItem
+            {
+                Product = product,
+                Quantity = quantity,
+                DescuentoProducto = 0, // Sin descuento para las líneas de venta en N+1
+
+                PackId = packId,
+                PromoCode = promo.Code,
+                PackLineType = "Venta",
+                PackDescription = promo.Description
+            };
+
+            cartItems.Add(cartItem);
+        }
+
+        // Procesar el regalo (siempre 1 unidad, 100% descuento)
+        if (!string.IsNullOrEmpty(selection.GiftItemNo))
+        {
+            var giftProduct = allProducts.FirstOrDefault(p =>
+                p.Itemno.Equals(selection.GiftItemNo, StringComparison.OrdinalIgnoreCase));
+
+            if (giftProduct != null)
+            {
+                var giftItem = new CartItem
+                {
+                    Product = giftProduct,
+                    Quantity = 1,
+                    DescuentoProducto = 100, // 100% descuento = GRATIS
+
+                    PackId = packId,
+                    PromoCode = promo.Code,
+                    PackLineType = "Regalo",
+                    PackDescription = promo.Description
+                };
+
+                cartItems.Add(giftItem);
+            }
+        }
+
+        return cartItems;
+    }
+
+    /// <summary>
     /// Valida si una promoción puede ser añadida (tiene todos los productos disponibles)
     /// </summary>
     public async Task<(bool IsValid, string ErrorMessage)> ValidatePromo(PromoHeader promo)
@@ -143,6 +221,45 @@ public class PromoService
             // - Stock disponible
             // - Precio mínimo
             // - Etc.
+        }
+
+        return (true, string.Empty);
+    }
+
+    /// <summary>
+    /// Valida una selección N+1 del usuario
+    /// </summary>
+    public (bool IsValid, string ErrorMessage) ValidateNPlusOneSelection(PromoHeader promo, NPlusOneSelection selection)
+    {
+        if (!promo.IsNPlusOne)
+        {
+            return (false, "Esta promoción no es de tipo N+1");
+        }
+
+        if (selection.TotalSelected != promo.QuantityN)
+        {
+            return (false, $"Debes seleccionar exactamente {promo.QuantityN} unidades. Has seleccionado {selection.TotalSelected}.");
+        }
+
+        if (string.IsNullOrEmpty(selection.GiftItemNo))
+        {
+            return (false, "Debes seleccionar un producto como regalo");
+        }
+
+        // Verificar que el regalo está entre los productos disponibles
+        var validItemNos = promo.Lines.Select(l => l.ItemNo).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!validItemNos.Contains(selection.GiftItemNo))
+        {
+            return (false, "El producto de regalo seleccionado no es válido");
+        }
+
+        // Verificar que los productos seleccionados son válidos
+        foreach (var itemNo in selection.SelectedQuantities.Keys)
+        {
+            if (!validItemNos.Contains(itemNo))
+            {
+                return (false, $"El producto {itemNo} no es válido para esta promoción");
+            }
         }
 
         return (true, string.Empty);
