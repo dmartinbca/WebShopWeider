@@ -11,7 +11,8 @@
       "Bash(powershell -ExecutionPolicy Bypass -File:*)",
       "Bash(dir \"C:\\\\C#\" /s /b)",
       "Bash(dir:*)",
-      "Bash(locate:*)"
+      "Bash(locate:*)",
+      "Bash(git -C \"C:\\\\C#\\\\WebShopWeider\" status --short)"
     ]
   }
 }
