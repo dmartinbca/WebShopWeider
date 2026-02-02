@@ -25,4 +25,9 @@ public class User
     public string IdiomaPais { get; set; } = "";
     public List<CustomerAddres> CustomerAddres { get; set; }
 
+    public string TipoClienteWebShop { get; set; } = "Normal";
+    public decimal PctDescMaterialProm { get; set; }
+    public decimal CreditoAnualAtleta { get; set; }
+    public decimal CreditoConsumidoAtleta { get; set; }
+
 }

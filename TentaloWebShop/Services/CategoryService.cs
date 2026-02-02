@@ -7,21 +7,23 @@ public class CategoryService
 {
     private readonly RestDataService _rest;
     public CategoryService(RestDataService rest) => _rest = rest;
-    // ⚠️ Rellena aquí tus familias y subfamilias reales
     private   List<Category> _families = new List<Category>();
 
+    // Slugs de familias marcadas como Material Promocional
+    private HashSet<string> _materialPromocionalSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    public IReadOnlySet<string> MaterialPromocionalSlugs => _materialPromocionalSlugs;
 
-    //public List<Category> GetFamilies() => _families;
     public async Task<List<Category>> GetFamilies()
     {
         var listFam = new List<Category>();
-       
+
         HttpClient httpClient = new HttpClient();
-       
+
         var efam = await _rest.GetFamiliasAPICloud();
-     
+
         if (efam != null)
         {
+            _materialPromocionalSlugs.Clear();
             foreach (var fam in efam)
             {
                 var listSubFam = new List<Subcategory>();
@@ -30,6 +32,12 @@ public class CategoryService
                     listSubFam.Add(new Subcategory { Name = sub.No, Slug = sub.No.Replace(" ", "") });
                 }
                 listFam.Add(new Category { Name = fam.Famlia, Slug = fam.Famlia.Replace(" ", ""), Subs=listSubFam });
+
+                // Registrar familias de material promocional
+                if (fam.MaterialPromocional)
+                {
+                    _materialPromocionalSlugs.Add(fam.Famlia.Replace(" ", ""));
+                }
             }
             _families=listFam;
             return listFam;
@@ -38,6 +46,14 @@ public class CategoryService
         {
             return listFam;
         }
+    }
+
+    public bool IsMaterialPromocional(string familySlug)
+    {
+        if (string.IsNullOrEmpty(familySlug)) return false;
+        // También incluir MATERIALPROM como slug fijo por compatibilidad
+        return _materialPromocionalSlugs.Contains(familySlug)
+            || familySlug.Equals("MATERIALPROM", StringComparison.OrdinalIgnoreCase);
     }
 
     public Category? GetFamily(string familySlug)

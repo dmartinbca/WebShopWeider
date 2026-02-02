@@ -338,6 +338,160 @@ public class CartService
     private void NotifyChanged() => Changed?.Invoke();
 
     // ============================================================================
+    // MATERIAL PROMOCIONAL Y CREDITO ATLETA
+    // ============================================================================
+
+    /// <summary>
+    /// Añade un producto de material promocional al carrito con descuento 100%
+    /// </summary>
+    public async Task AddPromotionalMaterial(Product product, int qty)
+    {
+        await Add(product, qty, 100);
+    }
+
+    /// <summary>
+    /// Obtiene los items de material promocional en el carrito
+    /// </summary>
+    public List<CartItem> GetPromotionalMaterialInCart()
+    {
+        return Items.Where(i => i.Product.EsMaterialPromocional && i.DescuentoProducto == 100).ToList();
+    }
+
+    /// <summary>
+    /// Suma el valor (a precio normal) del material promocional en carrito
+    /// </summary>
+    public decimal PromotionalMaterialTotal
+    {
+        get
+        {
+            return Items
+                .Where(i => i.Product.EsMaterialPromocional && i.DescuentoProducto == 100)
+                .Sum(i => i.Product.PriceFrom * i.Quantity);
+        }
+    }
+
+    /// <summary>
+    /// Aplica credito de atleta: descuento 100% a lineas hasta el monto del credito.
+    /// Si el credito no cubre un item completo, cubre tantas unidades como pueda
+    /// y deja el resto a precio normal.
+    /// </summary>
+    public async Task ApplyAthleteCredit(decimal creditAmount)
+    {
+        if (creditAmount <= 0) return;
+
+        decimal remaining = creditAmount;
+
+        // Obtener items normales (sin pack, sin material promo, que no tengan ya credito atleta)
+        var eligibleItems = Items
+            .Where(i => string.IsNullOrWhiteSpace(i.PackId)
+                && !i.Product.EsMaterialPromocional
+                && !i.IsAthleteCredit)
+            .ToList();
+
+        var splitItems = new List<CartItem>();
+
+        foreach (var item in eligibleItems)
+        {
+            if (remaining <= 0) break;
+
+            decimal unitPrice = item.Product.PriceFrom;
+            if (unitPrice <= 0) continue;
+
+            decimal itemTotalValue = unitPrice * item.Quantity;
+
+            if (itemTotalValue <= remaining)
+            {
+                // El item completo cabe en el credito
+                item.OriginalDescuento = item.DescuentoProducto;
+                item.DescuentoProducto = 100;
+                item.IsAthleteCredit = true;
+                remaining -= itemTotalValue;
+            }
+            else
+            {
+                // No cabe entero: cubrir tantas unidades como se pueda
+                int unitsCovered = (int)(remaining / unitPrice);
+                if (unitsCovered > 0 && unitsCovered < item.Quantity)
+                {
+                    // Reducir cantidad del item original (queda la parte sin credito)
+                    item.Quantity -= unitsCovered;
+
+                    // Crear linea nueva con las unidades cubiertas por credito
+                    splitItems.Add(new CartItem
+                    {
+                        Product = item.Product,
+                        Quantity = unitsCovered,
+                        DescuentoProducto = 100,
+                        IsAthleteCredit = true,
+                        OriginalDescuento = item.DescuentoProducto,
+                        PackId = item.PackId,
+                        PromoCode = item.PromoCode,
+                        PackLineType = item.PackLineType,
+                        PackDescription = item.PackDescription
+                    });
+
+                    remaining -= unitPrice * unitsCovered;
+                }
+                // Continuar intentando con otros items (no break)
+            }
+        }
+
+        // Agregar las lineas divididas
+        Items.AddRange(splitItems);
+
+        await SaveAndNotify();
+    }
+
+    /// <summary>
+    /// Quita el credito de atleta de todas las lineas, restaurando el descuento original
+    /// y re-fusionando las lineas que se dividieron al aplicar credito.
+    /// </summary>
+    public async Task RemoveAthleteCredit()
+    {
+        var creditItems = Items.Where(i => i.IsAthleteCredit).ToList();
+
+        foreach (var creditItem in creditItems)
+        {
+            decimal originalDiscount = creditItem.OriginalDescuento >= 0 ? creditItem.OriginalDescuento : 0;
+
+            // Buscar la linea original del mismo producto (misma descuento, sin credito atleta)
+            var originalItem = Items.FirstOrDefault(i =>
+                i.Product.Id == creditItem.Product.Id
+                && !i.IsAthleteCredit
+                && i.DescuentoProducto == originalDiscount);
+
+            if (originalItem != null)
+            {
+                // Re-fusionar: devolver las unidades a la linea original
+                originalItem.Quantity += creditItem.Quantity;
+                Items.Remove(creditItem);
+            }
+            else
+            {
+                // No hay linea original (el item completo estaba con credito): restaurar
+                creditItem.DescuentoProducto = originalDiscount;
+                creditItem.OriginalDescuento = -1;
+                creditItem.IsAthleteCredit = false;
+            }
+        }
+
+        await SaveAndNotify();
+    }
+
+    /// <summary>
+    /// Calcula el total del credito de atleta aplicado
+    /// </summary>
+    public decimal AthleteCreditApplied
+    {
+        get
+        {
+            return Items
+                .Where(i => i.IsAthleteCredit && i.DescuentoProducto == 100)
+                .Sum(i => i.Product.PriceFrom * i.Quantity);
+        }
+    }
+
+    // ============================================================================
     // MÉTODOS A AGREGAR EN CartService.cs
     // Agregar estos métodos después de los métodos existentes
     // ============================================================================

@@ -5,13 +5,13 @@
 
 <div class="search-container">
     <div class="input-group search-input-group">
-        <div class="input-group-prepend">
-            <span class="input-group-text search-icon">
-                <i class="bi bi-search"></i>
-            </span>
-        </div>
+        <select class="search-mode-select" @bind="searchMode">
+            <option value="product">@L.T("search_mode_product")</option>
+            <option value="ingredient">@L.T("search_mode_ingredient")</option>
+        </select>
+        <div class="search-mode-divider"></div>
         <input class="form-control search-input"
-               placeholder="@L.T("search_placeholder")"
+               placeholder="@GetPlaceholder()"
                @bind="term"
                @bind:event="oninput"
                @onkeydown="KeyDown"
@@ -60,6 +60,7 @@
 @code {
     [Parameter] public string? Class { get; set; }
     private string term = string.Empty;
+    private string searchMode = "product";
     private bool isFocused = false;
 
     private readonly string[] popularSearches = new[]
@@ -81,12 +82,19 @@
         InvokeAsync(StateHasChanged);
     }
 
+    private string GetPlaceholder()
+    {
+        return searchMode == "ingredient"
+            ? L.T("search_placeholder_ingredient")
+            : L.T("search_placeholder");
+    }
+
     private void Go()
     {
         if (string.IsNullOrWhiteSpace(term)) return;
 
         var q = Uri.EscapeDataString(term.Trim());
-        Nav.NavigateTo($"/buscar?q={q}");
+        Nav.NavigateTo($"/buscar?q={q}&mode={searchMode}");
         isFocused = false;
     }
 

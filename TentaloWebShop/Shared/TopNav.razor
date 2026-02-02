@@ -11,7 +11,7 @@
 <nav class="navbar navbar-expand-lg border-bottom sticky-top">
     <div class="container-fluid">
         <!-- Botón de menú hamburguesa para móvil (a la izquierda) -->
-        <button class="btn btn-menu-toggle d-lg-none"
+        <button class="btn btn-menu-toggle d-xl-none"
                 @onclick="OpenMobileMenu"
                 aria-label="@L.T("nav_open_menu")">
             <i class="bi bi-list fs-4"></i>
@@ -23,7 +23,7 @@
         </a>
 
         <!-- Mobile Actions - Visible solo en móvil (a la derecha) -->
-        <div class="mobile-actions d-lg-none">
+        <div class="mobile-actions d-xl-none">
             <!-- Carrito Móvil -->
             <CartIcon />
 
@@ -70,7 +70,7 @@
         </div>
 
         <!-- Desktop Navigation - Visible solo en desktop -->
-        <div class="d-none d-lg-flex flex-grow-1 align-items-center justify-content-between">
+        <div class="d-none d-xl-flex flex-grow-1 align-items-center justify-content-between">
             <!-- Desktop: Barra de búsqueda -->
             <div class="search-section flex-grow-1 mx-4">
                 <SearchBar />
@@ -107,7 +107,7 @@
                             <div class="user-avatar me-2">
                                 <i class="bi bi-person-circle"></i>
                             </div>
-                            <span class="d-none d-lg-inline">@GetShortName()</span>
+                            <span class="d-none d-xl-inline">@GetShortName()</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                             <li><h6 class="dropdown-header">@Auth.CurrentUser?.FullName</h6></li>

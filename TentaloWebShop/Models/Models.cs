@@ -223,6 +223,18 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("api")]
         public string Api { get; set; }
 
+        [JsonPropertyName("tipoClienteWebShop")]
+        public string TipoClienteWebShop { get; set; } = "Normal";
+
+        [JsonPropertyName("pctDescMaterialProm")]
+        public decimal PctDescMaterialProm { get; set; }
+
+        [JsonPropertyName("creditoAnualAtleta")]
+        public decimal CreditoAnualAtleta { get; set; }
+
+        [JsonPropertyName("creditoConsumidoAtleta")]
+        public decimal CreditoConsumidoAtleta { get; set; }
+
     }
 
     public class NavUserLogon
@@ -561,7 +573,17 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("discountPP")]
         public decimal DescPP { get; set; }
 
+        [JsonPropertyName("tipoClienteWebShop")]
+        public string TipoClienteWebShop { get; set; } = "Normal";
 
+        [JsonPropertyName("pctDescMaterialProm")]
+        public decimal PctDescMaterialProm { get; set; }
+
+        [JsonPropertyName("creditoAnualAtleta")]
+        public decimal CreditoAnualAtleta { get; set; }
+
+        [JsonPropertyName("creditoConsumidoAtleta")]
+        public decimal CreditoConsumidoAtleta { get; set; }
 
 
     }
@@ -669,7 +691,9 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("Descripcion")]
         public string Descripcion { get; set; }
 
-   
+        [JsonPropertyName("materialPromocional")]
+        public bool MaterialPromocional { get; set; }
+
         private int order;
         [JsonPropertyName("Order")]
         public int Order

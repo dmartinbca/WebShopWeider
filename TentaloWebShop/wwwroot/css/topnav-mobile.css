@@ -50,8 +50,8 @@
             color: #111111;
         }
 
-/* Ajustes para el logo en móvil */
-@media (max-width: 991.98px) {
+/* Ajustes para móvil y tablet (< 1200px) */
+@media (max-width: 1199.98px) {
     .navbar-brand {
         margin: 0 auto;
         padding: 0;
@@ -88,8 +88,8 @@
     }
 }
 
-/* Desktop - mantener estructura original */
-@media (min-width: 992px) {
+/* Desktop (>= 1200px) */
+@media (min-width: 1200px) {
     .container-fluid {
         padding: 0.75rem 2rem;
     }
@@ -205,6 +205,12 @@
 
     .mobile-actions .btn-link {
         padding: 0.375rem;
+    }
+
+    .search-mode-select {
+        min-width: 95px;
+        font-size: 0.78rem;
+        padding: 0.5rem 0.25rem 0.5rem 0.5rem;
     }
 }
 

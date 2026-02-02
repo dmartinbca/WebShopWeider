@@ -63,7 +63,11 @@ public class AuthService
                 DescuentoFactura = navUser.Descuento_en_factura,
                 DescuentoPP = 0,
                 IdiomaPais = navUser.CodPais,
-                CustomerAddres = new List<CustomerAddres>()
+                CustomerAddres = new List<CustomerAddres>(),
+                TipoClienteWebShop = navUser.TipoClienteWebShop ?? "Normal",
+                PctDescMaterialProm = navUser.PctDescMaterialProm,
+                CreditoAnualAtleta = navUser.CreditoAnualAtleta,
+                CreditoConsumidoAtleta = navUser.CreditoConsumidoAtleta
             };
 
             // Guardar usuario
@@ -108,6 +112,10 @@ public class AuthService
             {
                 CurrentUser.DescuentoFactura = customer.Descuentoenfactura;
                 CurrentUser.DescuentoPP = (int)customer.DescPP;
+                CurrentUser.TipoClienteWebShop = customer.TipoClienteWebShop ?? "Normal";
+                CurrentUser.PctDescMaterialProm = customer.PctDescMaterialProm;
+                CurrentUser.CreditoAnualAtleta = customer.CreditoAnualAtleta;
+                CurrentUser.CreditoConsumidoAtleta = customer.CreditoConsumidoAtleta;
 
                 try
                 {

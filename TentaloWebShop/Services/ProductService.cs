@@ -10,13 +10,15 @@ public class ProductService
     private readonly RestDataService _rest;
     private readonly AuthService _auth;
     private readonly ClientSelectionService _clientSelection;
+    private readonly CategoryService _categoryService;
     private string? _lastCustomerNo; // Para detectar cambios de cliente
 
-    public ProductService(RestDataService rest, AuthService auth, ClientSelectionService clientSelection)
+    public ProductService(RestDataService rest, AuthService auth, ClientSelectionService clientSelection, CategoryService categoryService)
     {
         _rest = rest;
         _auth = auth;
         _clientSelection = clientSelection;
+        _categoryService = categoryService;
         _auth.OnCustomerChanged += OnCustomerChanged;
         _clientSelection.OnClientChanged += OnClientSelectionChanged;
     }
@@ -124,6 +126,8 @@ public class ProductService
                         EsPack = p.Es_Pack,
                         EsNovedad = p.Marcar_como_Novedad,
                         FechaCompra = p.FechaCompra ?? "",
+                        EsMaterialPromocional = _categoryService.IsMaterialPromocional(
+                            (p.FamiliaN ?? "").Replace(" ", "")),
                     });
                 }
                 catch (Exception ex)
@@ -203,6 +207,15 @@ public class ProductService
     {
         var all = await GetAllAsync();
         return all.Where(p => p.EsNovedad).ToList();
+    }
+
+    /// <summary>
+    /// Obtiene todos los productos de material promocional
+    /// </summary>
+    public async Task<List<Product>> GetMaterialPromocionalAsync()
+    {
+        var all = await GetAllAsync();
+        return all.Where(p => p.EsMaterialPromocional).ToList();
     }
 
     public async Task<List<Stock>> GetStockByProductoAsync(string almacen, string productNo)

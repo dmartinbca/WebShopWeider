@@ -171,8 +171,8 @@ h1 {
     }
 }
 
-/* Mobile Navbar */
-@media (max-width: 991.98px) {
+/* Mobile/Tablet Navbar */
+@media (max-width: 1199.98px) {
     .navbar {
         padding: 0.5rem 0;
     }
@@ -277,6 +277,31 @@ h1 {
         border-color: var(--weider-red);
         box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.15);
     }
+
+.search-mode-select {
+    border: none;
+    background: transparent;
+    color: #495057;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.75rem 0.5rem 0.75rem 0.75rem;
+    cursor: pointer;
+    outline: none;
+    appearance: auto;
+    min-width: 120px;
+}
+
+    .search-mode-select:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+.search-mode-divider {
+    width: 1px;
+    height: 24px;
+    background: #dee2e6;
+    flex-shrink: 0;
+}
 
 .search-icon {
     background: transparent;
@@ -1307,8 +1332,8 @@ h1 {
         font-size: 1.1rem;
     }
 
-/* Mobile Sidebar Collapse */
-@media (max-width: 991.98px) {
+/* Mobile/Tablet Sidebar Collapse */
+@media (max-width: 1199.98px) {
     .sidebar-accordion {
         max-height: 0;
         overflow: hidden;
@@ -1344,7 +1369,7 @@ h1 {
     }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
     .sidebar-accordion {
         display: block !important;
         max-height: none !important;
@@ -1458,8 +1483,8 @@ h1 {
     }
 }
 
-/* Mobile Cart Layout */
-@media (max-width: 991.98px) {
+/* Mobile/Tablet Cart Layout */
+@media (max-width: 1199.98px) {
     .cart-item-image {
         width: 75px;
         height: 75px;
@@ -2178,7 +2203,7 @@ h1 {
 }
 
 /* Responsive Tablet */
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
     .order-card,
     .invoice-card {
         padding: 1rem;
@@ -3289,8 +3314,8 @@ main {
     }
 }
 
-/* Móvil: column-reverse (ya aplicado con inline style) */
-@media (max-width: 991.98px) {
+/* Móvil/Tablet: column-reverse (ya aplicado con inline style) */
+@media (max-width: 1199.98px) {
     .pedido-info-col,
     .pedido-summary-col {
         width: 100% !important;
@@ -3503,8 +3528,8 @@ main {
     }
 }
 
-/* Móvil: Resumen arriba, Info abajo */
-@media (max-width: 991.98px) {
+/* Móvil/Tablet: Resumen arriba, Info abajo */
+@media (max-width: 1199.98px) {
     .pedido-content-row {
         display: flex !important;
         flex-direction: column !important;
@@ -3731,8 +3756,8 @@ main {
     }
 }
 
-/* Móvil: Resumen arriba, Info abajo */
-@media (max-width: 991.98px) {
+/* Móvil/Tablet: Resumen arriba, Info abajo */
+@media (max-width: 1199.98px) {
     .pedido-content-row {
         display: flex;
         flex-direction: column;

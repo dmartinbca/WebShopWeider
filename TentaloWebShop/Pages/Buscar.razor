@@ -35,16 +35,18 @@ else
 }
 
 @code {
-  
+
     private string? q;
+    private string mode = "product";
     private IEnumerable<Product>? items;
 
     // ✅ Ciclo de vida
     protected override async Task OnInitializedAsync()
     {
-        // Suscribirse al evento de cambio de cliente
         Auth.OnCustomerChanged += OnCustomerChanged;
         L.OnLanguageChanged += OnLanguageChanged;
+        Nav.LocationChanged += OnLocationChanged;
+        await LoadSearchResultsAsync();
     }
 
     private void OnLanguageChanged()
@@ -52,9 +54,13 @@ else
         InvokeAsync(StateHasChanged);
     }
 
-    protected override async Task OnParametersSetAsync()
+    private async void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
     {
-        await LoadSearchResultsAsync();
+        if (new Uri(e.Location).AbsolutePath.Equals("/buscar", StringComparison.OrdinalIgnoreCase))
+        {
+            await LoadSearchResultsAsync();
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     // ✅ NUEVO: Método para cargar resultados de búsqueda
@@ -65,15 +71,23 @@ else
             var uri = new Uri(Nav.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             q = query.Get("q") ?? "";
+            mode = query.Get("mode") ?? "product";
 
-            Console.WriteLine($"[Buscar] Buscando: '{q}' para cliente: {Auth.CurrentCustomer?.CustNo ?? Auth.CurrentUser?.CustomerNo}");
+            Console.WriteLine($"[Buscar] Buscando: '{q}' (modo: {mode}) para cliente: {Auth.CurrentCustomer?.CustNo ?? Auth.CurrentUser?.CustomerNo}");
 
             items = null;
             var all = await Products.GetAllAsync();
-            items = all.Where(p =>
-                p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase) || p.EAN13.Contains(q, StringComparison.OrdinalIgnoreCase)
-            ).ToList();
+
+            items = mode switch
+            {
+                "ingredient" => all.Where(p =>
+                    p.Description.Contains(q, StringComparison.OrdinalIgnoreCase)
+                ).ToList(),
+                _ => all.Where(p =>
+                    p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    p.EAN13.Contains(q, StringComparison.OrdinalIgnoreCase)
+                ).ToList()
+            };
 
             Console.WriteLine($"[Buscar] Encontrados {items.Count()} resultados");
         }
@@ -105,5 +119,6 @@ else
     {
         Auth.OnCustomerChanged -= OnCustomerChanged;
         L.OnLanguageChanged -= OnLanguageChanged;
+        Nav.LocationChanged -= OnLocationChanged;
     }
 }

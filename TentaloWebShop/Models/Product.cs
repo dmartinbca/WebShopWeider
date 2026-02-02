@@ -29,6 +29,7 @@ public class Product
     public bool EsNovedad { get; set; } 
     public string FamilySlug { get; set; } = "";      // p.ej. "better-nutrition"
     public string SubfamilySlug { get; set; } = "";   // p.ej. "proteinas"
+    public bool EsMaterialPromocional { get; set; }
 }
 
 public class FileItem

@@ -34,6 +34,17 @@ public class CartItem
     public string? PackDescription { get; set; }
 
     /// <summary>
+    /// Indica si el descuento fue aplicado por credito de atleta
+    /// </summary>
+    public bool IsAthleteCredit { get; set; }
+
+    /// <summary>
+    /// Almacena el descuento original antes de aplicar credito atleta.
+    /// -1 indica que no hay descuento original guardado.
+    /// </summary>
+    public decimal OriginalDescuento { get; set; } = -1;
+
+    /// <summary>
     /// Indica si este item es parte de un pack promocional
     /// </summary>
     public bool IsPartOfPack => !string.IsNullOrWhiteSpace(PackId);

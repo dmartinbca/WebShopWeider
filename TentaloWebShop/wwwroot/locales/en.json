@@ -391,6 +391,9 @@
 
   "search_clear": "Clear search",
   "search_popular": "Popular searches",
+  "search_mode_product": "Product",
+  "search_mode_ingredient": "Ingredient",
+  "search_placeholder_ingredient": "Search by ingredient...",
 
   "client_selected": "Selected client",
   "client_code": "Code",
@@ -403,5 +406,17 @@
   "client_pending_balance": "Pending balance",
   "client_remove_selection": "Remove Selection",
   "client_processing": "Processing...",
-  "client_confirm": "Confirm Selection"
+  "client_confirm": "Confirm Selection",
+
+  "promo_material_title": "Promotional Material",
+  "promo_material_budget": "You can add promotional material up to {0} €",
+  "promo_material_remaining": "Remaining: {0} €",
+  "promo_material_add": "Add",
+  "promo_material_exceeded": "You have exceeded the available promotional material budget.",
+  "athlete_credit_title": "Athlete Credit",
+  "athlete_credit_available": "Available credit",
+  "athlete_credit_apply": "Use athlete credit",
+  "athlete_credit_applied": "Credit applied",
+  "athlete_credit_remaining_pay": "Remaining amount to pay",
+  "athlete_no_minimum_order": "As an athlete, no minimum order applies."
 }

@@ -9,6 +9,7 @@
 @using System.Globalization
 @inject IJSRuntime JS
 @inject LocalizationService L
+@inject ProductService Products
 
 <h1>@L.T("cart_title")</h1>
 
@@ -128,10 +129,11 @@ else
                                     @foreach (var item in packGroup.Value)
                                     {
                                         <div class="pack-item-row">
-                                            <img src="@item.Product.ImageUrl"
+                                            <img src="@(!string.IsNullOrWhiteSpace(item.Product.ImageUrl) ? item.Product.ImageUrl : "/images/image.png")"
                                                  class="pack-item-image"
                                                  alt="@item.Product.Name"
-                                                 onerror="this.src='/images/placeholder.png'">
+                                                 onerror="this.style.display='none'"
+                                                 loading="lazy">
 
                                             <div class="pack-item-details">
                                                 <span class="pack-item-name">@item.Product.Name</span>
@@ -180,10 +182,11 @@ else
                         @foreach (var item in GetNormalItems())
                         {
                             <div class="cart-item">
-                                <img src="@item.Product.ImageUrl"
+                                <img src="@(!string.IsNullOrWhiteSpace(item.Product.ImageUrl) ? item.Product.ImageUrl : "/images/image.png")"
                                      class="cart-item-image"
                                      alt="@item.Product.Name"
-                                     onerror="this.src='/images/placeholder.png'">
+                                     onerror="this.style.display='none'"
+                                     loading="lazy">
 
                                 <div class="cart-item-content">
                                     <div class="cart-item-info">
@@ -224,6 +227,120 @@ else
                                             <i class="bi bi-trash me-1"></i>@L.T("cart_remove")
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- MATERIAL PROMOCIONAL -->
+            @if (PctDescMaterialProm > 0)
+            {
+                <div class="card mb-4 border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-megaphone-fill me-2"></i>
+                            @L.T("promo_material_title")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            @L.T("promo_material_budget", MaxPromoBudget.ToString("0.00"))
+                            <strong>(@L.T("promo_material_remaining", PromoRemaining.ToString("0.00")))</strong>
+                        </div>
+
+                        @if (promoMaterialProducts != null && promoMaterialProducts.Any())
+                        {
+                            <div class="promo-material-list">
+                                @foreach (var prod in promoMaterialProducts)
+                                {
+                                    <div class="promo-material-item">
+                                        <img src="@(!string.IsNullOrWhiteSpace(prod.ImageUrl) ? prod.ImageUrl : "/images/image.png")"
+                                             class="promo-material-img"
+                                             alt="@prod.Name"
+                                             onerror="this.style.display='none'"
+                                             loading="lazy">
+                                        <div class="promo-material-info">
+                                            <span class="fw-semibold">@prod.Name</span>
+                                            <span class="text-muted small">@prod.PriceFrom.ToString("0.00") €</span>
+                                        </div>
+                                        <div class="promo-material-actions">
+                                            <input type="number" min="1" max="50"
+                                                   class="form-control form-control-sm"
+                                                   style="width: 70px;"
+                                                   @bind="promoQuantities[prod.Itemno]" />
+                                            <button class="btn btn-sm btn-info text-white ms-2"
+                                                    disabled="@(!CanAddPromoMaterial(prod))"
+                                                    @onclick="(() => AddPromoMaterial(prod))">
+                                                <i class="bi bi-plus-circle me-1"></i>@L.T("promo_material_add")
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (Cart.GetPromotionalMaterialInCart().Any())
+                        {
+                            <hr />
+                            <h6>@L.T("promo_material_title") @L.T("cart_products"):</h6>
+                            @foreach (var promoItem in Cart.GetPromotionalMaterialInCart())
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>@promoItem.Product.Name x @promoItem.Quantity</span>
+                                    <span class="badge bg-success">@L.T("cart_gift")</span>
+                                </div>
+                            }
+                        }
+
+                        @if (promoExceeded)
+                        {
+                            <div class="alert alert-warning mt-2 mb-0">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                @L.T("promo_material_exceeded")
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- CREDITO ATLETA -->
+            @if (IsAtleta && CreditoAnualAtleta > 0)
+            {
+                <div class="card mb-4 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="bi bi-trophy-fill me-2"></i>
+                            @L.T("athlete_credit_title")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>@L.T("athlete_credit_available")</span>
+                            <strong class="text-warning fs-5">@CreditoRestante.ToString("0.00") €</strong>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="useAthleteCredit"
+                                   checked="@useAthleteCredit"
+                                   @onchange="ToggleAthleteCredit" />
+                            <label class="form-check-label" for="useAthleteCredit">
+                                @L.T("athlete_credit_apply")
+                            </label>
+                        </div>
+
+                        @if (useAthleteCredit && Cart.AthleteCreditApplied > 0)
+                        {
+                            <div class="alert alert-success mb-0">
+                                <div class="d-flex justify-content-between">
+                                    <span>@L.T("athlete_credit_applied")</span>
+                                    <strong>@Cart.AthleteCreditApplied.ToString("0.00") €</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span>@L.T("athlete_credit_remaining_pay")</span>
+                                    <strong>@((Cart.ImporteTotal).ToString("0.00")) €</strong>
                                 </div>
                             </div>
                         }
@@ -382,8 +499,17 @@ else
                         <strong class="h4 text-danger mb-0">@Cart.ImporteTotal.ToString("0.00") €</strong>
                     </div>
 
+                    <!-- Banner atleta sin pedido minimo -->
+                    @if (IsAtleta && LimitePedido > 0)
+                    {
+                        <div class="alert alert-warning py-2 mb-3">
+                            <i class="bi bi-trophy-fill me-1"></i>
+                            <small>@L.T("athlete_no_minimum_order")</small>
+                        </div>
+                    }
+
                     <!-- Barra de progreso hacia el mínimo -->
-                    @if (LimitePedido > 0 && !MeetsMinimumOrder)
+                    @if (LimitePedido > 0 && !MeetsMinimumOrder && !IsAtleta)
                     {
                         <div class="minimum-order-warning mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -437,7 +563,7 @@ else
             </div>
 
             <!-- Card informativa del pedido mínimo -->
-            @if (LimitePedido > 0)
+            @if (LimitePedido > 0 && !IsAtleta)
             {
                 <div class="card mt-3 @(MeetsMinimumOrder ? "border-success" : "border-warning")">
                     <div class="card-body py-3">
@@ -641,6 +767,44 @@ else
     }
 
     /* ========================================
+           MATERIAL PROMOCIONAL
+           ======================================== */
+    .promo-material-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .promo-material-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .promo-material-img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+
+    .promo-material-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .promo-material-actions {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    /* ========================================
            RESPONSIVE
            ======================================== */
     @@media (max-width: 768px) {
@@ -684,9 +848,13 @@ else
     private bool orderSuccess = false;
     private string orderErrorMessage = "";
 
+    // Propiedades para tipo de cliente
+    private bool IsAtleta => Auth.CurrentUser?.TipoClienteWebShop == "Atleta"
+        || Auth.CurrentCustomer?.TipoClienteWebShop == "Atleta";
+
     // Propiedades para el límite mínimo de pedido
     private decimal LimitePedido => ApiSettings.Value.LimitePedido;
-    private bool MeetsMinimumOrder => LimitePedido <= 0 || Cart.ImporteTotal >= LimitePedido;
+    private bool MeetsMinimumOrder => IsAtleta || LimitePedido <= 0 || Cart.ImporteTotal >= LimitePedido;
     private decimal AmountToMinimum => Math.Max(0, LimitePedido - Cart.ImporteTotal);
     private double ProgressPercentage => LimitePedido > 0
         ? Math.Min(100, (double)(Cart.ImporteTotal / LimitePedido) * 100)
@@ -717,10 +885,74 @@ else
             .ToList();
     }
 
+    // Material Promocional
+    private decimal PctDescMaterialProm => Auth.CurrentUser?.PctDescMaterialProm
+        ?? Auth.CurrentCustomer?.PctDescMaterialProm ?? 0;
+    private decimal MaxPromoBudget => Cart.BaseImponible * (PctDescMaterialProm / 100);
+    private decimal PromoConsumed => Cart.PromotionalMaterialTotal;
+    private decimal PromoRemaining => Math.Max(0, MaxPromoBudget - PromoConsumed);
+    private bool promoExceeded => PromoConsumed > MaxPromoBudget && MaxPromoBudget > 0;
+    private List<Product>? promoMaterialProducts;
+    private Dictionary<string, int> promoQuantities = new();
+
+    // Credito Atleta
+    private decimal CreditoAnualAtleta => Auth.CurrentUser?.CreditoAnualAtleta
+        ?? Auth.CurrentCustomer?.CreditoAnualAtleta ?? 0;
+    private decimal CreditoConsumidoAtleta => Auth.CurrentUser?.CreditoConsumidoAtleta
+        ?? Auth.CurrentCustomer?.CreditoConsumidoAtleta ?? 0;
+    private decimal CreditoRestante => Math.Max(0, CreditoAnualAtleta - CreditoConsumidoAtleta);
+    private bool useAthleteCredit = false;
+
+    private bool CanAddPromoMaterial(Product prod)
+    {
+        int qty = promoQuantities.ContainsKey(prod.Itemno) ? promoQuantities[prod.Itemno] : 1;
+        decimal cost = prod.PriceFrom * qty;
+        return cost <= PromoRemaining;
+    }
+
+    private async Task AddPromoMaterial(Product prod)
+    {
+        int qty = promoQuantities.ContainsKey(prod.Itemno) ? promoQuantities[prod.Itemno] : 1;
+        decimal cost = prod.PriceFrom * qty;
+        if (cost > PromoRemaining) return;
+
+        await Cart.AddPromotionalMaterial(prod, qty);
+        StateHasChanged();
+    }
+
+    private async Task ToggleAthleteCredit(ChangeEventArgs e)
+    {
+        useAthleteCredit = (bool)(e.Value ?? false);
+        if (useAthleteCredit)
+        {
+            await Cart.ApplyAthleteCredit(CreditoRestante);
+        }
+        else
+        {
+            await Cart.RemoveAthleteCredit();
+        }
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         Auth.OnCustomerChanged += OnCustomerChanged;
         L.OnLanguageChanged += OnLanguageChanged;
+
+        // Cargar productos de material promocional
+        try
+        {
+            promoMaterialProducts = await Products.GetMaterialPromocionalAsync();
+            foreach (var p in promoMaterialProducts)
+            {
+                promoQuantities[p.Itemno] = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Carrito] Error cargando material promocional: {ex.Message}");
+            promoMaterialProducts = new();
+        }
     }
 
     private void OnLanguageChanged()
@@ -801,6 +1033,9 @@ else
 
         try
         {
+            // Calcular credito atleta consumido ANTES de enviar (el carrito se puede limpiar despues)
+            decimal athleteCreditUsed = Cart.AthleteCreditApplied;
+
             var success = await Cart.ProcessOrder(Cart.Items, selectedAddressId,
                 Auth.CurrentUser!.Email, Auth.CurrentUser.CustomerNo);
 
@@ -808,6 +1043,14 @@ else
             if (!orderSuccess)
             {
                 orderErrorMessage = success.Message;
+            }
+            else if (athleteCreditUsed > 0)
+            {
+                // Sincronizar credito consumido localmente para pedidos siguientes
+                if (Auth.CurrentUser != null)
+                    Auth.CurrentUser.CreditoConsumidoAtleta += athleteCreditUsed;
+                if (Auth.CurrentCustomer != null)
+                    Auth.CurrentCustomer.CreditoConsumidoAtleta += athleteCreditUsed;
             }
         }
         catch (Exception ex)
