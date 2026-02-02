@@ -137,6 +137,7 @@ public class OrderNAVCabecera : INotifyPropertyChanged
     [JsonPropertyName("purchaselines")]
     public IList<OrderNAVLineas> Lineas { get; set; }
 
+
     private bool ocupadoboton;
     public bool OcupadoBoton
     {
