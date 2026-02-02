@@ -288,6 +288,8 @@ public class PromoService
         return _auth.CurrentCustomer.Code;
     }
 
+
+
     public void ClearCache()
     {
         _cache = null;
