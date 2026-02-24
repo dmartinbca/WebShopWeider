@@ -776,37 +776,36 @@ namespace TentaloWebShop.Services
 
                 // 6. Verificar si es atleta y procesar (o crear solicitud de aprobación)
                 var checkResult = await CheckAndProcessOrder(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
-                if (checkResult != null)
-                {
-                    if (checkResult.NeedsApproval)
-                    {
-                        // Pedido de atleta: requiere aprobación del vendedor
-                        return new Status
-                        {
-                            IsSuccess = true,
-                            Message = $"PENDING_APPROVAL:{checkResult.ApprovalId}"
-                        };
-                    }
-                    else if (!string.IsNullOrEmpty(checkResult.OrderNo))
-                    {
-                        // Pedido procesado normalmente
-                        return new Status { IsSuccess = true, Message = "Pedido procesado correctamente." };
-                    }
-                    else if (!string.IsNullOrEmpty(checkResult.Error))
-                    {
-                        return new Status { IsSuccess = false, Message = checkResult.Error };
-                    }
-                }
 
-                // Si checkResult es null, significa error de infraestructura; si tiene Error, es error de BC
                 if (checkResult == null)
                 {
-                    // Fallback solo para errores de infraestructura (endpoint no disponible)
-                    var procesar = await ProcesarPedido(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
-                    return procesar ?? new Status { IsSuccess = false, Message = "Error procesando el pedido" };
+                    // Error de infraestructura - NO hacer fallback a ProcesarPedido
+                    // porque bypass la verificación de atleta
+                    return new Status { IsSuccess = false, Message = "Error de conexión al procesar el pedido. Inténtelo de nuevo." };
                 }
 
-                return new Status { IsSuccess = false, Message = checkResult.Error ?? "Error procesando el pedido" };
+                if (!string.IsNullOrEmpty(checkResult.Error))
+                {
+                    return new Status { IsSuccess = false, Message = checkResult.Error };
+                }
+
+                if (checkResult.NeedsApproval)
+                {
+                    // Pedido de atleta: requiere aprobación del vendedor
+                    return new Status
+                    {
+                        IsSuccess = true,
+                        Message = $"PENDING_APPROVAL:{checkResult.ApprovalId}"
+                    };
+                }
+
+                if (!string.IsNullOrEmpty(checkResult.OrderNo))
+                {
+                    // Pedido procesado normalmente
+                    return new Status { IsSuccess = true, Message = "Pedido procesado correctamente." };
+                }
+
+                return new Status { IsSuccess = false, Message = "Respuesta inesperada del servidor." };
             }
             catch (Exception ex)
             {
@@ -904,7 +903,7 @@ namespace TentaloWebShop.Services
                 }
                 else
                 {
-                    return null; // Fallback a ProcesarPedido
+                    return new CheckOrderResult { Error = "Error de autenticación al procesar pedido." };
                 }
 
                 // 2. Llamar al nuevo endpoint CheckAndProcessOrder
@@ -980,7 +979,7 @@ namespace TentaloWebShop.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[CheckAndProcessOrder] Exception: {ex.Message}");
-                return null; // Fallback a ProcesarPedido
+                return new CheckOrderResult { Error = $"Error al verificar pedido: {ex.Message}" };
             }
         }
 
