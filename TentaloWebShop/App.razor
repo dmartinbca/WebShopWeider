@@ -6,7 +6,8 @@
     <Found Context="routeData">
         @if (!Auth.IsAuthenticated
                 && routeData.PageType != typeof(TentaloWebShop.Pages.Login)
-                && routeData.PageType != typeof(TentaloWebShop.Pages.Register))
+                && routeData.PageType != typeof(TentaloWebShop.Pages.Register)
+                && routeData.PageType != typeof(TentaloWebShop.Pages.ApprovalConfirm))
         {
             <RedirectToLogin />
         }
