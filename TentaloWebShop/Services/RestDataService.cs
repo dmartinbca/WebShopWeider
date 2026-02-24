@@ -775,7 +775,18 @@ namespace TentaloWebShop.Services
                 }
 
                 // 6. Verificar si es atleta y procesar (o crear solicitud de aprobación)
+                Console.WriteLine($"[PedidoVenta] Llamando CheckAndProcessOrder para pedido: {cabecera.Pedido}");
                 var checkResult = await CheckAndProcessOrder(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
+
+                // TRAZA: Mostrar resultado completo
+                if (checkResult != null)
+                {
+                    Console.WriteLine($"[PedidoVenta] CheckResult: NeedsApproval={checkResult.NeedsApproval}, OrderNo={checkResult.OrderNo ?? "null"}, Error={checkResult.Error ?? "null"}, ApprovalId={checkResult.ApprovalId ?? "null"}");
+                }
+                else
+                {
+                    Console.WriteLine("[PedidoVenta] CheckResult es NULL");
+                }
 
                 if (checkResult == null)
                 {
@@ -786,11 +797,13 @@ namespace TentaloWebShop.Services
 
                 if (!string.IsNullOrEmpty(checkResult.Error))
                 {
+                    Console.WriteLine($"[PedidoVenta] Error de BC: {checkResult.Error}");
                     return new Status { IsSuccess = false, Message = checkResult.Error };
                 }
 
                 if (checkResult.NeedsApproval)
                 {
+                    Console.WriteLine($"[PedidoVenta] Pedido requiere aprobación. ApprovalId: {checkResult.ApprovalId}");
                     // Pedido de atleta: requiere aprobación del vendedor
                     return new Status
                     {
@@ -801,10 +814,12 @@ namespace TentaloWebShop.Services
 
                 if (!string.IsNullOrEmpty(checkResult.OrderNo))
                 {
+                    Console.WriteLine($"[PedidoVenta] Pedido procesado normalmente. OrderNo: {checkResult.OrderNo}");
                     // Pedido procesado normalmente
                     return new Status { IsSuccess = true, Message = "Pedido procesado correctamente." };
                 }
 
+                Console.WriteLine("[PedidoVenta] Respuesta inesperada del servidor");
                 return new Status { IsSuccess = false, Message = "Respuesta inesperada del servidor." };
             }
             catch (Exception ex)
