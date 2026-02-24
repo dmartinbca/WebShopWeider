@@ -59,6 +59,7 @@ builder.Services.AddScoped<ShippingAddressService>();
 builder.Services.AddScoped<CarouselService>();
 builder.Services.AddScoped<PromoService>();
 builder.Services.AddScoped<LocalizationService>();
+builder.Services.AddScoped<ApprovalService>(); // Servicio de aprobaciones de atletas via WhatsApp
 builder.Services.AddSyncfusionBlazor();
 
 await builder.Build().RunAsync();

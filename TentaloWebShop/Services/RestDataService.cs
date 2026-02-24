@@ -774,9 +774,39 @@ namespace TentaloWebShop.Services
                     };
                 }
 
-                // 6. Procesar pedido (enviar notificaciones, etc.)
-                var procesar = await ProcesarPedido(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
-                return procesar ?? new Status { IsSuccess = false, Message = "Error procesando el pedido" };
+                // 6. Verificar si es atleta y procesar (o crear solicitud de aprobación)
+                var checkResult = await CheckAndProcessOrder(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
+                if (checkResult != null)
+                {
+                    if (checkResult.NeedsApproval)
+                    {
+                        // Pedido de atleta: requiere aprobación del vendedor
+                        return new Status
+                        {
+                            IsSuccess = true,
+                            Message = $"PENDING_APPROVAL:{checkResult.ApprovalId}"
+                        };
+                    }
+                    else if (!string.IsNullOrEmpty(checkResult.OrderNo))
+                    {
+                        // Pedido procesado normalmente
+                        return new Status { IsSuccess = true, Message = "Pedido procesado correctamente." };
+                    }
+                    else if (!string.IsNullOrEmpty(checkResult.Error))
+                    {
+                        return new Status { IsSuccess = false, Message = checkResult.Error };
+                    }
+                }
+
+                // Si checkResult es null, significa error de infraestructura; si tiene Error, es error de BC
+                if (checkResult == null)
+                {
+                    // Fallback solo para errores de infraestructura (endpoint no disponible)
+                    var procesar = await ProcesarPedido(cabecera.Pedido.ToString(), "", "", "", "Envío Pedido", "");
+                    return procesar ?? new Status { IsSuccess = false, Message = "Error procesando el pedido" };
+                }
+
+                return new Status { IsSuccess = false, Message = checkResult.Error ?? "Error procesando el pedido" };
             }
             catch (Exception ex)
             {
@@ -853,6 +883,111 @@ namespace TentaloWebShop.Services
                     Message = $"[ERROR ProcesarPedido] {ex.Message}"
                 };
             }
+        }
+
+        /// <summary>
+        /// Verifica si el pedido es de un atleta y lo procesa o crea solicitud de aprobación.
+        /// Usa el nuevo endpoint API Athlete Order Check (Page 85164).
+        /// </summary>
+        public async Task<CheckOrderResult?> CheckAndProcessOrder(string docref, string email, string emailcc, string emailcco, string asunto, string body)
+        {
+            try
+            {
+                // 1. Obtener token
+                var request1 = new { tenant = _apiSettings.Tenant };
+                string token = string.Empty;
+                var tokenResponse = await _http.PostAsJsonAsync("https://authenticator.tentalo.com:441/api/token", request1);
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    var tokenObj = await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>();
+                    token = tokenObj.AccessToken;
+                }
+                else
+                {
+                    return null; // Fallback a ProcesarPedido
+                }
+
+                // 2. Llamar al nuevo endpoint CheckAndProcessOrder
+                var url = $"{_apiSettings.Url}{_apiSettings.Tenant}/{_apiSettings.Entorno}/api/{_apiSettings.APIPublisher}/{_apiSettings.APIGroup}/{_apiSettings.APIVersion}/companies({_apiSettings.Empresa})/ApiAthleteOrderChecks({docref})/Microsoft.NAV.CheckAndProcessOrder";
+
+                var envio = new
+                {
+                    email = email ?? "",
+                    emailcc = emailcc ?? "",
+                    emailcco = emailcco ?? "",
+                    asunto = asunto ?? "",
+                    body = body ?? "",
+                    tipodoc = ""
+                };
+
+                var content = new StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(envio),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var requestP = new HttpRequestMessage(HttpMethod.Post, url);
+                requestP.Content = content;
+                requestP.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                requestP.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                requestP.Headers.Remove("Isolation");
+                requestP.Headers.Add("Isolation", "snapshot");
+
+                var responsep = await _http.SendAsync(requestP);
+
+                if (responsep.IsSuccessStatusCode)
+                {
+                    var responseText = await responsep.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[CheckAndProcessOrder] Response: {responseText}");
+
+                    var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+                    // La respuesta viene como { "value": "json_string" }
+                    try
+                    {
+                        var wrapper = System.Text.Json.JsonSerializer.Deserialize<ValueWrapper>(responseText, options);
+                        if (wrapper != null && !string.IsNullOrEmpty(wrapper.Value))
+                        {
+                            return System.Text.Json.JsonSerializer.Deserialize<CheckOrderResult>(wrapper.Value, options);
+                        }
+                    }
+                    catch
+                    {
+                        // Intentar deserializar directamente
+                    }
+
+                    return System.Text.Json.JsonSerializer.Deserialize<CheckOrderResult>(responseText, options);
+                }
+                else
+                {
+                    var errorContent = await responsep.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[CheckAndProcessOrder] Error: {responsep.StatusCode} - {errorContent}");
+
+                    // Extraer mensaje de error de BC (viene en JSON como { "error": { "message": "..." } })
+                    string bcErrorMsg = $"Error: {responsep.StatusCode}";
+                    try
+                    {
+                        var errorJson = System.Text.Json.JsonDocument.Parse(errorContent);
+                        if (errorJson.RootElement.TryGetProperty("error", out var errorObj))
+                            if (errorObj.TryGetProperty("message", out var msgProp))
+                                bcErrorMsg = msgProp.GetString() ?? bcErrorMsg;
+                    }
+                    catch { }
+
+                    // Retornar error de BC (NO null) para que no se haga fallback a ProcesarPedido
+                    return new CheckOrderResult { Error = bcErrorMsg };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[CheckAndProcessOrder] Exception: {ex.Message}");
+                return null; // Fallback a ProcesarPedido
+            }
+        }
+
+        // Clase auxiliar para desempaquetar respuestas { "value": "..." }
+        private class ValueWrapper
+        {
+            public string Value { get; set; } = string.Empty;
         }
 
         public async Task<List<OrderNAVCabecera>> ListaPedidosCabeceraVenta(string cliente)

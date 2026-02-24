@@ -41,7 +41,36 @@ else
     {
         <div class="result-overlay">
             <div class="result-modal">
-                @if (orderSuccess)
+                @if (orderSuccess && isPendingApproval)
+                {
+                    <!-- Estado: Pedido pendiente de aprobación del vendedor -->
+                    <div class="result-content success" style="border-left: 4px solid #ffc107;">
+                        <div class="result-icon" style="color: #ffc107;">
+                            <i class="bi bi-clock-history" style="font-size: 3rem;"></i>
+                        </div>
+                        <h3 class="result-title" style="color: #856404;">Pedido Pendiente de Aprobación</h3>
+                        <p class="result-message">
+                            Tu pedido ha sido registrado correctamente. Como atleta, tu vendedor
+                            asignado debe aprobar el pedido antes de que sea procesado.
+                            <br /><br />
+                            <strong>Se ha enviado una notificación por WhatsApp a tu vendedor.</strong>
+                            <br />
+                            Recibirás un aviso cuando el pedido sea aprobado.
+                        </p>
+                        <div class="result-summary" style="background: #fff3cd; border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;">
+                            <div class="summary-item">
+                                <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
+                            </div>
+                            <div class="summary-item">
+                                @L.T("cart_items"): @Cart.TotalQuantity
+                            </div>
+                        </div>
+                        <button class="btn btn-warning btn-lg w-100" @onclick="ReturnToCatalog">
+                            <i class="bi bi-arrow-left me-2"></i>@L.T("cart_return_catalog")
+                        </button>
+                    </div>
+                }
+                else if (orderSuccess)
                 {
                     <div class="result-content success">
                         <div class="result-icon success-icon">
@@ -846,6 +875,7 @@ else
     private bool isProcessingOrder = false;
     private bool orderCompleted = false;
     private bool orderSuccess = false;
+    private bool isPendingApproval = false;
     private string orderErrorMessage = "";
 
     // Propiedades para tipo de cliente
@@ -1040,9 +1070,17 @@ else
                 Auth.CurrentUser!.Email, Auth.CurrentUser.CustomerNo);
 
             orderSuccess = success.IsSuccess;
+            isPendingApproval = false;
+
             if (!orderSuccess)
             {
                 orderErrorMessage = success.Message;
+            }
+            else if (success.Message?.StartsWith("PENDING_APPROVAL:") == true)
+            {
+                // Pedido de atleta pendiente de aprobación del vendedor
+                isPendingApproval = true;
+                // No actualizar crédito consumido localmente hasta que se apruebe
             }
             else if (athleteCreditUsed > 0)
             {
@@ -1095,6 +1133,7 @@ else
     {
         orderCompleted = false;
         orderSuccess = false;
+        isPendingApproval = false;
         orderErrorMessage = "";
         StateHasChanged();
     }

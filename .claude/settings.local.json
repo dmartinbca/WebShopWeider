@@ -12,7 +12,31 @@
       "Bash(dir \"C:\\\\C#\" /s /b)",
       "Bash(dir:*)",
       "Bash(locate:*)",
-      "Bash(git -C \"C:\\\\C#\\\\WebShopWeider\" status --short)"
+      "Bash(git -C \"C:\\\\C#\\\\WebShopWeider\" status --short)",
+      "Bash(npm install:*)",
+      "Bash(cmd.exe /c \"where node 2>nul && node --version\")",
+      "Bash(cmd.exe /c \"where npm 2>nul && npm --version\")",
+      "Bash(powershell.exe -Command \"Get-Command node -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source; Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(winget install:*)",
+      "Bash(winget source update:*)",
+      "Bash(powershell.exe -Command \"Invoke-WebRequest -Uri ''https://nodejs.org/dist/v22.13.1/node-v22.13.1-x64.msi'' -OutFile ''$env:USERPROFILE\\\\Downloads\\\\node-lts-installer.msi'' -UseBasicParsing\")",
+      "Bash(curl.exe:*)",
+      "Bash(powershell.exe -Command \"echo $env:USERPROFILE\")",
+      "Bash(echo:*)",
+      "Bash(msiexec.exe /i \"C:\\\\Users\\\\dmmbc\\\\Downloads\\\\node-lts-installer.msi\" /qn /norestart)",
+      "Bash(cmd.exe /c start \"\" \"C:\\\\Users\\\\dmmbc\\\\Downloads\\\\node-lts-installer.msi\")",
+      "Bash(powershell.exe -Command \"npm install -g @azure/static-web-apps-cli\")",
+      "Bash(powershell.exe -Command \"Get-Command node -ErrorAction SilentlyContinue; Get-Command npm -ErrorAction SilentlyContinue; Test-Path ''C:\\\\Program Files\\\\nodejs''; ls ''C:\\\\Program Files\\\\nodejs'' -ErrorAction SilentlyContinue\")",
+      "Bash(powershell.exe -Command \"winget install OpenJS.NodeJS.LTS\")",
+      "Bash(powershell.exe -Command \"winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\nodejs\\\\npm.cmd'' install -g @azure/static-web-apps-cli\")",
+      "Bash(powershell.exe -Command \"$env:Path = [System.Environment]::GetEnvironmentVariable\\(''Path'',''Machine''\\) + '';'' + [System.Environment]::GetEnvironmentVariable\\(''Path'',''User''\\); node --version; npm --version\")",
+      "Bash(powershell.exe -Command \"$env:Path = [System.Environment]::GetEnvironmentVariable\\(''Path'',''Machine''\\) + '';'' + [System.Environment]::GetEnvironmentVariable\\(''Path'',''User''\\); & ''C:\\\\Program Files\\\\nodejs\\\\node.exe'' --version; & ''C:\\\\Program Files\\\\nodejs\\\\npm.cmd'' install -g @azure/static-web-apps-cli\")",
+      "Bash(cmd.exe /c \"set PATH=C:\\\\Program Files\\\\nodejs;%PATH% && node --version && npm install -g @azure/static-web-apps-cli\")",
+      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" \"/c/Program Files/nodejs/node.exe\":*)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\":*)",
+      "Bash(swa:*)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:/c/Users/dmmbc/AppData/Roaming/npm:$PATH\")"
     ]
   }
 }

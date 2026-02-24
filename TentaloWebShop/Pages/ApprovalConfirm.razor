@@ -1,0 +1,629 @@
+@page "/approval/{ApprovalId}"
+@using TentaloWebShop.Models
+@using TentaloWebShop.Services
+@inject ApprovalService ApprovalSvc
+@inject NavigationManager Nav
+
+<style>
+    .approval-container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 1rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .approval-header {
+        text-align: center;
+        padding: 1.5rem 0;
+        border-bottom: 2px solid #e0e0e0;
+        margin-bottom: 1.5rem;
+    }
+
+    .approval-header img {
+        max-height: 60px;
+        margin-bottom: 0.5rem;
+    }
+
+    .approval-header h2 {
+        color: #333;
+        margin: 0.5rem 0;
+        font-size: 1.4rem;
+    }
+
+    .company-info {
+        color: #666;
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.35rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-approved { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+
+    .order-info {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .order-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .order-info-row:last-child { border-bottom: none; }
+    .order-info-label { color: #666; font-size: 0.9rem; }
+    .order-info-value { font-weight: 600; color: #333; }
+
+    .credit-highlight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .credit-highlight .amount {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .credit-highlight .label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    .lines-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+    }
+
+    .lines-table th {
+        background: #343a40;
+        color: white;
+        padding: 0.7rem 0.5rem;
+        font-size: 0.8rem;
+        text-align: left;
+    }
+
+    .lines-table td {
+        padding: 0.6rem 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 0.85rem;
+    }
+
+    .lines-table tr:nth-child(even) { background: #f8f9fa; }
+
+    .credit-line {
+        background: #e8f5e9 !important;
+    }
+
+    .credit-line td {
+        color: #2e7d32;
+    }
+
+    .totals-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.3rem 0;
+        font-size: 0.95rem;
+    }
+
+    .total-row.grand-total {
+        font-size: 1.2rem;
+        font-weight: 700;
+        border-top: 2px solid #333;
+        padding-top: 0.5rem;
+        margin-top: 0.3rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-approve, .btn-reject {
+        flex: 1;
+        padding: 1rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-approve {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .btn-approve:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4); }
+
+    .btn-reject {
+        background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+        color: white;
+    }
+
+    .btn-reject:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); }
+
+    .btn-approve:disabled, .btn-reject:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .reject-input {
+        margin-top: 1rem;
+        width: 100%;
+    }
+
+    .reject-input textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #dc3545;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .reject-input label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+        color: #dc3545;
+    }
+
+    .result-message {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-top: 1.5rem;
+    }
+
+    .result-approved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .result-rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .result-message .icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .result-message h3 { margin: 0.5rem 0; }
+
+    .loading-container {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-container {
+        text-align: center;
+        padding: 3rem;
+        color: #dc3545;
+    }
+
+    .error-container .icon { font-size: 3rem; }
+</style>
+
+<div class="approval-container">
+
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Cargando detalles del pedido...</p>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-container">
+            <div class="icon">&#x26A0;&#xFE0F;</div>
+            <h3>Error</h3>
+            <p>@errorMessage</p>
+        </div>
+    }
+    else if (approvalDetails != null)
+    {
+        <!-- Header con logo y datos empresa -->
+        <div class="approval-header">
+            @if (!string.IsNullOrEmpty(approvalDetails.CompanyInfo?.LogoBase64))
+            {
+                <img src="data:image/png;base64,@approvalDetails.CompanyInfo.LogoBase64" alt="Logo" />
+            }
+            <h2>Aprobación de Pedido de Atleta</h2>
+            @if (approvalDetails.CompanyInfo != null)
+            {
+                <div class="company-info">
+                    @approvalDetails.CompanyInfo.Name
+                    @if (!string.IsNullOrEmpty(approvalDetails.CompanyInfo.Address))
+                    {
+                        <br />@approvalDetails.CompanyInfo.Address @approvalDetails.CompanyInfo.City @approvalDetails.CompanyInfo.PostCode
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Estado actual -->
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <span class="status-badge @GetStatusClass(approvalDetails.Header?.Status)">
+                @GetStatusText(approvalDetails.Header?.Status)
+            </span>
+        </div>
+
+        <!-- Info del pedido -->
+        <div class="order-info">
+            <div class="order-info-row">
+                <span class="order-info-label">Cliente (Atleta)</span>
+                <span class="order-info-value">@approvalDetails.Header?.CustomerName</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Código cliente</span>
+                <span class="order-info-value">@approvalDetails.Header?.CustomerNo</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Fecha del pedido</span>
+                <span class="order-info-value">@approvalDetails.Header?.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Total pedido</span>
+                <span class="order-info-value">@approvalDetails.Header?.OrderAmount.ToString("N2") &euro;</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Líneas</span>
+                <span class="order-info-value">@approvalDetails.TotalLines</span>
+            </div>
+        </div>
+
+        <!-- Crédito de atleta utilizado -->
+        @if (approvalDetails.Header?.AthleteCreditUsed > 0)
+        {
+            <div class="credit-highlight">
+                <div class="label">Crédito de Atleta utilizado</div>
+                <div class="amount">@approvalDetails.Header.AthleteCreditUsed.ToString("N2") &euro;</div>
+            </div>
+        }
+
+        <!-- Tabla de líneas -->
+        <div style="overflow-x: auto;">
+            <table class="lines-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="text-align:right">Cant.</th>
+                        <th style="text-align:right">Precio</th>
+                        <th style="text-align:right">Dto.%</th>
+                        <th style="text-align:right">Importe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var line in approvalDetails.Lines)
+                    {
+                        <tr class="@(line.IsAthleteCredit ? "credit-line" : "")">
+                            <td>
+                                @line.ItemDescription
+                                @if (line.IsAthleteCredit)
+                                {
+                                    <br /><small><em>&#127942; Crédito atleta</em></small>
+                                }
+                            </td>
+                            <td style="text-align:right">@line.Quantity.ToString("N0")</td>
+                            <td style="text-align:right">@line.UnitPrice.ToString("N2") &euro;</td>
+                            <td style="text-align:right">@line.LineDiscount.ToString("N0")%</td>
+                            <td style="text-align:right">
+                                @if (line.LineDiscount == 100)
+                                {
+                                    <span style="text-decoration: line-through; color: #999;">@line.LineAmount.ToString("N2") &euro;</span>
+                                    <br /><strong>0,00 &euro;</strong>
+                                }
+                                else
+                                {
+                                    @line.LineAmount.ToString("N2")<text> &euro;</text>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totales -->
+        <div class="totals-section">
+            @{
+                var totalBruto = approvalDetails.Lines.Sum(l => l.LineAmount);
+                var totalNeto = approvalDetails.Lines.Sum(l => l.LineDiscount == 100 ? 0 : l.LineAmount * (1 - l.LineDiscount / 100));
+            }
+            <div class="total-row">
+                <span>Total bruto</span>
+                <span>@totalBruto.ToString("N2") &euro;</span>
+            </div>
+            @if (approvalDetails.Header?.AthleteCreditUsed > 0)
+            {
+                <div class="total-row" style="color: #28a745;">
+                    <span>Crédito atleta aplicado</span>
+                    <span>-@approvalDetails.Header.AthleteCreditUsed.ToString("N2") &euro;</span>
+                </div>
+            }
+            <div class="total-row grand-total">
+                <span>TOTAL A PAGAR</span>
+                <span>@approvalDetails.Header?.OrderAmount.ToString("N2") &euro;</span>
+            </div>
+        </div>
+
+        <!-- Resultado de la acción -->
+        @if (actionCompleted)
+        {
+            <div class="result-message @(actionSuccess ? "result-approved" : "result-rejected")">
+                <div class="icon">@(actionSuccess && wasApproved ? "&#9989;" : actionSuccess ? "&#10060;" : "&#x26A0;&#xFE0F;")</div>
+                <h3>@actionResultTitle</h3>
+                <p>@actionResultMessage</p>
+            </div>
+        }
+        else if (approvalDetails.Header?.Status == "Pending")
+        {
+            <!-- Formulario de rechazo (se muestra al pulsar Rechazar) -->
+            @if (showRejectInput)
+            {
+                <div class="reject-input">
+                    <label>Motivo del rechazo *</label>
+                    <textarea @bind="rejectionReason" placeholder="Indique el motivo por el que rechaza este pedido..."></textarea>
+                </div>
+            }
+
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+                @if (!showRejectInput)
+                {
+                    <button class="btn-approve" @onclick="OnApprove" disabled="@isProcessing">
+                        @if (isProcessing)
+                        {
+                            <text>Procesando...</text>
+                        }
+                        else
+                        {
+                            <text>&#9989; Aprobar Pedido</text>
+                        }
+                    </button>
+                    <button class="btn-reject" @onclick="ShowRejectInput" disabled="@isProcessing">
+                        &#10060; Rechazar Pedido
+                    </button>
+                }
+                else
+                {
+                    <button class="btn-reject" @onclick="OnReject" disabled="@(isProcessing || string.IsNullOrWhiteSpace(rejectionReason))">
+                        @if (isProcessing)
+                        {
+                            <text>Procesando...</text>
+                        }
+                        else
+                        {
+                            <text>Confirmar Rechazo</text>
+                        }
+                    </button>
+                    <button class="btn-approve" @onclick="CancelReject" disabled="@isProcessing">
+                        Cancelar
+                    </button>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- Pedido ya procesado -->
+            <div class="result-message @(approvalDetails.Header?.Status == "Approved" ? "result-approved" : "result-rejected")">
+                <div class="icon">@(approvalDetails.Header?.Status == "Approved" ? "&#9989;" : "&#10060;")</div>
+                <h3>Pedido ya @(approvalDetails.Header?.Status == "Approved" ? "aprobado" : "rechazado")</h3>
+                @if (!string.IsNullOrEmpty(approvalDetails.Header?.RejectionReason))
+                {
+                    <p>Motivo: @approvalDetails.Header.RejectionReason</p>
+                }
+                @if (approvalDetails.Header?.ResponseDateTime != null)
+                {
+                    <p>Fecha: @approvalDetails.Header.ResponseDateTime?.ToString("dd/MM/yyyy HH:mm")</p>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string ApprovalId { get; set; } = string.Empty;
+
+    private ApprovalDetails? approvalDetails;
+    private bool isLoading = true;
+    private bool hasError = false;
+    private string errorMessage = string.Empty;
+    private bool isProcessing = false;
+    private bool showRejectInput = false;
+    private string rejectionReason = string.Empty;
+    private bool actionCompleted = false;
+    private bool actionSuccess = false;
+    private bool wasApproved = false;
+    private string actionResultTitle = string.Empty;
+    private string actionResultMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadApprovalDetails();
+    }
+
+    private async Task LoadApprovalDetails()
+    {
+        isLoading = true;
+        hasError = false;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(ApprovalId))
+            {
+                hasError = true;
+                errorMessage = "ID de aprobación no válido.";
+                return;
+            }
+
+            approvalDetails = await ApprovalSvc.GetApprovalDetailsAsync(ApprovalId);
+
+            if (approvalDetails == null)
+            {
+                hasError = true;
+                errorMessage = "No se encontró la solicitud de aprobación o no tiene acceso.";
+            }
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = $"Error al cargar los detalles: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnApprove()
+    {
+        isProcessing = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await ApprovalSvc.ApproveOrderAsync(ApprovalId);
+
+            actionCompleted = true;
+            actionSuccess = result.Success;
+            wasApproved = true;
+
+            if (result.Success)
+            {
+                actionResultTitle = "Pedido Aprobado";
+                actionResultMessage = "El pedido ha sido aprobado y se procesará automáticamente. El atleta recibirá una notificación.";
+            }
+            else
+            {
+                actionResultTitle = "Error al Aprobar";
+                actionResultMessage = result.Error ?? "Error desconocido al procesar la aprobación.";
+            }
+        }
+        catch (Exception ex)
+        {
+            actionCompleted = true;
+            actionSuccess = false;
+            actionResultTitle = "Error";
+            actionResultMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowRejectInput()
+    {
+        showRejectInput = true;
+    }
+
+    private void CancelReject()
+    {
+        showRejectInput = false;
+        rejectionReason = string.Empty;
+    }
+
+    private async Task OnReject()
+    {
+        if (string.IsNullOrWhiteSpace(rejectionReason))
+            return;
+
+        isProcessing = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await ApprovalSvc.RejectOrderAsync(ApprovalId, rejectionReason);
+
+            actionCompleted = true;
+            actionSuccess = result.Success;
+            wasApproved = false;
+
+            if (result.Success)
+            {
+                actionResultTitle = "Pedido Rechazado";
+                actionResultMessage = "El pedido ha sido rechazado. El atleta recibirá una notificación con el motivo indicado.";
+            }
+            else
+            {
+                actionResultTitle = "Error al Rechazar";
+                actionResultMessage = result.Error ?? "Error desconocido al procesar el rechazo.";
+            }
+        }
+        catch (Exception ex)
+        {
+            actionCompleted = true;
+            actionSuccess = false;
+            actionResultTitle = "Error";
+            actionResultMessage = ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetStatusClass(string? status) => status switch
+    {
+        "Pending" => "status-pending",
+        "Approved" => "status-approved",
+        "Rejected" => "status-rejected",
+        _ => "status-pending"
+    };
+
+    private string GetStatusText(string? status) => status switch
+    {
+        "Pending" => "Pendiente de Aprobación",
+        "Approved" => "Aprobado",
+        "Rejected" => "Rechazado",
+        "Cancelled" => "Cancelado",
+        "Expired" => "Expirado",
+        _ => status ?? "Desconocido"
+    };
+}
