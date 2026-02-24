@@ -394,7 +394,7 @@
         @if (actionCompleted)
         {
             <div class="result-message @(actionSuccess ? "result-approved" : "result-rejected")">
-                <div class="icon">@(actionSuccess && wasApproved ? "&#9989;" : actionSuccess ? "&#10060;" : "&#x26A0;&#xFE0F;")</div>
+                <div class="icon">@(actionSuccess && wasApproved ? "✅" : actionSuccess ? "❌" : "⚠️")</div>
                 <h3>@actionResultTitle</h3>
                 <p>@actionResultMessage</p>
             </div>
@@ -450,7 +450,7 @@
         {
             <!-- Pedido ya procesado -->
             <div class="result-message @(approvalDetails.Header?.Status == "Approved" ? "result-approved" : "result-rejected")">
-                <div class="icon">@(approvalDetails.Header?.Status == "Approved" ? "&#9989;" : "&#10060;")</div>
+                <div class="icon">@(approvalDetails.Header?.Status == "Approved" ? "✅" : "❌")</div>
                 <h3>Pedido ya @(approvalDetails.Header?.Status == "Approved" ? "aprobado" : "rechazado")</h3>
                 @if (!string.IsNullOrEmpty(approvalDetails.Header?.RejectionReason))
                 {
