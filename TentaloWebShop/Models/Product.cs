@@ -32,6 +32,7 @@ public class Product
     public bool EsMaterialPromocional { get; set; }
 }
 
+
 public class FileItem
 {
     public string Code { get; set; } = "";
