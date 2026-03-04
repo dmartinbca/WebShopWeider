@@ -680,7 +680,7 @@
                             @L.T("order_summary")
                         </div>
                         <div class="card-body">
-                            @if (order.Invoice_Discount_Value > 0)
+                            @if (order.Invoice_Discount_Value > 0 && !ocultarDescuento)
                             {
                                 <div class="resumen-fila">
                                     <span class="resumen-label">@L.T("order_subtotal_no_discount"):</span>
@@ -817,7 +817,10 @@
                                                 <th>@L.T("order_code")</th>
                                                 <th>@L.T("order_description")</th>
                                                 <th>@L.T("order_qty")</th>
-                                                <th>@L.T("order_disc_pct")</th>
+                                                @if (!ocultarDescuento)
+                                                {
+                                                    <th>@L.T("order_disc_pct")</th>
+                                                }
                                                 <th>@L.T("order_price")</th>
                                                 <th>@L.T("order_total")</th>
                                             </tr>
@@ -829,7 +832,10 @@
                                                     <td><span class="codigo">@line.No</span></td>
                                                     <td><span class="descripcion">@line.Description</span></td>
                                                     <td><span class="cantidad">@line.Quantity</span></td>
-                                                    <td><span class="descuento">@line.Line_Discount_Percent</span></td>
+                                                    @if (!ocultarDescuento)
+                                                    {
+                                                        <td><span class="descuento">@line.Line_Discount_Percent</span></td>
+                                                    }
                                                     <td><span class="importe">@(line.Amount.ToString("N2")) €</span></td>
                                                     <td><span class="total">@((line.Quantity * line.Unit_Price).ToString("N2")) €</span></td>
                                                 </tr>
@@ -884,6 +890,7 @@
     private bool isRepeating = false;
     private string repeatMessage = "";
     private bool repeatSuccess = false;
+    private bool ocultarDescuento => Auth.CurrentUser?.OcultarDescuentoWebShop == true;
     protected override async Task OnInitializedAsync()
     {
         L.OnLanguageChanged += OnLanguageChanged;

@@ -235,6 +235,9 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("creditoConsumidoAtleta")]
         public decimal CreditoConsumidoAtleta { get; set; }
 
+        [JsonPropertyName("ocultarDescuentoWebShop")]
+        public bool OcultarDescuentoWebShop { get; set; }
+
     }
 
     public class NavUserLogon
@@ -584,6 +587,9 @@ namespace TentaloWebShop.Models
 
         [JsonPropertyName("creditoConsumidoAtleta")]
         public decimal CreditoConsumidoAtleta { get; set; }
+
+        [JsonPropertyName("ocultarDescuentoWebShop")]
+        public bool OcultarDescuentoWebShop { get; set; }
 
 
     }

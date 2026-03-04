@@ -744,7 +744,7 @@
                                 <span class="resumen-valor">@CalculateSubtotalBeforeDiscount().ToString("N2") €</span>
                             </div>
 
-                            @if (invoice.Invoice_Discount_Value > 0)
+                            @if (invoice.Invoice_Discount_Value > 0 && !ocultarDescuento)
                             {
                                 <div class="resumen-fila descuento">
                                     <span class="resumen-label">@L.T("invoice_discount") (@invoice.Invoice_Discount_Value.ToString("N1")%):</span>
@@ -882,7 +882,10 @@
                                                 <th>@L.T("invoice_code")</th>
                                                 <th>@L.T("invoice_description")</th>
                                                 <th>@L.T("invoice_qty")</th>
-                                                <th>@L.T("invoice_disc")</th>
+                                                @if (!ocultarDescuento)
+                                                {
+                                                    <th>@L.T("invoice_disc")</th>
+                                                }
                                                 <th>@L.T("invoice_price")</th>
                                                 <th>@L.T("invoice_total_amount")</th>
                                             </tr>
@@ -894,7 +897,10 @@
                                                     <td><span class="codigo">@line.No</span></td>
                                                     <td><span class="descripcion">@line.Description</span></td>
                                                     <td><span class="cantidad">@line.Quantity</span></td>
-                                                    <td><span class="descuento">@line.Line_Discount_Percent</span></td>
+                                                    @if (!ocultarDescuento)
+                                                    {
+                                                        <td><span class="descuento">@line.Line_Discount_Percent</span></td>
+                                                    }
                                                     <td><span class="precio">@(line.Unit_Price.ToString("N2")) €</span></td>
                                                     <td><span class="total">@((line.Amount).ToString("N2")) €</span></td>
                                                 </tr>
@@ -960,6 +966,7 @@
     private bool isLoading = true;
     private bool isDownloading = false;
     private string downloadMessage = "";
+    private bool ocultarDescuento => Auth.CurrentUser?.OcultarDescuentoWebShop == true;
     private bool downloadSuccess = false;
 
     protected override async Task OnInitializedAsync()

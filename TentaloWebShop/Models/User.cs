@@ -29,5 +29,6 @@ public class User
     public decimal PctDescMaterialProm { get; set; }
     public decimal CreditoAnualAtleta { get; set; }
     public decimal CreditoConsumidoAtleta { get; set; }
+    public bool OcultarDescuentoWebShop { get; set; }
 
 }

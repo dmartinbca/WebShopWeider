@@ -67,7 +67,8 @@ public class AuthService
                 TipoClienteWebShop = navUser.TipoClienteWebShop ?? "Normal",
                 PctDescMaterialProm = navUser.PctDescMaterialProm,
                 CreditoAnualAtleta = navUser.CreditoAnualAtleta,
-                CreditoConsumidoAtleta = navUser.CreditoConsumidoAtleta
+                CreditoConsumidoAtleta = navUser.CreditoConsumidoAtleta,
+                OcultarDescuentoWebShop = navUser.OcultarDescuentoWebShop
             };
 
             // Guardar usuario

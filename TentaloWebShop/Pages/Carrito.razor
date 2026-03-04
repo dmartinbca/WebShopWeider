@@ -171,7 +171,7 @@ else
                                                     {
                                                         <span class="badge bg-success">@L.T("cart_gift")</span>
                                                     }
-                                                    else if (item.DescuentoProducto > 0)
+                                                    else if (item.DescuentoProducto > 0 && !ocultarDescuento)
                                                     {
                                                         <span class="badge bg-warning text-dark">-@item.DescuentoProducto.ToString("0")%</span>
                                                     }
@@ -180,7 +180,7 @@ else
 
                                             <div class="pack-item-pricing">
                                                 <span class="item-quantity">@item.Quantity x</span>
-                                                @if (item.DescuentoProducto > 0)
+                                                @if (item.DescuentoProducto > 0 && !ocultarDescuento)
                                                 {
                                                     <span class="text-muted text-decoration-line-through me-1" style="font-size: 0.85em;">
                                                         @item.Product.PriceFrom.ToString("0.00")€
@@ -223,7 +223,7 @@ else
                                             @item.Product.Name
                                         </a>
                                         <div class="cart-item-details">
-                                            @if (item.DescuentoProducto > 0)
+                                            @if (item.DescuentoProducto > 0 && !ocultarDescuento)
                                             {
                                                 <span class="text-decoration-line-through text-muted me-1">
                                                     @item.Product.PriceFrom.ToString("N2") €
@@ -489,7 +489,7 @@ else
                         <span>@Cart.BaseImponible.ToString("0.00") €</span>
                     </div>
 
-                    @if (Cart.DescuentoProductos > 0)
+                    @if (Cart.DescuentoProductos > 0 && !ocultarDescuento)
                     {
                         <div class="d-flex justify-content-between mb-2 text-danger">
                             <span>
@@ -500,7 +500,7 @@ else
                         </div>
                     }
 
-                    @if (Cart.DescuentoFactura > 0)
+                    @if (Cart.DescuentoFactura > 0 && !ocultarDescuento)
                     {
                         <div class="d-flex justify-content-between mb-2 text-success">
                             <span>
@@ -619,7 +619,7 @@ else
             }
 
             <!-- Info adicional del descuento -->
-            @if (Auth.CurrentUser?.DescuentoFactura > 0)
+            @if (Auth.CurrentUser?.DescuentoFactura > 0 && !ocultarDescuento)
             {
                 <div class="card mt-3 border-success">
                     <div class="card-body py-3">
@@ -886,6 +886,7 @@ else
     private decimal LimitePedido => ApiSettings.Value.LimitePedido;
     private bool MeetsMinimumOrder => IsAtleta || LimitePedido <= 0 || Cart.ImporteTotal >= LimitePedido;
     private decimal AmountToMinimum => Math.Max(0, LimitePedido - Cart.ImporteTotal);
+    private bool ocultarDescuento => Auth.CurrentUser?.OcultarDescuentoWebShop == true;
     private double ProgressPercentage => LimitePedido > 0
         ? Math.Min(100, (double)(Cart.ImporteTotal / LimitePedido) * 100)
         : 100;
