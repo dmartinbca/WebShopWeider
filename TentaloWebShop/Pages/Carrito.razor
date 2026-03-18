@@ -58,9 +58,12 @@ else
                             @L.T("cart_pending_approval_notice")
                         </p>
                         <div class="result-summary" style="background: #fff3cd; border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;">
-                            <div class="summary-item">
-                                <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
-                            </div>
+                            @if (!isCustomer)
+                            {
+                                <div class="summary-item">
+                                    <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
+                                </div>
+                            }
                             <div class="summary-item">
                                 @L.T("cart_items"): @Cart.TotalQuantity
                             </div>
@@ -82,9 +85,12 @@ else
                             @L.T("cart_order_email_text")
                         </p>
                         <div class="result-summary">
-                            <div class="summary-item">
-                                <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
-                            </div>
+                            @if (!isCustomer)
+                            {
+                                <div class="summary-item">
+                                    <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
+                                </div>
+                            }
                             <div class="summary-item">
                                 @L.T("cart_items"): @Cart.TotalQuantity
                             </div>
@@ -145,7 +151,10 @@ else
                                         <span class="badge bg-danger ms-2">@L.T("cart_pack")</span>
                                     </div>
                                     <div class="pack-actions">
-                                        <span class="pack-total me-3">@packTotal.ToString("0.00") €</span>
+                                        @if (!isCustomer)
+                                        {
+                                            <span class="pack-total me-3">@packTotal.ToString("0.00") €</span>
+                                        }
                                         <button class="btn btn-link btn-sm text-danger p-0"
                                                 @onclick="(() => RemovePackConfirm(packGroup.Key, firstItem.PackDescription))">
                                             <i class="bi bi-trash"></i> @L.T("cart_remove_pack")
@@ -180,13 +189,16 @@ else
 
                                             <div class="pack-item-pricing">
                                                 <span class="item-quantity">@item.Quantity x</span>
-                                                @if (item.DescuentoProducto > 0 && !ocultarDescuento)
+                                                @if (!isCustomer)
                                                 {
-                                                    <span class="text-muted text-decoration-line-through me-1" style="font-size: 0.85em;">
-                                                        @item.Product.PriceFrom.ToString("0.00")€
-                                                    </span>
+                                                    @if (item.DescuentoProducto > 0 && !ocultarDescuento)
+                                                    {
+                                                        <span class="text-muted text-decoration-line-through me-1" style="font-size: 0.85em;">
+                                                            @item.Product.PriceFrom.ToString("0.00")€
+                                                        </span>
+                                                    }
+                                                    <span class="item-price">@item.PriceWithDiscount.ToString("0.00")€</span>
                                                 }
-                                                <span class="item-price">@item.PriceWithDiscount.ToString("0.00")€</span>
                                             </div>
                                         </div>
                                     }
@@ -223,29 +235,35 @@ else
                                             @item.Product.Name
                                         </a>
                                         <div class="cart-item-details">
-                                            @if (item.DescuentoProducto > 0 && !ocultarDescuento)
+                                            @if (!isCustomer)
                                             {
-                                                <span class="text-decoration-line-through text-muted me-1">
-                                                    @item.Product.PriceFrom.ToString("N2") €
-                                                </span>
-                                                <span class="text-danger fw-semibold">
-                                                    @item.PriceWithDiscount.ToString("N2") €
-                                                </span>
-                                                <span class="badge bg-danger ms-2">-@item.DescuentoProducto.ToString("0.##")%</span>
+                                                @if (item.DescuentoProducto > 0 && !ocultarDescuento)
+                                                {
+                                                    <span class="text-decoration-line-through text-muted me-1">
+                                                        @item.Product.PriceFrom.ToString("N2") €
+                                                    </span>
+                                                    <span class="text-danger fw-semibold">
+                                                        @item.PriceWithDiscount.ToString("N2") €
+                                                    </span>
+                                                    <span class="badge bg-danger ms-2">-@item.DescuentoProducto.ToString("0.##")%</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@item.Product.PriceFrom.ToString("N2") €</span>
+                                                }
+                                                <span class="mx-1">×</span>
                                             }
-                                            else
-                                            {
-                                                <span>@item.Product.PriceFrom.ToString("N2") €</span>
-                                            }
-                                            <span class="mx-1">×</span>
                                             <span>@item.Product.Presentation_Unit</span>
                                         </div>
                                     </div>
 
                                     <div class="cart-item-price-section">
-                                        <div class="cart-item-price">
-                                            @item.SubtotalWithDiscount.ToString("0.00") €
-                                        </div>
+                                        @if (!isCustomer)
+                                        {
+                                            <div class="cart-item-price">
+                                                @item.SubtotalWithDiscount.ToString("0.00") €
+                                            </div>
+                                        }
                                         <div class="cart-item-quantity">
                                             <QuantityStepper Value="item.Quantity" ValueChanged="(v) => Change(item, v)" />
                                         </div>
@@ -293,7 +311,10 @@ else
                                              loading="lazy">
                                         <div class="promo-material-info">
                                             <span class="fw-semibold">@prod.Name</span>
-                                            <span class="text-muted small">@prod.PriceFrom.ToString("0.00") €</span>
+                                            @if (!isCustomer)
+                                            {
+                                                <span class="text-muted small">@prod.PriceFrom.ToString("0.00") €</span>
+                                            }
                                         </div>
                                         <div class="promo-material-actions">
                                             <input type="number" min="1" max="50"
@@ -484,49 +505,52 @@ else
 
                     <hr class="my-2">
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>@L.T("cart_subtotal")</span>
-                        <span>@Cart.BaseImponible.ToString("0.00") €</span>
-                    </div>
-
-                    @if (Cart.DescuentoProductos > 0 && !ocultarDescuento)
+                    @if (!isCustomer)
                     {
-                        <div class="d-flex justify-content-between mb-2 text-danger">
-                            <span>
-                                <i class="bi bi-tag-fill me-1"></i>
-                                @L.T("cart_product_discounts")
-                            </span>
-                            <span>-@Cart.DescuentoProductos.ToString("0.00") €</span>
-                        </div>
-                    }
-
-                    @if (Cart.DescuentoFactura > 0 && !ocultarDescuento)
-                    {
-                        <div class="d-flex justify-content-between mb-2 text-success">
-                            <span>
-                                <i class="bi bi-tag-fill me-1"></i>
-                                @L.T("cart_discount") (@Auth.CurrentUser.DescuentoFactura.ToString("0.##")%)
-                            </span>
-                            <span>-@Cart.DescuentoFactura.ToString("0.00") €</span>
-                        </div>
-
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="fw-semibold">@L.T("cart_subtotal_after_discount")</span>
-                            <span class="fw-semibold">@Cart.BaseImponibleConDescuento.ToString("0.00") €</span>
+                            <span>@L.T("cart_subtotal")</span>
+                            <span>@Cart.BaseImponible.ToString("0.00") €</span>
+                        </div>
+
+                        @if (Cart.DescuentoProductos > 0 && !ocultarDescuento)
+                        {
+                            <div class="d-flex justify-content-between mb-2 text-danger">
+                                <span>
+                                    <i class="bi bi-tag-fill me-1"></i>
+                                    @L.T("cart_product_discounts")
+                                </span>
+                                <span>-@Cart.DescuentoProductos.ToString("0.00") €</span>
+                            </div>
+                        }
+
+                        @if (Cart.DescuentoFactura > 0 && !ocultarDescuento)
+                        {
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span>
+                                    <i class="bi bi-tag-fill me-1"></i>
+                                    @L.T("cart_discount") (@Auth.CurrentUser.DescuentoFactura.ToString("0.##")%)
+                                </span>
+                                <span>-@Cart.DescuentoFactura.ToString("0.00") €</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="fw-semibold">@L.T("cart_subtotal_after_discount")</span>
+                                <span class="fw-semibold">@Cart.BaseImponibleConDescuento.ToString("0.00") €</span>
+                            </div>
+                        }
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>@L.T("cart_vat")</span>
+                            <span>@Cart.TotalVat.ToString("0.00") €</span>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="h5 mb-0">@L.T("cart_total")</span>
+                            <strong class="h4 text-danger mb-0">@Cart.ImporteTotal.ToString("0.00") €</strong>
                         </div>
                     }
-
-                    <div class="d-flex justify-content-between mb-3">
-                        <span>@L.T("cart_vat")</span>
-                        <span>@Cart.TotalVat.ToString("0.00") €</span>
-                    </div>
-
-                    <hr class="my-3">
-
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="h5 mb-0">@L.T("cart_total")</span>
-                        <strong class="h4 text-danger mb-0">@Cart.ImporteTotal.ToString("0.00") €</strong>
-                    </div>
 
                     <!-- Banner atleta sin pedido minimo -->
                     @if (IsAtleta && LimitePedido > 0)
@@ -545,9 +569,12 @@ else
                                 <span class="small text-warning-emphasis">
                                     <i class="bi bi-info-circle me-1"></i>@L.T("cart_minimum_order")
                                 </span>
-                                <span class="small fw-semibold">
-                                    @Cart.ImporteTotal.ToString("0.00") € / @LimitePedido.ToString("0.00") €
-                                </span>
+                                @if (!isCustomer)
+                                {
+                                    <span class="small fw-semibold">
+                                        @Cart.ImporteTotal.ToString("0.00") € / @LimitePedido.ToString("0.00") €
+                                    </span>
+                                }
                             </div>
                             <div class="progress" style="height: 8px;">
                                 <div class="progress-bar bg-warning"
@@ -558,10 +585,13 @@ else
                                      aria-valuemax="100">
                                 </div>
                             </div>
-                            <div class="text-center mt-2 small text-warning-emphasis">
-                                <i class="bi bi-cart-plus me-1"></i>
-                                @L.T("cart_missing_amount", AmountToMinimum.ToString("0.00"))
-                            </div>
+                            @if (!isCustomer)
+                            {
+                                <div class="text-center mt-2 small text-warning-emphasis">
+                                    <i class="bi bi-cart-plus me-1"></i>
+                                    @L.T("cart_missing_amount", AmountToMinimum.ToString("0.00"))
+                                </div>
+                            }
                         </div>
                     }
 
@@ -579,7 +609,7 @@ else
                     </button>
 
                     <div class="form-text mt-2 text-center">
-                        @if (!MeetsMinimumOrder && LimitePedido > 0)
+                        @if (!MeetsMinimumOrder && LimitePedido > 0 && !isCustomer)
                         {
                             <span class="text-danger small">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
@@ -893,6 +923,7 @@ else
     private bool MeetsMinimumOrder => IsAtleta || LimitePedido <= 0 || Cart.ImporteTotal >= LimitePedido;
     private decimal AmountToMinimum => Math.Max(0, LimitePedido - Cart.ImporteTotal);
     private bool ocultarDescuento => Auth.CurrentUser?.OcultarDescuentoWebShop == true;
+    private bool isCustomer => Auth.CurrentUser?.Tipo == "Customer";
     private double ProgressPercentage => LimitePedido > 0
         ? Math.Min(100, (double)(Cart.ImporteTotal / LimitePedido) * 100)
         : 100;

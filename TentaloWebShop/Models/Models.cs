@@ -998,6 +998,9 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("Marcar_como_Novedad")]
         public bool Marcar_como_Novedad { get; set; }
 
+        [JsonPropertyName("Excluir_WebShop_B2B")]
+        public bool Excluir_WebShop_B2B { get; set; }
+
 
         public string Category { get; set; }
         public double DiscountPrice

@@ -128,6 +128,7 @@ public class ProductService
                         FechaCompra = p.FechaCompra ?? "",
                         EsMaterialPromocional = _categoryService.IsMaterialPromocional(
                             (p.FamiliaN ?? "").Replace(" ", "")),
+                        ExcluirWebShopB2B = p.Excluir_WebShop_B2B,
                     });
                 }
                 catch (Exception ex)

@@ -4,6 +4,7 @@
 @inject IJSRuntime JS
 @inject ProductService ProductService
 @inject LocalizationService L
+@inject AuthService Auth
 
 <div class="promo-pack-card">
     <div class="pack-card-inner">
@@ -28,7 +29,7 @@
                 </div>
             }
 
-            @if (Promo.TotalSavings > 0)
+            @if (Promo.TotalSavings > 0 && Auth.CurrentUser?.Tipo != "Customer")
             {
                 <div class="pack-badge-savings">
                     <i class="bi bi-tag-fill me-1"></i>
@@ -66,13 +67,16 @@
                                 <span class="item-name">@L.TranslateProduct(line.Description)</span>
 
                                 @* ✅ MOSTRAR PRECIO DEL CATÁLOGO *@
-                                @if (catalogPrice > 0)
+                                @if (Auth.CurrentUser?.Tipo != "Customer")
                                 {
-                                    <span class="item-price">@catalogPrice.ToString("0.00")€</span>
-                                }
-                                else
-                                {
-                                    <span class="item-price">@line.UnitPrice.ToString("0.00")€</span>
+                                    @if (catalogPrice > 0)
+                                    {
+                                        <span class="item-price">@catalogPrice.ToString("0.00")€</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="item-price">@line.UnitPrice.ToString("0.00")€</span>
+                                    }
                                 }
                             </li>
                         }
@@ -116,27 +120,30 @@
             </div>
 
             <div class="pack-footer mt-auto">
-                <div class="pack-pricing">
-                    @* ✅ CALCULAR PRECIO REAL DEL CATÁLOGO *@
-                    @{
-                        var realTotalPrice = CalculateRealTotalPrice();
-                        var realFinalPrice = realTotalPrice - Promo.TotalSavings;
-                    }
+                @if (Auth.CurrentUser?.Tipo != "Customer")
+                {
+                    <div class="pack-pricing">
+                        @* ✅ CALCULAR PRECIO REAL DEL CATÁLOGO *@
+                        @{
+                            var realTotalPrice = CalculateRealTotalPrice();
+                            var realFinalPrice = realTotalPrice - Promo.TotalSavings;
+                        }
 
-                    @if (Promo.TotalSavings > 0)
-                    {
-                        <div class="price-original">
-                            <small class="text-muted text-decoration-line-through">
-                                @realTotalPrice.ToString("0.00")€
-                            </small>
+                        @if (Promo.TotalSavings > 0)
+                        {
+                            <div class="price-original">
+                                <small class="text-muted text-decoration-line-through">
+                                    @realTotalPrice.ToString("0.00")€
+                                </small>
+                            </div>
+                        }
+                        <div class="price-final">
+                            <strong class="fs-4 text-danger">
+                                @realFinalPrice.ToString("0.00")€
+                            </strong>
                         </div>
-                    }
-                    <div class="price-final">
-                        <strong class="fs-4 text-danger">
-                            @realFinalPrice.ToString("0.00")€
-                        </strong>
                     </div>
-                </div>
+                }
 
                 <button class="btn btn-danger btn-lg w-100 mt-3"
                         @onclick="AddToCart"

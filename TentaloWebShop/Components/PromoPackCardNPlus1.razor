@@ -4,6 +4,7 @@
 @inject IJSRuntime JS
 @inject ProductService ProductService
 @inject LocalizationService L
+@inject AuthService Auth
 
 <div class="promo-pack-card nplus1">
     <div class="pack-card-inner">
@@ -69,16 +70,19 @@
                             <div class="product-selector-item">
                                 <div class="product-info">
                                     <span class="product-name">@L.TranslateProduct(line.Description)</span>
-                                    <span class="product-price">
-                                        @if (catalogPrice > 0)
-                                        {
-                                            @catalogPrice.ToString("0.00")@:€
-                                        }
-                                        else
-                                        {
-                                            @line.UnitPrice.ToString("0.00")@:€
-                                        }
-                                    </span>
+                                    @if (Auth.CurrentUser?.Tipo != "Customer")
+                                    {
+                                        <span class="product-price">
+                                            @if (catalogPrice > 0)
+                                            {
+                                                @catalogPrice.ToString("0.00")@:€
+                                            }
+                                            else
+                                            {
+                                                @line.UnitPrice.ToString("0.00")@:€
+                                            }
+                                        </span>
+                                    }
                                 </div>
                                 <div class="quantity-controls">
                                     <button class="btn btn-sm btn-outline-secondary"
@@ -124,17 +128,20 @@
                                 </div>
                                 <div class="gift-info">
                                     <span class="gift-name">@L.TranslateProduct(line.Description)</span>
-                                    <span class="gift-value">
-                                        @L.T("pack_value")
-                                        @if (catalogPrice > 0)
-                                        {
-                                            @catalogPrice.ToString("0.00")@:€
-                                        }
-                                        else
-                                        {
-                                            @line.UnitPrice.ToString("0.00")@:€
-                                        }
-                                    </span>
+                                    @if (Auth.CurrentUser?.Tipo != "Customer")
+                                    {
+                                        <span class="gift-value">
+                                            @L.T("pack_value")
+                                            @if (catalogPrice > 0)
+                                            {
+                                                @catalogPrice.ToString("0.00")@:€
+                                            }
+                                            else
+                                            {
+                                                @line.UnitPrice.ToString("0.00")@:€
+                                            }
+                                        </span>
+                                    }
                                 </div>
                                 <span class="badge bg-danger">@L.T("pack_free")</span>
                             </div>
@@ -152,36 +159,39 @@
                     </div>
                 }
 
-                <div class="pack-pricing">
-                    @{
-                        var totalPrice = CalculateTotalPrice();
-                        var giftValue = GetGiftValue();
-                    }
+                @if (Auth.CurrentUser?.Tipo != "Customer")
+                {
+                    <div class="pack-pricing">
+                        @{
+                            var totalPrice = CalculateTotalPrice();
+                            var giftValue = GetGiftValue();
+                        }
 
-                    @if (giftValue > 0)
-                    {
-                        <div class="price-breakdown">
-                            <small class="text-muted">
-                                @L.T("pack_total_products") @totalPrice.ToString("0.00")€
-                            </small>
-                            <small class="text-success">
-                                @L.T("pack_gift_label") -@giftValue.ToString("0.00")€
-                            </small>
-                        </div>
-                    }
-
-                    <div class="price-final">
-                        <strong class="fs-4 text-danger">
-                            @((totalPrice).ToString("0.00"))€
-                        </strong>
                         @if (giftValue > 0)
                         {
-                            <span class="badge bg-success ms-2">
-                                @L.T("pack_n_plus_1_free") (@giftValue.ToString("0.00")€)
-                            </span>
+                            <div class="price-breakdown">
+                                <small class="text-muted">
+                                    @L.T("pack_total_products") @totalPrice.ToString("0.00")€
+                                </small>
+                                <small class="text-success">
+                                    @L.T("pack_gift_label") -@giftValue.ToString("0.00")€
+                                </small>
+                            </div>
                         }
+
+                        <div class="price-final">
+                            <strong class="fs-4 text-danger">
+                                @((totalPrice).ToString("0.00"))€
+                            </strong>
+                            @if (giftValue > 0)
+                            {
+                                <span class="badge bg-success ms-2">
+                                    @L.T("pack_n_plus_1_free") (@giftValue.ToString("0.00")€)
+                                </span>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
 
                 <button class="btn btn-danger btn-lg w-100 mt-3"
                         @onclick="AddToCart"

@@ -56,25 +56,28 @@ else
         <div class="col-12 col-md-7">
             <h1>@product.Name</h1>
             <sm>EAN @product.EAN13</sm> 
-            <div class="mb-2 d-flex align-items-baseline gap-2">
-                <!-- ✅ PRECIO CON DESCUENTO -->
-                @if (descuentoProducto > 0)
-                {
-                    <span class="price-original" style="text-decoration: line-through; color: #999; font-size: 0.9em;">
-                        @product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
-                    </span>
-                    <span class="price h4 mb-0" style="color: var(--primary);">
-                        @CalculatePriceWithDiscount(product.PriceFrom, descuentoProducto).ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
-                    </span>
-                    <span class="badge bg-danger">-@descuentoProducto.ToString("0.##")%</span>
-                }
-                else
-                {
-                    <span class="price h4 mb-0">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
-                }
-                <span class="price-single">x</span>
-                <span class="price-single">@product.Presentation_Unit</span>
-            </div>
+            @if (!isCustomer)
+            {
+                <div class="mb-2 d-flex align-items-baseline gap-2">
+                    <!-- ✅ PRECIO CON DESCUENTO -->
+                    @if (descuentoProducto > 0)
+                    {
+                        <span class="price-original" style="text-decoration: line-through; color: #999; font-size: 0.9em;">
+                            @product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
+                        </span>
+                        <span class="price h4 mb-0" style="color: var(--primary);">
+                            @CalculatePriceWithDiscount(product.PriceFrom, descuentoProducto).ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €
+                        </span>
+                        <span class="badge bg-danger">-@descuentoProducto.ToString("0.##")%</span>
+                    }
+                    else
+                    {
+                        <span class="price h4 mb-0">@product.PriceFrom.ToString("N2", CultureInfo.GetCultureInfo("es-ES")) €</span>
+                    }
+                    <span class="price-single">x</span>
+                    <span class="price-single">@product.Presentation_Unit</span>
+                </div>
+            }
 
             @if (!hasStock)
             {
@@ -688,6 +691,7 @@ else
     private List<Stock> productStocks = new List<Stock>();
     private bool loadingStock = false;
     private decimal descuentoProducto = 0;
+    private bool isCustomer => Auth.CurrentUser?.Tipo == "Customer";
 
     protected override void OnInitialized()
     {

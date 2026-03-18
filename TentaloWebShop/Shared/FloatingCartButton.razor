@@ -1,6 +1,7 @@
 ﻿@inject CartService Cart
 @inject NavigationManager Nav
 @inject LocalizationService L
+@inject AuthService Auth
 @implements IDisposable
 
 <!-- ✅ BOTÓN FLOTANTE: Visible si el carrito tiene items -->
@@ -11,7 +12,10 @@
             <div class="floating-cart-content">
                 <i class="bi bi-bag-fill"></i>
                 <div class="floating-cart-info">
-                    <div class="floating-cart-price">@Cart.ImporteTotal.ToString("0.00") €</div>
+                    @if (Auth.CurrentUser?.Tipo != "Customer")
+                    {
+                        <div class="floating-cart-price">@Cart.ImporteTotal.ToString("0.00") €</div>
+                    }
                     <div class="floating-cart-items">@Cart.TotalQuantity @(Cart.TotalQuantity != 1 ? L.T("item_plural") : L.T("item_singular"))</div>
                 </div>
             </div>

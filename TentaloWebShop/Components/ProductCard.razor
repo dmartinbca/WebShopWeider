@@ -53,11 +53,14 @@
         <span class="price-title">EAN @Product.EAN13</span>
             
       
-        <div class="product-price mb-3">
-            <span class="price-single">@Product.PriceFrom.ToString("N2", es) €</span>
-            <span class="price-single">x</span>
-            <span class="price-single">@Product.Presentation_Unit</span>
-        </div>
+        @if (!isCustomer)
+        {
+            <div class="product-price mb-3">
+                <span class="price-single">@Product.PriceFrom.ToString("N2", es) €</span>
+                <span class="price-single">x</span>
+                <span class="price-single">@Product.Presentation_Unit</span>
+            </div>
+        }
         <!-- ✅ FECHA DE DISPONIBILIDAD CUANDO ESTÁ OUT-OF-STOCK -->
         @if (Product.inventario100 <= 0 && IsValidDate(Product.FechaCompra))
         {
@@ -278,6 +281,7 @@
     private bool isAdding = false;
     private decimal descuentoProducto = 0;
     private readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
+    private bool isCustomer => Auth.CurrentUser?.Tipo == "Customer";
 
     protected override void OnInitialized()
     {
