@@ -36,7 +36,12 @@
       "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" \"/c/Program Files/nodejs/node.exe\":*)",
       "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\":*)",
       "Bash(swa:*)",
-      "Bash(export PATH=\"/c/Program Files/nodejs:/c/Users/dmmbc/AppData/Roaming/npm:$PATH\")"
+      "Bash(export PATH=\"/c/Program Files/nodejs:/c/Users/dmmbc/AppData/Roaming/npm:$PATH\")",
+      "Bash(xargs grep:*)",
+      "Bash(grep -l \"GrupoPrecio\\\\|Cliente\" Pages/Page*.al)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
