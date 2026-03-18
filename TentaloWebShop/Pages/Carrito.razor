@@ -10,6 +10,7 @@
 @inject IJSRuntime JS
 @inject LocalizationService L
 @inject ProductService Products
+@inject SavedOrderService SavedOrders
 
 <h1>@L.T("cart_title")</h1>
 
@@ -570,6 +571,12 @@ else
                             disabled="@(!CanProceedToCheckout)">
                         <i class="bi bi-cart-check me-2"></i>
                         @L.T("cart_process_order")
+                    </button>
+
+                    <button class="btn btn-outline-secondary w-100 mt-2"
+                            @onclick="SaveOrder">
+                        <i class="bi bi-bookmark me-2"></i>
+                        @L.T("saved_orders_save")
                     </button>
 
                     <div class="form-text mt-2 text-center">
@@ -1137,6 +1144,15 @@ else
         isPendingApproval = false;
         orderErrorMessage = "";
         StateHasChanged();
+    }
+
+    private async Task SaveOrder()
+    {
+        var name = await JS.InvokeAsync<string?>("prompt", L.T("saved_orders_name_prompt"));
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        await SavedOrders.SaveCurrentCartAsync(name);
+        await JS.InvokeVoidAsync("alert", L.T("saved_orders_saved"));
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

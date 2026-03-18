@@ -418,5 +418,20 @@
   "athlete_credit_apply": "Utiliser le crédit athlète",
   "athlete_credit_applied": "Crédit appliqué",
   "athlete_credit_remaining_pay": "Montant restant à payer",
-  "athlete_no_minimum_order": "En tant qu'athlète, aucune commande minimum ne s'applique."
+  "athlete_no_minimum_order": "En tant qu'athlète, aucune commande minimum ne s'applique.",
+
+  "nav_saved_orders": "Commandes Enregistrées",
+  "saved_orders_title": "Commandes Enregistrées",
+  "saved_orders_empty": "Aucune commande enregistrée",
+  "saved_orders_empty_text": "Enregistrez votre panier actuel pour le réutiliser plus tard.",
+  "saved_orders_count": "{0} commande(s) enregistrée(s)",
+  "saved_orders_estimated_total": "Total estimé",
+  "saved_orders_more_items": "produits de plus",
+  "saved_orders_load": "Charger dans le Panier",
+  "saved_orders_save": "Enregistrer la Commande",
+  "saved_orders_confirm_load": "Cela remplacera votre panier actuel. Continuer ?",
+  "saved_orders_confirm_delete": "Supprimer la commande enregistrée '{0}' ?",
+  "saved_orders_rename_prompt": "Nouveau nom pour la commande :",
+  "saved_orders_name_prompt": "Nom pour la commande enregistrée :",
+  "saved_orders_saved": "Commande enregistrée avec succès"
 }

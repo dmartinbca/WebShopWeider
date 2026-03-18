@@ -418,5 +418,20 @@
   "athlete_credit_apply": "Usa il credito atleta",
   "athlete_credit_applied": "Credito applicato",
   "athlete_credit_remaining_pay": "Importo rimanente da pagare",
-  "athlete_no_minimum_order": "Come atleta, non si applica un ordine minimo."
+  "athlete_no_minimum_order": "Come atleta, non si applica un ordine minimo.",
+
+  "nav_saved_orders": "Ordini Salvati",
+  "saved_orders_title": "Ordini Salvati",
+  "saved_orders_empty": "Nessun ordine salvato",
+  "saved_orders_empty_text": "Salva il tuo carrello attuale per riutilizzarlo in seguito.",
+  "saved_orders_count": "{0} ordine/i salvato/i",
+  "saved_orders_estimated_total": "Totale stimato",
+  "saved_orders_more_items": "altri prodotti",
+  "saved_orders_load": "Carica nel Carrello",
+  "saved_orders_save": "Salva Ordine",
+  "saved_orders_confirm_load": "Questo sostituirà il carrello attuale. Continuare?",
+  "saved_orders_confirm_delete": "Eliminare l'ordine salvato '{0}'?",
+  "saved_orders_rename_prompt": "Nuovo nome per l'ordine:",
+  "saved_orders_name_prompt": "Nome per l'ordine salvato:",
+  "saved_orders_saved": "Ordine salvato con successo"
 }

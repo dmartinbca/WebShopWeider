@@ -137,6 +137,13 @@ public class ProductService
             }
         }
 
+        // 🔍 DIAGNÓSTICO: Log de productos sospechosos (sin tarifa pero con Presentation_Price)
+        var diagnosticItems = new[] { "WJW3211B1" }; // Productos a investigar
+        foreach (var item in list.Where(p => diagnosticItems.Contains(p.Itemno, StringComparer.OrdinalIgnoreCase)))
+        {
+            Console.WriteLine($"[DIAG] Producto: {item.Itemno} | PriceFrom (Presentation_Price): {item.PriceFrom} | PriceTo (unitPrice/ActualPrice): {item.PriceTo} | CustomerNo usado: {customerNo} | Familia: {item.FamilySlug}");
+        }
+
         // ✅ FILTRAR: Solo productos con precio mayor a 0 (excepto familia MATERIAL PROM)
         list = list.Where(p => p.PriceFrom > 0 || p.FamilySlug.Equals("MATERIALPROM", StringComparison.OrdinalIgnoreCase)).ToList();
 
