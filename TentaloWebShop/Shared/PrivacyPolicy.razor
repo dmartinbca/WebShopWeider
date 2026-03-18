@@ -1,104 +1,69 @@
 @page "/politica-privacidad"
-@using System.ComponentModel
+@inject LocalizationService L
+@implements IDisposable
 
-<PageTitle>Política de Privacidad - Weider Nutrition</PageTitle>
+<PageTitle>@L.T("privacy_page_title")</PageTitle>
 
 <div class="privacy-policy-container">
     <div class="container">
         <!-- Header -->
         <header class="privacy-header mb-5">
             <img src="/images/Weiderlogo.png" alt="Weider Nutrition Logo" class="privacy-logo mb-4" />
-            <h1 class="privacy-title">Política de Privacidad</h1>
-            <p class="privacy-subtitle">Última actualización: 2025</p>
+            <h1 class="privacy-title">@L.T("privacy_title")</h1>
+            <p class="privacy-subtitle">@L.T("privacy_last_updated")</p>
         </header>
 
         <!-- Contenido principal -->
         <article class="privacy-content">
-            <!-- Introducción -->
             <section class="privacy-section">
-                <h2 class="section-title">Protección de Datos Personales</h2>
-                <p class="section-text">
-                    Le informamos de que, según lo dispuesto en la actual normativa en materia de protección de datos de carácter personal, 
-                    y en el Reglamento General de Protección de Datos, sus datos están siendo debidamente gestionados por 
-                    <strong>WEIDER NUTRITION, SL</strong> quien cumple con las medidas de seguridad requeridas.
-                </p>
-                <p class="section-text">
-                    La finalidad de este tratamiento consiste en gestionar el envío de información y de prospección comercial de una forma segura.
-                </p>
+                <h2 class="section-title">@L.T("privacy_data_protection_title")</h2>
+                <p class="section-text">@L.T("privacy_data_protection_text")</p>
+                <p class="section-text">@L.T("privacy_data_purpose")</p>
             </section>
 
-            <!-- Derechos del usuario -->
             <section class="privacy-section">
-                <h2 class="section-title">Sus Derechos</h2>
-                <p class="section-text">
-                    Cualquier persona tiene derecho a obtener confirmación sobre los datos que están siendo tratados. 
-                    Usted tiene los siguientes derechos:
-                </p>
+                <h2 class="section-title">@L.T("privacy_rights_title")</h2>
+                <p class="section-text">@L.T("privacy_rights_intro")</p>
                 <ul class="rights-list">
                     <li class="right-item">
-                        <strong>Derecho de acceso:</strong> Acceder a sus datos personales en poder de WEIDER NUTRITION, SL
+                        <strong>@L.T("privacy_right_access"):</strong> @L.T("privacy_right_access_desc")
                     </li>
                     <li class="right-item">
-                        <strong>Derecho de rectificación:</strong> Rectificar sus datos si son inexactos o están incompletos
+                        <strong>@L.T("privacy_right_rectification"):</strong> @L.T("privacy_right_rectification_desc")
                     </li>
                     <li class="right-item">
-                        <strong>Derecho de supresión:</strong> Solicitar la supresión de sus datos cuando ya no sean necesarios 
-                        para la finalidad para la que fueron recogidos
+                        <strong>@L.T("privacy_right_erasure"):</strong> @L.T("privacy_right_erasure_desc")
                     </li>
                     <li class="right-item">
-                        <strong>Derecho de limitación:</strong> Solicitar la limitación del tratamiento de sus datos
+                        <strong>@L.T("privacy_right_restriction"):</strong> @L.T("privacy_right_restriction_desc")
                     </li>
                     <li class="right-item">
-                        <strong>Derecho de oposición:</strong> Oponerse al tratamiento de sus datos personales
+                        <strong>@L.T("privacy_right_objection"):</strong> @L.T("privacy_right_objection_desc")
                     </li>
                 </ul>
             </section>
 
-            <!-- Datos de contacto -->
             <section class="privacy-section">
-                <h2 class="section-title">Contacto - Ejercicio de Derechos</h2>
-                <p class="section-text">
-                    Para ejercer cualquiera de estos derechos, deberán dirigirse a WEIDER NUTRITION, SL en la siguiente dirección:
-                </p>
+                <h2 class="section-title">@L.T("privacy_contact_title")</h2>
+                <p class="section-text">@L.T("privacy_contact_intro")</p>
                 <div class="contact-info">
                     <div class="contact-block">
-                        <p class="contact-label">Empresa:</p>
-                        <p class="contact-value">WEIDER NUTRITION, SL</p>
+                        <p class="contact-value"><strong>WEIDER NUTRITION, SL</strong></p>
                     </div>
                     <div class="contact-block">
-                        <p class="contact-label">Dirección:</p>
                         <p class="contact-value">Calle Electrónica, nº 39-41</p>
                         <p class="contact-value">28923, Alcorcón, Madrid</p>
                     </div>
                 </div>
-                <p class="section-text mt-3">
-                    También puede comunicarse con nosotros a través de los canales de contacto disponibles en nuestra web.
-                </p>
             </section>
 
-            <!-- Confidencialidad -->
             <section class="privacy-section">
-                <h2 class="section-title">Confidencialidad</h2>
-                <p class="section-text confidentiality-notice">
-                    El contenido de este sitio web y la información personal que nos proporciona son estrictamente confidenciales, 
-                    secretos y restringidos.
-                </p>
-                <p class="section-text">
-                    La divulgación o suministro, en todo o en parte, a cualquier tercero, no podrá ser realizada sin el previo, 
-                    expreso y escrito consentimiento de WEIDER NUTRITION, SL.
-                </p>
-                <p class="section-text">
-                    En caso que no sea el destinatario y haya recibido este mensaje por error, agradecemos que nos lo comunique 
-                    inmediatamente sin difundir, almacenar o copiar su contenido.
-                </p>
+                <h2 class="section-title">@L.T("privacy_confidentiality_title")</h2>
+                <p class="section-text confidentiality-notice">@L.T("privacy_confidentiality_text")</p>
             </section>
 
-            <!-- Nota final -->
             <section class="privacy-section border-top pt-4">
-                <p class="footer-note">
-                    Esta política de privacidad está sujeta a cambios. Recomendamos revisarla periódicamente para estar informado 
-                    de las actualizaciones en materia de protección de sus datos personales.
-                </p>
+                <p class="footer-note">@L.T("privacy_confidentiality_note")</p>
             </section>
         </article>
     </div>
@@ -107,8 +72,17 @@
 @code {
     protected override void OnInitialized()
     {
-        // Aquí puedes agregar lógica adicional si lo necesitas
-        base.OnInitialized();
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }
 

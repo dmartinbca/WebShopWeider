@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @inject ProductService ProductService
+@inject LocalizationService L
 
 <div class="promo-pack-card nplus1">
     <div class="pack-card-inner">
@@ -18,26 +19,26 @@
             {
                 <div class="pack-image-placeholder">
                     <i class="bi bi-box-seam fs-1 text-muted"></i>
-                    <p class="text-muted mb-0 mt-2 small">Pack sin imagen</p>
+                    <p class="text-muted mb-0 mt-2 small">@L.T("pack_no_image_short")</p>
                 </div>
             }
 
             <div class="pack-badge-type">
                 <i class="bi bi-stars me-1"></i>
-                @Promo.QuantityN + 1 GRATIS
+                @Promo.QuantityN @L.T("pack_n_plus_1_free")
             </div>
         </div>
 
         <!-- Contenido del pack -->
         <div class="pack-content">
-            <h3 class="pack-title">@Promo.Description</h3>
+            <h3 class="pack-title">@L.TranslatePromo(Promo.Description)</h3>
 
             @if (Promo.EndDate.HasValue)
             {
                 <div class="pack-validity">
                     <i class="bi bi-clock me-1"></i>
                     <small class="text-muted">
-                        Válido hasta @Promo.EndDate.Value.ToString("dd/MM/yyyy")
+                        @L.T("pack_valid_until") @Promo.EndDate.Value.ToString("dd/MM/yyyy")
                     </small>
                 </div>
             }
@@ -45,7 +46,7 @@
             <!-- Instrucciones -->
             <div class="pack-instructions alert alert-info py-2 mt-2">
                 <i class="bi bi-info-circle me-1"></i>
-                <small>Elige <strong>@Promo.QuantityN productos</strong> y selecciona <strong>1 regalo</strong></small>
+                <small>@L.T("pack_choose_products", Promo.QuantityN)</small>
             </div>
 
             <!-- Selector de productos -->
@@ -53,7 +54,7 @@
                 <div class="pack-section">
                     <h6 class="pack-section-title">
                         <i class="bi bi-cart-check me-1"></i>
-                        Selecciona tus productos:
+                        @L.T("pack_select_products")
                         <span class="badge @(TotalSelected == Promo.QuantityN ? "bg-success" : "bg-warning") ms-2">
                             @TotalSelected / @Promo.QuantityN
                         </span>
@@ -67,7 +68,7 @@
 
                             <div class="product-selector-item">
                                 <div class="product-info">
-                                    <span class="product-name">@line.Description</span>
+                                    <span class="product-name">@L.TranslateProduct(line.Description)</span>
                                     <span class="product-price">
                                         @if (catalogPrice > 0)
                                         {
@@ -101,7 +102,7 @@
                 <div class="pack-section pack-gifts mt-3">
                     <h6 class="pack-section-title text-danger">
                         <i class="bi bi-gift me-1"></i>
-                        Elige tu regalo:
+                        @L.T("pack_choose_gift")
                         @if (!string.IsNullOrEmpty(selection.GiftItemNo))
                         {
                             <span class="badge bg-success ms-2">
@@ -122,9 +123,9 @@
                                     <i class="bi @(isSelected ? "bi-check-circle-fill text-success" : "bi-circle")"></i>
                                 </div>
                                 <div class="gift-info">
-                                    <span class="gift-name">@line.Description</span>
+                                    <span class="gift-name">@L.TranslateProduct(line.Description)</span>
                                     <span class="gift-value">
-                                        Valor:
+                                        @L.T("pack_value")
                                         @if (catalogPrice > 0)
                                         {
                                             @catalogPrice.ToString("0.00")@:€
@@ -135,7 +136,7 @@
                                         }
                                     </span>
                                 </div>
-                                <span class="badge bg-danger">GRATIS</span>
+                                <span class="badge bg-danger">@L.T("pack_free")</span>
                             </div>
                         }
                     </div>
@@ -161,10 +162,10 @@
                     {
                         <div class="price-breakdown">
                             <small class="text-muted">
-                                Total productos: @totalPrice.ToString("0.00")€
+                                @L.T("pack_total_products") @totalPrice.ToString("0.00")€
                             </small>
                             <small class="text-success">
-                                Regalo: -@giftValue.ToString("0.00")€
+                                @L.T("pack_gift_label") -@giftValue.ToString("0.00")€
                             </small>
                         </div>
                     }
@@ -176,7 +177,7 @@
                         @if (giftValue > 0)
                         {
                             <span class="badge bg-success ms-2">
-                                +1 GRATIS (@giftValue.ToString("0.00")€)
+                                @L.T("pack_n_plus_1_free") (@giftValue.ToString("0.00")€)
                             </span>
                         }
                     </div>
@@ -188,17 +189,17 @@
                     @if (isAdding)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                        <span>Agregando...</span>
+                        <span>@L.T("pack_adding")</span>
                     }
                     else if (!IsSelectionComplete)
                     {
                         <i class="bi bi-exclamation-circle me-2"></i>
-                        <span>Completa tu selección</span>
+                        <span>@L.T("pack_complete_selection")</span>
                     }
                     else
                     {
                         <i class="bi bi-cart-plus me-2"></i>
-                        <span>Añadir Pack al Carrito</span>
+                        <span>@L.T("pack_add_to_cart")</span>
                     }
                 </button>
             </div>
@@ -337,7 +338,7 @@
 
             if (!packItems.Any())
             {
-                errorMessage = "No se pudieron convertir los items del pack";
+                errorMessage = L.T("pack_convert_error");
                 return;
             }
 
@@ -350,7 +351,7 @@
         catch (Exception ex)
         {
             Console.WriteLine($"[PromoPackCardNPlus1] Error al añadir pack: {ex.Message}");
-            errorMessage = "Error al añadir el pack al carrito";
+            errorMessage = L.T("pack_add_error");
         }
         finally
         {

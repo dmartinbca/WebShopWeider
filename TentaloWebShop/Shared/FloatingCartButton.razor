@@ -1,17 +1,18 @@
 ﻿@inject CartService Cart
 @inject NavigationManager Nav
+@inject LocalizationService L
 @implements IDisposable
 
 <!-- ✅ BOTÓN FLOTANTE: Visible si el carrito tiene items -->
 @if (Cart.Items.Any())
 {
     <div class="floating-cart-button">
-        <a href="/carrito" class="floating-cart-link" title="Ver carrito">
+        <a href="/carrito" class="floating-cart-link" title="@L.T("view_cart")">
             <div class="floating-cart-content">
                 <i class="bi bi-bag-fill"></i>
                 <div class="floating-cart-info">
                     <div class="floating-cart-price">@Cart.ImporteTotal.ToString("0.00") €</div>
-                    <div class="floating-cart-items">@Cart.TotalQuantity artículo@(Cart.TotalQuantity != 1 ? "s" : "")</div>
+                    <div class="floating-cart-items">@Cart.TotalQuantity @(Cart.TotalQuantity != 1 ? L.T("item_plural") : L.T("item_singular"))</div>
                 </div>
             </div>
             <div class="floating-cart-arrow">
@@ -151,10 +152,17 @@
     protected override void OnInitialized()
     {
         Cart.Changed += StateHasChanged;
+        L.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
         Cart.Changed -= StateHasChanged;
+        L.OnLanguageChanged -= OnLanguageChanged;
     }
 }

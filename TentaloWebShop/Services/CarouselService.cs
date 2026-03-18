@@ -10,14 +10,19 @@ public class CarouselService
 {
     private readonly RestDataService _rest;
     private readonly AuthService _auth;
+    private readonly LocalizationService _localization;
     private List<CarouselItem>? _cache;
-    private string? _lastCustomerNo; // Para detectar cambios de cliente
+    private List<CarouselItem>? _rawCache;
+    private string? _lastCustomerNo;
+    private string? _lastLanguage;
 
-    public CarouselService(RestDataService rest, AuthService auth)
+    public CarouselService(RestDataService rest, AuthService auth, LocalizationService localization)
     {
         _rest = rest;
         _auth = auth;
+        _localization = localization;
         _auth.OnCustomerChanged += OnCustomerChanged;
+        _localization.OnLanguageChanged += OnLanguageChanged;
     }
 
     /// <summary>
@@ -29,11 +34,22 @@ public class CarouselService
         // Determinar qué número de cliente usar
         string customerNo = GetEffectiveCustomerNo();
 
+        string currentLang = _localization.CurrentLanguage;
+
         // Si cambió el cliente, invalidar caché
         if (_lastCustomerNo != customerNo)
         {
             _cache = null;
+            _rawCache = null;
             _lastCustomerNo = customerNo;
+        }
+
+        // Si cambió el idioma, re-traducir desde raw
+        if (_lastLanguage != currentLang && _rawCache is not null)
+        {
+            _cache = TranslateCarouselItems(_rawCache);
+            _lastLanguage = currentLang;
+            return _cache;
         }
 
         // Retornar desde caché si está disponible
@@ -79,9 +95,11 @@ public class CarouselService
             Console.WriteLine($"[CarouselService.GetCarruselesAsync] {ex.Message}");
         }
 
-        // Guardar en caché
-        _cache = list;
-        return list;
+        // Guardar en caché raw y traducir
+        _rawCache = list;
+        _cache = TranslateCarouselItems(list);
+        _lastLanguage = currentLang;
+        return _cache;
     }
 
     /// <summary>
@@ -99,8 +117,34 @@ public class CarouselService
     public void ClearCache()
     {
         _cache = null;
+        _rawCache = null;
         _lastCustomerNo = null;
+        _lastLanguage = null;
         Console.WriteLine("[CarouselService] Caché limpiada");
+    }
+
+    private List<CarouselItem> TranslateCarouselItems(List<CarouselItem> raw)
+    {
+        return raw.Select(item => new CarouselItem
+        {
+            No = item.No,
+            Title = _localization.TranslateCarousel(item.Title),
+            Subtitle = _localization.TranslateCarousel(item.Subtitle),
+            Alt = item.Alt,
+            ImageUrl = item.ImageUrl,
+            ButtonText = _localization.TranslateCarousel(item.ButtonText),
+            ButtonLink = item.ButtonLink,
+            ExtensionImagen = item.ExtensionImagen
+        }).ToList();
+    }
+
+    private void OnLanguageChanged()
+    {
+        if (_rawCache is not null)
+        {
+            _cache = TranslateCarouselItems(_rawCache);
+            _lastLanguage = _localization.CurrentLanguage;
+        }
     }
 
     // ========== MÉTODOS PRIVADOS ==========

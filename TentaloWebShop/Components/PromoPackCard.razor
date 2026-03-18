@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @inject ProductService ProductService
+@inject LocalizationService L
 
 <div class="promo-pack-card">
     <div class="pack-card-inner">
@@ -16,14 +17,14 @@
 
                 <div class="pack-image-placeholder" style="display: none;">
                     <i class="bi bi-image fs-1 text-muted"></i>
-                    <p class="text-muted mb-0 mt-2 small">Sin imagen disponible</p>
+                    <p class="text-muted mb-0 mt-2 small">@L.T("pack_no_image")</p>
                 </div>
             }
             else
             {
                 <div class="pack-image-placeholder">
                     <i class="bi bi-box-seam fs-1 text-muted"></i>
-                    <p class="text-muted mb-0 mt-2 small">Pack sin imagen</p>
+                    <p class="text-muted mb-0 mt-2 small">@L.T("pack_no_image_short")</p>
                 </div>
             }
 
@@ -31,21 +32,21 @@
             {
                 <div class="pack-badge-savings">
                     <i class="bi bi-tag-fill me-1"></i>
-                    Ahorra @Promo.TotalSavings.ToString("0.00")€
+                    @L.T("pack_save") @Promo.TotalSavings.ToString("0.00")€
                 </div>
             }
         </div>
 
         <!-- Contenido del pack -->
         <div class="pack-content">
-            <h3 class="pack-title">@Promo.Description</h3>
+            <h3 class="pack-title">@L.TranslatePromo(Promo.Description)</h3>
 
             @if (Promo.EndDate.HasValue)
             {
                 <div class="pack-validity">
                     <i class="bi bi-clock me-1"></i>
                     <small class="text-muted">
-                        Válido hasta @Promo.EndDate.Value.ToString("dd/MM/yyyy")
+                        @L.T("pack_valid_until") @Promo.EndDate.Value.ToString("dd/MM/yyyy")
                     </small>
                 </div>
             }
@@ -54,7 +55,7 @@
                 <div class="pack-section">
                     <h6 class="pack-section-title">
                         <i class="bi bi-cart-check me-1"></i>
-                        Productos incluidos:
+                        @L.T("pack_products_included")
                     </h6>
                     <ul class="pack-items-list">
                         @foreach (var line in Promo.SaleLines)
@@ -62,7 +63,7 @@
                             var catalogPrice = GetCatalogPrice(line.ItemNo);
                             <li class="pack-item">
                                 <span class="item-quantity">@line.Quantity x</span>
-                                <span class="item-name">@line.Description</span>
+                                <span class="item-name">@L.TranslateProduct(line.Description)</span>
 
                                 @* ✅ MOSTRAR PRECIO DEL CATÁLOGO *@
                                 @if (catalogPrice > 0)
@@ -83,7 +84,7 @@
                     <div class="pack-section pack-gifts">
                         <h6 class="pack-section-title text-danger">
                             <i class="bi bi-gift me-1"></i>
-                            Regalos/Descuentos:
+                            @L.T("pack_gifts_discounts")
                         </h6>
                         <ul class="pack-items-list">
                             @foreach (var line in Promo.GiftLines)
@@ -91,12 +92,12 @@
                                 var catalogPrice = GetCatalogPrice(line.ItemNo);
                                 <li class="pack-item gift-item">
                                     <span class="item-quantity">@line.Quantity x</span>
-                                    <span class="item-name">@line.Description</span>
+                                    <span class="item-name">@L.TranslateProduct(line.Description)</span>
 
                                     @* ✅ MOSTRAR DESCUENTO SOBRE PRECIO DEL CATÁLOGO *@
                                     @if (line.DiscountPercent >= 100)
                                     {
-                                        <span class="badge bg-danger">GRATIS</span>
+                                        <span class="badge bg-danger">@L.T("pack_free")</span>
                                     }
                                     else if (line.DiscountPercent > 0)
                                     {
@@ -143,12 +144,12 @@
                     @if (isAdding)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                        <span>Agregando...</span>
+                        <span>@L.T("pack_adding")</span>
                     }
                     else
                     {
                         <i class="bi bi-cart-plus me-2"></i>
-                        <span>Añadir Pack al Carrito</span>
+                        <span>@L.T("pack_add_to_cart")</span>
                     }
                 </button>
             </div>

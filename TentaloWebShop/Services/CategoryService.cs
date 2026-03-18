@@ -6,8 +6,15 @@ namespace TentaloWebShop.Services;
 public class CategoryService
 {
     private readonly RestDataService _rest;
-    public CategoryService(RestDataService rest) => _rest = rest;
-    private   List<Category> _families = new List<Category>();
+    private readonly LocalizationService _localization;
+    public CategoryService(RestDataService rest, LocalizationService localization)
+    {
+        _rest = rest;
+        _localization = localization;
+        _localization.OnLanguageChanged += OnLanguageChanged;
+    }
+    private List<Category> _families = new List<Category>();
+    private List<Category> _rawFamilies = new List<Category>();
 
     // Slugs de familias marcadas como Material Promocional
     private HashSet<string> _materialPromocionalSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -15,9 +22,14 @@ public class CategoryService
 
     public async Task<List<Category>> GetFamilies()
     {
-        var listFam = new List<Category>();
+        // Si ya tenemos datos raw, solo re-traducir
+        if (_rawFamilies.Any())
+        {
+            _families = TranslateFamilies(_rawFamilies);
+            return _families;
+        }
 
-        HttpClient httpClient = new HttpClient();
+        var listFam = new List<Category>();
 
         var efam = await _rest.GetFamiliasAPICloud();
 
@@ -31,7 +43,7 @@ public class CategoryService
                 {
                     listSubFam.Add(new Subcategory { Name = sub.No, Slug = sub.No.Replace(" ", "") });
                 }
-                listFam.Add(new Category { Name = fam.Famlia, Slug = fam.Famlia.Replace(" ", ""), Subs=listSubFam });
+                listFam.Add(new Category { Name = fam.Famlia, Slug = fam.Famlia.Replace(" ", ""), Subs = listSubFam });
 
                 // Registrar familias de material promocional
                 if (fam.MaterialPromocional)
@@ -39,12 +51,35 @@ public class CategoryService
                     _materialPromocionalSlugs.Add(fam.Famlia.Replace(" ", ""));
                 }
             }
-            _families=listFam;
-            return listFam;
+            _rawFamilies = listFam;
+            _families = TranslateFamilies(listFam);
+            return _families;
         }
         else
         {
             return listFam;
+        }
+    }
+
+    private List<Category> TranslateFamilies(List<Category> raw)
+    {
+        return raw.Select(f => new Category
+        {
+            Name = _localization.TranslateFamily(f.Name),
+            Slug = f.Slug,
+            Subs = f.Subs.Select(s => new Subcategory
+            {
+                Name = _localization.TranslateSubfamily(s.Name),
+                Slug = s.Slug
+            }).ToList()
+        }).ToList();
+    }
+
+    private void OnLanguageChanged()
+    {
+        if (_rawFamilies.Any())
+        {
+            _families = TranslateFamilies(_rawFamilies);
         }
     }
 

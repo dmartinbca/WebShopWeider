@@ -145,9 +145,10 @@
         families = await Categories.GetFamilies();
     }
 
-    private void OnLanguageChanged()
+    private async void OnLanguageChanged()
     {
-        InvokeAsync(StateHasChanged);
+        families = await Categories.GetFamilies();
+        await InvokeAsync(StateHasChanged);
     }
 
     private void ToggleFamily(string familySlug)

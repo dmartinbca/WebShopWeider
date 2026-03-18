@@ -4,6 +4,7 @@
 @using TentaloWebShop.Services
 @inject ApprovalService ApprovalSvc
 @inject NavigationManager Nav
+@inject LocalizationService L
 
 <style>
     .approval-container {
@@ -252,7 +253,7 @@
     {
         <div class="loading-container">
             <div class="spinner"></div>
-            <p>Cargando detalles del pedido...</p>
+            <p>@L.T("approval_loading")</p>
         </div>
     }
     else if (hasError)
@@ -271,7 +272,7 @@
             {
                 <img src="data:image/png;base64,@approvalDetails.CompanyInfo.LogoBase64" alt="Logo" />
             }
-            <h2>Aprobación de Pedido de Atleta</h2>
+            <h2>@L.T("approval_title")</h2>
             @if (approvalDetails.CompanyInfo != null)
             {
                 <div class="company-info">
@@ -294,23 +295,23 @@
         <!-- Info del pedido -->
         <div class="order-info">
             <div class="order-info-row">
-                <span class="order-info-label">Cliente (Atleta)</span>
+                <span class="order-info-label">@L.T("approval_customer_athlete")</span>
                 <span class="order-info-value">@approvalDetails.Header?.CustomerName</span>
             </div>
             <div class="order-info-row">
-                <span class="order-info-label">Código cliente</span>
+                <span class="order-info-label">@L.T("approval_customer_code")</span>
                 <span class="order-info-value">@approvalDetails.Header?.CustomerNo</span>
             </div>
             <div class="order-info-row">
-                <span class="order-info-label">Fecha del pedido</span>
+                <span class="order-info-label">@L.T("approval_order_date")</span>
                 <span class="order-info-value">@approvalDetails.Header?.CreatedDateTime?.ToString("dd/MM/yyyy HH:mm")</span>
             </div>
             <div class="order-info-row">
-                <span class="order-info-label">Total pedido</span>
+                <span class="order-info-label">@L.T("approval_order_total")</span>
                 <span class="order-info-value">@approvalDetails.Header?.OrderAmount.ToString("N2") &euro;</span>
             </div>
             <div class="order-info-row">
-                <span class="order-info-label">Líneas</span>
+                <span class="order-info-label">@L.T("approval_lines")</span>
                 <span class="order-info-value">@approvalDetails.TotalLines</span>
             </div>
         </div>
@@ -319,7 +320,7 @@
         @if (approvalDetails.Header?.AthleteCreditUsed > 0)
         {
             <div class="credit-highlight">
-                <div class="label">Crédito de Atleta utilizado</div>
+                <div class="label">@L.T("approval_credit_used")</div>
                 <div class="amount">@approvalDetails.Header.AthleteCreditUsed.ToString("N2") &euro;</div>
             </div>
         }
@@ -329,11 +330,11 @@
             <table class="lines-table">
                 <thead>
                     <tr>
-                        <th>Producto</th>
-                        <th style="text-align:right">Cant.</th>
-                        <th style="text-align:right">Precio</th>
-                        <th style="text-align:right">Dto.%</th>
-                        <th style="text-align:right">Importe</th>
+                        <th>@L.T("approval_product")</th>
+                        <th style="text-align:right">@L.T("approval_qty")</th>
+                        <th style="text-align:right">@L.T("approval_price")</th>
+                        <th style="text-align:right">@L.T("approval_disc")</th>
+                        <th style="text-align:right">@L.T("approval_amount")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -344,7 +345,7 @@
                                 @line.ItemDescription
                                 @if (line.IsAthleteCredit)
                                 {
-                                    <br /><small><em>&#127942; Crédito atleta</em></small>
+                                    <br /><small><em>&#127942; @L.T("approval_athlete_credit")</em></small>
                                 }
                             </td>
                             <td style="text-align:right">@line.Quantity.ToString("N0")</td>
@@ -374,18 +375,18 @@
                 var totalNeto = approvalDetails.Lines.Sum(l => l.LineDiscount == 100 ? 0 : l.LineAmount * (1 - l.LineDiscount / 100));
             }
             <div class="total-row">
-                <span>Total bruto</span>
+                <span>@L.T("approval_gross_total")</span>
                 <span>@totalBruto.ToString("N2") &euro;</span>
             </div>
             @if (approvalDetails.Header?.AthleteCreditUsed > 0)
             {
                 <div class="total-row" style="color: #28a745;">
-                    <span>Crédito atleta aplicado</span>
+                    <span>@L.T("approval_credit_applied")</span>
                     <span>-@approvalDetails.Header.AthleteCreditUsed.ToString("N2") &euro;</span>
                 </div>
             }
             <div class="total-row grand-total">
-                <span>TOTAL A PAGAR</span>
+                <span>@L.T("approval_total_pay")</span>
                 <span>@approvalDetails.Header?.OrderAmount.ToString("N2") &euro;</span>
             </div>
         </div>
@@ -405,8 +406,8 @@
             @if (showRejectInput)
             {
                 <div class="reject-input">
-                    <label>Motivo del rechazo *</label>
-                    <textarea @bind="rejectionReason" placeholder="Indique el motivo por el que rechaza este pedido..."></textarea>
+                    <label>@L.T("approval_reject_reason_label")</label>
+                    <textarea @bind="rejectionReason" placeholder="@L.T("approval_reject_placeholder")"></textarea>
                 </div>
             }
 
@@ -417,15 +418,15 @@
                     <button class="btn-approve" @onclick="OnApprove" disabled="@isProcessing">
                         @if (isProcessing)
                         {
-                            <text>Procesando...</text>
+                            <text>@L.T("approval_processing")</text>
                         }
                         else
                         {
-                            <text>&#9989; Aprobar Pedido</text>
+                            <text>&#9989; @L.T("approval_approve")</text>
                         }
                     </button>
                     <button class="btn-reject" @onclick="ShowRejectInput" disabled="@isProcessing">
-                        &#10060; Rechazar Pedido
+                        &#10060; @L.T("approval_reject")
                     </button>
                 }
                 else
@@ -433,15 +434,15 @@
                     <button class="btn-reject" @onclick="OnReject" disabled="@(isProcessing || string.IsNullOrWhiteSpace(rejectionReason))">
                         @if (isProcessing)
                         {
-                            <text>Procesando...</text>
+                            <text>@L.T("approval_processing")</text>
                         }
                         else
                         {
-                            <text>Confirmar Rechazo</text>
+                            <text>@L.T("approval_confirm_reject")</text>
                         }
                     </button>
                     <button class="btn-approve" @onclick="CancelReject" disabled="@isProcessing">
-                        Cancelar
+                        @L.T("cancel")
                     </button>
                 }
             </div>
@@ -451,14 +452,14 @@
             <!-- Pedido ya procesado -->
             <div class="result-message @(approvalDetails.Header?.Status == "Approved" ? "result-approved" : "result-rejected")">
                 <div class="icon">@(approvalDetails.Header?.Status == "Approved" ? "✅" : "❌")</div>
-                <h3>Pedido ya @(approvalDetails.Header?.Status == "Approved" ? "aprobado" : "rechazado")</h3>
+                <h3>@L.T("approval_already_processed", approvalDetails.Header?.Status == "Approved" ? L.T("approval_approved_word") : L.T("approval_rejected_word"))</h3>
                 @if (!string.IsNullOrEmpty(approvalDetails.Header?.RejectionReason))
                 {
-                    <p>Motivo: @approvalDetails.Header.RejectionReason</p>
+                    <p>@L.T("approval_reason"): @approvalDetails.Header.RejectionReason</p>
                 }
                 @if (approvalDetails.Header?.ResponseDateTime != null)
                 {
-                    <p>Fecha: @approvalDetails.Header.ResponseDateTime?.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p>@L.T("approval_date"): @approvalDetails.Header.ResponseDateTime?.ToString("dd/MM/yyyy HH:mm")</p>
                 }
             </div>
         }
@@ -497,7 +498,7 @@
             if (string.IsNullOrWhiteSpace(ApprovalId))
             {
                 hasError = true;
-                errorMessage = "ID de aprobación no válido.";
+                errorMessage = L.T("approval_invalid_id");
                 return;
             }
 
@@ -506,13 +507,13 @@
             if (approvalDetails == null)
             {
                 hasError = true;
-                errorMessage = "No se encontró la solicitud de aprobación o no tiene acceso.";
+                errorMessage = L.T("approval_not_found");
             }
         }
         catch (Exception ex)
         {
             hasError = true;
-            errorMessage = $"Error al cargar los detalles: {ex.Message}";
+            errorMessage = $"{L.T("approval_load_error")}: {ex.Message}";
         }
         finally
         {
@@ -535,20 +536,20 @@
 
             if (result.Success)
             {
-                actionResultTitle = "Pedido Aprobado";
-                actionResultMessage = "El pedido ha sido aprobado y se procesará automáticamente. El atleta recibirá una notificación.";
+                actionResultTitle = L.T("approval_result_approved_title");
+                actionResultMessage = L.T("approval_result_approved_msg");
             }
             else
             {
-                actionResultTitle = "Error al Aprobar";
-                actionResultMessage = result.Error ?? "Error desconocido al procesar la aprobación.";
+                actionResultTitle = L.T("approval_result_approve_error");
+                actionResultMessage = result.Error ?? L.T("approval_result_approve_unknown");
             }
         }
         catch (Exception ex)
         {
             actionCompleted = true;
             actionSuccess = false;
-            actionResultTitle = "Error";
+            actionResultTitle = L.T("error");
             actionResultMessage = ex.Message;
         }
         finally
@@ -587,20 +588,20 @@
 
             if (result.Success)
             {
-                actionResultTitle = "Pedido Rechazado";
-                actionResultMessage = "El pedido ha sido rechazado. El atleta recibirá una notificación con el motivo indicado.";
+                actionResultTitle = L.T("approval_result_rejected_title");
+                actionResultMessage = L.T("approval_result_rejected_msg");
             }
             else
             {
-                actionResultTitle = "Error al Rechazar";
-                actionResultMessage = result.Error ?? "Error desconocido al procesar el rechazo.";
+                actionResultTitle = L.T("approval_result_reject_error");
+                actionResultMessage = result.Error ?? L.T("approval_result_reject_unknown");
             }
         }
         catch (Exception ex)
         {
             actionCompleted = true;
             actionSuccess = false;
-            actionResultTitle = "Error";
+            actionResultTitle = L.T("error");
             actionResultMessage = ex.Message;
         }
         finally
@@ -620,11 +621,11 @@
 
     private string GetStatusText(string? status) => status switch
     {
-        "Pending" => "Pendiente de Aprobación",
-        "Approved" => "Aprobado",
-        "Rejected" => "Rechazado",
-        "Cancelled" => "Cancelado",
-        "Expired" => "Expirado",
-        _ => status ?? "Desconocido"
+        "Pending" => L.T("approval_status_pending"),
+        "Approved" => L.T("approval_status_approved"),
+        "Rejected" => L.T("approval_status_rejected"),
+        "Cancelled" => L.T("approval_status_cancelled"),
+        "Expired" => L.T("approval_status_expired"),
+        _ => status ?? L.T("approval_status_unknown")
     };
 }

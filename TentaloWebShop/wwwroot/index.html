@@ -43,8 +43,8 @@
                     </div>
                 </div>
 
-                <h5 class="loading-title">Cargando Weider WebShop...</h5>
-                <p class="loading-subtitle">Preparando tu experiencia de compra</p>
+                <h5 class="loading-title" id="loading-title">Cargando Weider WebShop...</h5>
+                <p class="loading-subtitle" id="loading-subtitle">Preparando tu experiencia de compra</p>
             </div>
         </div>
     </div>
@@ -149,6 +149,24 @@
             }
         }
     </style>
+
+    <!-- Traducir pantalla de carga según idioma guardado -->
+    <script>
+        (function() {
+            var lang = localStorage.getItem('app_language') || 'es';
+            var texts = {
+                es: { title: 'Cargando Weider WebShop...', subtitle: 'Preparando tu experiencia de compra' },
+                en: { title: 'Loading Weider WebShop...', subtitle: 'Preparing your shopping experience' },
+                fr: { title: 'Chargement de Weider WebShop...', subtitle: 'Préparation de votre expérience d\'achat' },
+                it: { title: 'Caricamento Weider WebShop...', subtitle: 'Preparazione della tua esperienza di acquisto' }
+            };
+            var t = texts[lang] || texts.es;
+            var el1 = document.getElementById('loading-title');
+            var el2 = document.getElementById('loading-subtitle');
+            if (el1) el1.textContent = t.title;
+            if (el2) el2.textContent = t.subtitle;
+        })();
+    </script>
 
     <!-- Scripts -->
     <script src="_framework/blazor.webassembly.js"></script>

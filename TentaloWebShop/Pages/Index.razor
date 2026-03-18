@@ -140,9 +140,14 @@
         }
     }
 
-    private void OnLanguageChanged()
+    private async void OnLanguageChanged()
     {
-        InvokeAsync(StateHasChanged);
+        // Recargar carrusel con traducciones actualizadas
+        if (Auth.CurrentUser?.Tipo != "Sales Team")
+        {
+            carouselItems = await CarouselSvc.GetCarruselesAsync();
+        }
+        await InvokeAsync(StateHasChanged);
     }
 
     private void StartAutoPlay()

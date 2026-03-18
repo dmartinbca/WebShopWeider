@@ -1040,27 +1040,27 @@
                 {
                     var fileName = $"Pedido_{OrderId}_{DateTime.Now:yyyyMMdd}.pdf";
                     await JSRuntime.InvokeVoidAsync("fileDownload.downloadFromBase64", b64CR, fileName, "application/pdf");
-                    downloadMessage = "✓ PDF descargado correctamente";
+                    downloadMessage = $"✓ {L.T("pdf_downloaded")}";
                     downloadSuccess = true;
 
                     _ = Task.Delay(3000).ContinueWith(_ => { downloadMessage = ""; InvokeAsync(StateHasChanged); });
                 }
                 else
                 {
-                    downloadMessage = "✗ No se pudo generar el PDF";
+                    downloadMessage = $"✗ {L.T("pdf_generate_error")}";
                     downloadSuccess = false;
                 }
             }
             else
             {
-                downloadMessage = $"✗ Error al generar el PDF: {respCR.StatusCode}";
+                downloadMessage = $"✗ {L.T("pdf_generate_status_error", respCR.StatusCode)}";
                 downloadSuccess = false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error downloading order: {ex.Message}");
-            downloadMessage = "✗ Error al descargar el PDF. Inténtalo de nuevo.";
+            downloadMessage = $"✗ {L.T("pdf_download_error")}";
             downloadSuccess = false;
         }
         finally
@@ -1080,7 +1080,7 @@
 
             if (res.IsSuccess)
             {
-                cancelMessage = "✓ Pedido cancelado exitosamente. Redirigiendo...";
+                cancelMessage = $"✓ {L.T("order_cancel_success")}";
                 cancelSuccess = true;
                 OrderService.ClearCache();
                 await Task.Delay(1500);
@@ -1088,14 +1088,14 @@
             }
             else
             {
-                cancelMessage = "✗ No se pudo cancelar el pedido. Inténtalo de nuevo.";
+                cancelMessage = $"✗ {L.T("order_cancel_error")}";
                 cancelSuccess = false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error canceling order: {ex.Message}");
-            cancelMessage = "✗ Error al cancelar el pedido. Inténtalo de nuevo.";
+            cancelMessage = $"✗ {L.T("order_cancel_exception")}";
             cancelSuccess = false;
         }
         finally

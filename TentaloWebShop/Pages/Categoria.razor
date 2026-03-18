@@ -180,9 +180,13 @@ else
         L.OnLanguageChanged += OnLanguageChanged;
     }
 
-    private void OnLanguageChanged()
+    private async void OnLanguageChanged()
     {
-        InvokeAsync(StateHasChanged);
+        familyModel = Categories.GetFamily(family);
+        subs = Categories.GetSubs(family);
+        if (!string.IsNullOrWhiteSpace(sub))
+            subModel = Categories.GetSub(family, sub);
+        await InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnParametersSetAsync()

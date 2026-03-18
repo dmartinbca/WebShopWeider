@@ -636,7 +636,7 @@
                         fileName,
                         "application/pdf");
 
-                    downloadMessage = $"Factura {invoiceNo} descargada correctamente";
+                    downloadMessage = L.T("invoice_downloaded", invoiceNo);
                     downloadSuccess = true;
 
                     _ = Task.Delay(4000).ContinueWith(_ =>
@@ -647,20 +647,20 @@
                 }
                 else
                 {
-                    downloadMessage = $"No se pudo generar el PDF de la factura {invoiceNo}";
+                    downloadMessage = L.T("invoice_pdf_error", invoiceNo);
                     downloadSuccess = false;
                 }
             }
             else
             {
-                downloadMessage = $"Error al generar el PDF: {respCR.StatusCode}";
+                downloadMessage = L.T("pdf_generate_status_error", respCR.StatusCode);
                 downloadSuccess = false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error downloading invoice {invoiceNo}: {ex.Message}");
-            downloadMessage = $"Error al descargar la factura {invoiceNo}. Inténtalo de nuevo.";
+            downloadMessage = L.T("invoice_download_exception", invoiceNo);
             downloadSuccess = false;
         }
         finally
