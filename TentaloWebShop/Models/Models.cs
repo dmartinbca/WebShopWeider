@@ -238,6 +238,9 @@ namespace TentaloWebShop.Models
         [JsonPropertyName("ocultarDescuentoWebShop")]
         public bool OcultarDescuentoWebShop { get; set; }
 
+        [JsonPropertyName("ocultarPrecioWebShop")]
+        public bool OcultarPrecioWebShop { get; set; }
+
     }
 
     public class NavUserLogon
@@ -590,6 +593,9 @@ namespace TentaloWebShop.Models
 
         [JsonPropertyName("ocultarDescuentoWebShop")]
         public bool OcultarDescuentoWebShop { get; set; }
+
+        [JsonPropertyName("ocultarPrecioWebShop")]
+        public bool OcultarPrecioWebShop { get; set; }
 
 
     }

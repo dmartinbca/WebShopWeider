@@ -68,7 +68,8 @@ public class AuthService
                 PctDescMaterialProm = navUser.PctDescMaterialProm,
                 CreditoAnualAtleta = navUser.CreditoAnualAtleta,
                 CreditoConsumidoAtleta = navUser.CreditoConsumidoAtleta,
-                OcultarDescuentoWebShop = navUser.OcultarDescuentoWebShop
+                OcultarDescuentoWebShop = navUser.OcultarDescuentoWebShop,
+                OcultarPrecioWebShop = navUser.OcultarPrecioWebShop
             };
 
             // Guardar usuario
@@ -117,6 +118,7 @@ public class AuthService
                 CurrentUser.PctDescMaterialProm = customer.PctDescMaterialProm;
                 CurrentUser.CreditoAnualAtleta = customer.CreditoAnualAtleta;
                 CurrentUser.CreditoConsumidoAtleta = customer.CreditoConsumidoAtleta;
+                CurrentUser.OcultarPrecioWebShop = customer.OcultarPrecioWebShop;
 
                 try
                 {

@@ -30,5 +30,6 @@ public class User
     public decimal CreditoAnualAtleta { get; set; }
     public decimal CreditoConsumidoAtleta { get; set; }
     public bool OcultarDescuentoWebShop { get; set; }
+    public bool OcultarPrecioWebShop { get; set; }
 
 }

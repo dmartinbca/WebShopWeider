@@ -53,7 +53,7 @@
         <span class="price-title">EAN @Product.EAN13</span>
             
       
-        @if (!isCustomer)
+        @if (!ocultarPrecio)
         {
             <div class="product-price mb-3">
                 <span class="price-single">@Product.PriceFrom.ToString("N2", es) €</span>
@@ -281,7 +281,7 @@
     private bool isAdding = false;
     private decimal descuentoProducto = 0;
     private readonly CultureInfo es = CultureInfo.GetCultureInfo("es-ES");
-    private bool isCustomer => Auth.CurrentUser?.Tipo == "Customer";
+    private bool ocultarPrecio => Auth.CurrentUser?.OcultarPrecioWebShop == true;
 
     protected override void OnInitialized()
     {

@@ -58,7 +58,7 @@ else
                             @L.T("cart_pending_approval_notice")
                         </p>
                         <div class="result-summary" style="background: #fff3cd; border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;">
-                            @if (!isCustomer)
+                            @if (!ocultarPrecio)
                             {
                                 <div class="summary-item">
                                     <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
@@ -85,7 +85,7 @@ else
                             @L.T("cart_order_email_text")
                         </p>
                         <div class="result-summary">
-                            @if (!isCustomer)
+                            @if (!ocultarPrecio)
                             {
                                 <div class="summary-item">
                                     <strong>@L.T("cart_total"): @Cart.ImporteTotal.ToString("0.00") €</strong>
@@ -151,7 +151,7 @@ else
                                         <span class="badge bg-danger ms-2">@L.T("cart_pack")</span>
                                     </div>
                                     <div class="pack-actions">
-                                        @if (!isCustomer)
+                                        @if (!ocultarPrecio)
                                         {
                                             <span class="pack-total me-3">@packTotal.ToString("0.00") €</span>
                                         }
@@ -189,7 +189,7 @@ else
 
                                             <div class="pack-item-pricing">
                                                 <span class="item-quantity">@item.Quantity x</span>
-                                                @if (!isCustomer)
+                                                @if (!ocultarPrecio)
                                                 {
                                                     @if (item.DescuentoProducto > 0 && !ocultarDescuento)
                                                     {
@@ -235,7 +235,7 @@ else
                                             @item.Product.Name
                                         </a>
                                         <div class="cart-item-details">
-                                            @if (!isCustomer)
+                                            @if (!ocultarPrecio)
                                             {
                                                 @if (item.DescuentoProducto > 0 && !ocultarDescuento)
                                                 {
@@ -258,7 +258,7 @@ else
                                     </div>
 
                                     <div class="cart-item-price-section">
-                                        @if (!isCustomer)
+                                        @if (!ocultarPrecio)
                                         {
                                             <div class="cart-item-price">
                                                 @item.SubtotalWithDiscount.ToString("0.00") €
@@ -311,7 +311,7 @@ else
                                              loading="lazy">
                                         <div class="promo-material-info">
                                             <span class="fw-semibold">@prod.Name</span>
-                                            @if (!isCustomer)
+                                            @if (!ocultarPrecio)
                                             {
                                                 <span class="text-muted small">@prod.PriceFrom.ToString("0.00") €</span>
                                             }
@@ -505,7 +505,7 @@ else
 
                     <hr class="my-2">
 
-                    @if (!isCustomer)
+                    @if (!ocultarPrecio)
                     {
                         <div class="d-flex justify-content-between mb-2">
                             <span>@L.T("cart_subtotal")</span>
@@ -569,7 +569,7 @@ else
                                 <span class="small text-warning-emphasis">
                                     <i class="bi bi-info-circle me-1"></i>@L.T("cart_minimum_order")
                                 </span>
-                                @if (!isCustomer)
+                                @if (!ocultarPrecio)
                                 {
                                     <span class="small fw-semibold">
                                         @Cart.ImporteTotal.ToString("0.00") € / @LimitePedido.ToString("0.00") €
@@ -585,7 +585,7 @@ else
                                      aria-valuemax="100">
                                 </div>
                             </div>
-                            @if (!isCustomer)
+                            @if (!ocultarPrecio)
                             {
                                 <div class="text-center mt-2 small text-warning-emphasis">
                                     <i class="bi bi-cart-plus me-1"></i>
@@ -609,7 +609,7 @@ else
                     </button>
 
                     <div class="form-text mt-2 text-center">
-                        @if (!MeetsMinimumOrder && LimitePedido > 0 && !isCustomer)
+                        @if (!MeetsMinimumOrder && LimitePedido > 0 && !ocultarPrecio)
                         {
                             <span class="text-danger small">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
@@ -923,7 +923,7 @@ else
     private bool MeetsMinimumOrder => IsAtleta || LimitePedido <= 0 || Cart.ImporteTotal >= LimitePedido;
     private decimal AmountToMinimum => Math.Max(0, LimitePedido - Cart.ImporteTotal);
     private bool ocultarDescuento => Auth.CurrentUser?.OcultarDescuentoWebShop == true;
-    private bool isCustomer => Auth.CurrentUser?.Tipo == "Customer";
+    private bool ocultarPrecio => Auth.CurrentUser?.OcultarPrecioWebShop == true;
     private double ProgressPercentage => LimitePedido > 0
         ? Math.Min(100, (double)(Cart.ImporteTotal / LimitePedido) * 100)
         : 100;

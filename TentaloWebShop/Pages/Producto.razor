@@ -56,7 +56,7 @@ else
         <div class="col-12 col-md-7">
             <h1>@product.Name</h1>
             <sm>EAN @product.EAN13</sm> 
-            @if (!isCustomer)
+            @if (!ocultarPrecio)
             {
                 <div class="mb-2 d-flex align-items-baseline gap-2">
                     <!-- ✅ PRECIO CON DESCUENTO -->
@@ -691,7 +691,7 @@ else
     private List<Stock> productStocks = new List<Stock>();
     private bool loadingStock = false;
     private decimal descuentoProducto = 0;
-    private bool isCustomer => Auth.CurrentUser?.Tipo == "Customer";
+    private bool ocultarPrecio => Auth.CurrentUser?.OcultarPrecioWebShop == true;
 
     protected override void OnInitialized()
     {

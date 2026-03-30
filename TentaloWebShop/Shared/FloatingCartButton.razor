@@ -12,7 +12,7 @@
             <div class="floating-cart-content">
                 <i class="bi bi-bag-fill"></i>
                 <div class="floating-cart-info">
-                    @if (Auth.CurrentUser?.Tipo != "Customer")
+                    @if (Auth.CurrentUser?.OcultarPrecioWebShop != true)
                     {
                         <div class="floating-cart-price">@Cart.ImporteTotal.ToString("0.00") €</div>
                     }

@@ -70,7 +70,7 @@
                             <div class="product-selector-item">
                                 <div class="product-info">
                                     <span class="product-name">@L.TranslateProduct(line.Description)</span>
-                                    @if (Auth.CurrentUser?.Tipo != "Customer")
+                                    @if (Auth.CurrentUser?.OcultarPrecioWebShop != true)
                                     {
                                         <span class="product-price">
                                             @if (catalogPrice > 0)
@@ -128,7 +128,7 @@
                                 </div>
                                 <div class="gift-info">
                                     <span class="gift-name">@L.TranslateProduct(line.Description)</span>
-                                    @if (Auth.CurrentUser?.Tipo != "Customer")
+                                    @if (Auth.CurrentUser?.OcultarPrecioWebShop != true)
                                     {
                                         <span class="gift-value">
                                             @L.T("pack_value")
@@ -159,7 +159,7 @@
                     </div>
                 }
 
-                @if (Auth.CurrentUser?.Tipo != "Customer")
+                @if (Auth.CurrentUser?.OcultarPrecioWebShop != true)
                 {
                     <div class="pack-pricing">
                         @{
