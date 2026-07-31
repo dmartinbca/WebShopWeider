@@ -616,6 +616,13 @@ else
                                 @L.T("cart_minimum_warning", LimitePedido.ToString("0.00"))
                             </span>
                         }
+                        else if (promoExceeded)
+                        {
+                            <span class="text-danger small">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                @L.T("promo_material_exceeded")
+                            </span>
+                        }
                         else if (!CanProceedToCheckout && Auth.CurrentUser?.CustomerAddres?.Any() == true)
                         {
                             <span class="text-warning small">
@@ -931,9 +938,12 @@ else
     // Verificar si un item es parte de un pack
     private bool IsPartOfPack(CartItem item) => !string.IsNullOrWhiteSpace(item.PackId);
 
-    // Validación para proceder al checkout
+    // Validación para proceder al checkout.
+    // promoExceeded se evalúa sobre el carrito COMPLETO, así que cubre el material
+    // promocional entre por donde entre: tarjeta de material promocional, catálogo,
+    // cambio de cantidad con el +/-, pack o pedido guardado restaurado.
     private bool CanProceedToCheckout =>
-        MeetsMinimumOrder &&
+        MeetsMinimumOrder && !promoExceeded &&
         (Auth.CurrentUser?.CustomerAddres?.Any() != true || !string.IsNullOrEmpty(selectedAddressId));
 
     // Agrupar items por pack
@@ -1092,6 +1102,16 @@ else
         {
             await JS.InvokeVoidAsync("showToast", "error", L.T("cart_minimum_order"),
                 L.T("cart_minimum_warning", LimitePedido.ToString("0.00")));
+            return;
+        }
+
+        // Cupo de material promocional (% Desc. Material Prom. del cliente). Se repite aquí
+        // y no solo en CanProceedToCheckout porque el botón se deshabilita por estado de la
+        // vista: esto es lo que impide de verdad que salga un pedido por encima del cupo.
+        if (promoExceeded)
+        {
+            await JS.InvokeVoidAsync("showToast", "error", L.T("promo_material_title"),
+                L.T("promo_material_exceeded"));
             return;
         }
 
